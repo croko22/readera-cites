@@ -5,6 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    open: '/docs/index.html'
-  }
+    open: '/dist/index.html'
+  },
 })
