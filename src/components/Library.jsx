@@ -21,7 +21,7 @@ export const Library = () => {
                   <Link to="/book" state={libro} key={index} className="list-group-item list-group-item-action flex-column align-items-start">
                       <div className="d-flex w-100 justify-content-between">
                         <h5 className="mb-1">{libro.data.doc_file_name_title} {libro.data.doc_favorites_time!==0 ? <span className="btn btn-warning">Fav</span> : <span></span>}</h5>
-                        <small>{libro.citations.length} citas</small>
+                        <small>{libro.citations.length} cites</small>
                       </div>
                   </Link>
         ))}

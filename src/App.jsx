@@ -6,9 +6,8 @@ import {Library} from './components/Library';
 import {Book} from './components/Book';
 import {Footer} from './components/Footer';
 import {Upload} from './components/Upload';
-
 import { ToTheTopB } from './components/ToTheTopB';
-//APP DE CITAS DE READERA
+//READERA CITES
 function App() {
   return(
     <>
