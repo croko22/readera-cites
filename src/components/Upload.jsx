@@ -33,14 +33,13 @@ export const Upload = () => {
 
   return (
     <div className="container">
-         <div className="col"></div>
-
+        <div className="col"></div>
+        {/* Here is the main file administrator of the app*/}
          <div className="col">
           <h1 className="text-center">Upload Json</h1>
           <input className="form-control form-control-lg" type="file" onChange={handleChange} />
           <button className="btn btn-lg btn-success mt-1" onClick={setLocalStorage}>Save library</button>
          </div>
-        {/* Mostrar info de tu libreria N de libros, favoritos, etc */}
          <div className="col"></div>
     </div>
   )
