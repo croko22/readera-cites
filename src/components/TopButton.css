@@ -2,11 +2,12 @@
     position: fixed;
     bottom: 80px;
     right: 20px;
-    font-size: 50px;
+    font-size: 40px;
     background: #000;
     color: white;
     cursor: pointer;
     border-radius: 100px;
+    padding: 5px;
     border: none;
     box-shadow: 0 5px 10px #ccc;
   }

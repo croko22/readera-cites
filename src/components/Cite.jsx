@@ -11,11 +11,11 @@ export const Cite = ({cite}) => {
     <div>
         <li className={`list-group-item ${colors[cite.note_mark]}`}>
             <div className="d-flex justify-content-between align-items-center">
-                <h5>Pagina: {cite.note_page}</h5>
+                <h6>Page: {cite.note_page}</h6>
                 <FaCopy style={{cursor:'pointer'}} onClick={() => copyCite(cite.note_body)}/>
             </div>
             <p className="mb-1">{cite.note_body}</p>
-            <small >{(cite.note_extra)?`Nota: ${cite.note_extra}`:""}</small>
+            {cite.note_extra&&<small ><b>Note:</b> {cite.note_extra}</small>}
         </li>
     </div>
   )

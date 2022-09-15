@@ -27,11 +27,10 @@ export const ToTheTopB = () => {
     return (
       <>
         {showButton && (
-          <button onClick={scrollToTop} className="back-to-top">
+          <button onClick={scrollToTop} className="back-to-top" aria-label="Top" aria-required="true">
             &#8679;
           </button>
         )}
-        {/* &#8679; is used to create the upward arrow */}
       </>
     );
 }
