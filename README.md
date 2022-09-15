@@ -1,10 +1,15 @@
 # readera-cites
 Cites viewer from Readera Json files
-- Load the JSON dile from your .back files 
+- Load the JSON file from your .back files 
 
 ## Features
-- View your cites
+- Visualize your books 
+- View of your quotes and notes
+- Filter and search beetween them
 - Copy them
 
 ## Coming soon
-- Export notes from book into md
+- [ ] Export quotes and notes into md
+- [ ] Search and filter books (favorites, quotes number and latest)
+- [ ] Multilanguage app
+- [ ] Share your quotes and notes (twitter)
