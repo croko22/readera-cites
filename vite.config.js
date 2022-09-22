@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    open: '/index.html'
+    open: '/'
   }, 
   build: {
     outDir: 'C:/Users/KEVIN/Desktop/Programacion/0 Portfolio/readera-cites/build'

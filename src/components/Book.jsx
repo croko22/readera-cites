@@ -20,7 +20,9 @@ export const Book = () => {
     (n===7) ? setCites(Book.citations) : setCites(Book.citations.filter(cite=>cite.note_mark===n))
   }
 
-  const copyCites = (text)=>{
+  const copyCites = ()=>{
+    let text=''
+    for(const a in Cites) text+=`- ${Cites[a].note_body}\n`
     navigator.clipboard.writeText(text);
   };
 
@@ -39,7 +41,7 @@ export const Book = () => {
         <span onClick={() => filterColors(4)} className="btn btn-primary m-1">{Book.citations.filter(cite=>cite.note_mark===4).length}</span>
         </span>
         {/* Export quotes button */}
-        <div className='btn btn-dark m-1' onClick={() => copyCites(Cites)}>
+        <div className='btn btn-dark m-1' onClick={() => copyCites()}>
           <FaCopy/> Copy all quotes to the clipboard 
         </div>
       </div>
