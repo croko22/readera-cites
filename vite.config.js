@@ -6,8 +6,5 @@ export default defineConfig({
   plugins: [react()],
   server: {
     open: '/'
-  }, 
-  build: {
-    outDir: 'C:/Users/KEVIN/Desktop/Programacion/0 Portfolio/readera-cites/build'
   }
 })
