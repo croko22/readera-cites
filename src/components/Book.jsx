@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Toastify from 'toastify-js'
 import { useLocation } from 'react-router-dom';
 import { FaCopy } from "react-icons/fa";
 import { CitesList } from './CitesList';
@@ -24,6 +25,14 @@ export const Book = () => {
     let text=''
     for(const a in Cites) text+=`- ${Cites[a].note_body}\n`
     navigator.clipboard.writeText(text);
+    Toastify({
+      text: "All quotes copied to clipboard", 
+      close: true,
+      gravity: "top", 
+      position: "left", 
+      stopOnFocus: true, 
+      duration: 3000
+    }).showToast();
   };
 
   return (

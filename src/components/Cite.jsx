@@ -1,10 +1,20 @@
 import React from 'react'
+import Toastify from 'toastify-js'
+
 import { FaCopy } from "react-icons/fa";
 export const Cite = ({cite}) => {
     const colors = ['list-group-item-secondary','list-group-item-danger','list-group-item-warning','list-group-item-success','list-group-item-primary']
   
     const copyCite = (text)=>{
         navigator.clipboard.writeText(text);
+        Toastify({
+            text: "Quote copied to clipboard", 
+            close: true,
+            gravity: "top", 
+            position: "left", 
+            stopOnFocus: true, 
+            duration: 3000
+        }).showToast();
     };
   
     return (
