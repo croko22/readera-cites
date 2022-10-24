@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FaArrowUp } from "react-icons/fa";
 import "./TopButton.css";
 
 import React from 'react'
@@ -27,8 +28,8 @@ export const ToTheTopB = () => {
     return (
       <>
         {showButton && (
-          <button onClick={scrollToTop} className="back-to-top" aria-label="Top" aria-required="true">
-            &#8679;
+          <button onClick={scrollToTop} className="back-to-top">
+            <FaArrowUp />
           </button>
         )}
       </>

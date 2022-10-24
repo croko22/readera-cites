@@ -1,6 +1,7 @@
-# readera-cites
-Cites viewer from Readera Json files
+# Readera-book notes & quotes
+Book data viewer from Readera Json files
 - Load the JSON file from your .back files 
+- Visualize search, filter and export your data
 
 ## Features
 - Visualize your books 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import  { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import Toastify from 'toastify-js'
 
 export const Upload = () => {
   const [files, setFiles] = useState();
@@ -22,25 +23,30 @@ export const Upload = () => {
       console.error(e)
     }
   }
-
+  //Redirect to the home page
   const navigate = useNavigate();
-
   React.useEffect(() => {
     if (redirect) {
       navigate('/');
     }
+    Toastify({
+      text: "All quotes copied to clipboard", 
+      close: true,
+      gravity: "top", 
+      position: "left", 
+      stopOnFocus: true, 
+      duration: 3000
+    }).showToast();
   });
 
   return (
-    <div className="container">
-        <div className="col"></div>
-        {/* Here is the main file administrator of the app*/}
-         <div className="col">
-          <h1 className="text-center">Upload Json</h1>
-          <input className="form-control form-control-lg" type="file" onChange={handleChange} />
-          <button className="btn btn-lg btn-success mt-1" onClick={setLocalStorage}>Save library</button>
-         </div>
-         <div className="col"></div>
+    <div className="container mt-5">
+      <div className="col">
+        <h1 className="text-center mb-3">Upload Json File</h1>
+        <p>Visualize and manage your readings data from <b>library.json</b> file inside your ReadEra .bak file</p>
+        <input className="form-control form-control-lg" type="file" accept=".json" onChange={handleChange} />
+        <button className="btn btn-lg btn-success mt-3" onClick={setLocalStorage}>Save library</button>
+      </div>
     </div>
   )
 }
