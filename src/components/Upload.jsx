@@ -28,15 +28,14 @@ export const Upload = () => {
   React.useEffect(() => {
     if (redirect) {
       navigate('/');
+      //Notification of loaded files
+      Toastify({
+        text: "All data loaded succesfully!", 
+        position: "top-left", 
+        duration: 1500,
+        style: {background: "linear-gradient(to right, #00b09b, #96c93d)"}
+      }).showToast();
     }
-    Toastify({
-      text: "All quotes copied to clipboard", 
-      close: true,
-      gravity: "top", 
-      position: "left", 
-      stopOnFocus: true, 
-      duration: 3000
-    }).showToast();
   });
 
   return (
