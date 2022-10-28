@@ -21,7 +21,6 @@ export const Library = () => {
     setFavorites(Favorites=>!Favorites) 
   }
 
-  //setBooks(Books.filter(book)=> book.data.doc_favorites_time != 0 )
   // const sortedBooks=Books.sort((a, b) => b.citations.length - a.citations.length))
   return (
     <div className="container mt-3">
@@ -29,9 +28,11 @@ export const Library = () => {
       <button className="mt-1 p-2 border-0" onClick={toggleFavs}>Filter by starred {Favorites ? <FaStar/> : <FaRegStar/>}</button>  
       <div className="list-group mt-3 mb-3">
         {
-          //Filtering books by favorites
-          Favorites ? Books?.filter((book)=> book.data.doc_favorites_time != 0 ).map((libro, index) => (<BookCard libro={libro} key={index} />)) 
-          : Books?.map((libro, index) => (<BookCard libro={libro} key={index} />))
+          //Filtering books by favorites and searchterm
+          Favorites ? Books?.filter(book=> book.data.doc_favorites_time != 0)
+            .filter(book=> book.data.doc_file_name_title.toLowerCase().includes(SearchText))
+            .map((libro, index) => (<BookCard libro={libro} key={index} />)) 
+          : Books?.filter(book=> book.data.doc_file_name_title.toLowerCase().includes(SearchText)).map((libro, index) => (<BookCard libro={libro} key={index} />))
         }
       </div>
     </div>

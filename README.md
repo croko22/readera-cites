@@ -7,10 +7,11 @@ Book data viewer from Readera Json files
 - Visualize your books 
 - View of your quotes and notes
 - Filter and search beetween them
-- Copy them
+- Export your notes to the clipboard
 
 ## Coming soon
-- [ ] Export quotes and notes into md
-- [ ] Search and filter books (favorites, quotes number and latest)
+- [x] Export quotes and notes to the clipboard
+- [x] Search and filter books (favorites and by search)
+- [ ] Sort books by (date, number of notes)
 - [ ] Multilanguage app
 - [ ] Share your quotes and notes (twitter)
