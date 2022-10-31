@@ -14,12 +14,10 @@ export const Library = () => {
   useEffect(() => {
     const storedData = localStorage.getItem("Books");
      if (!storedData) navigate('/upload'); 
-     else setBooks(JSON.parse(storedData).docs.filter((book)=> book.citations.length > 10))
+     else setBooks(JSON.parse(storedData))
   })
 
-  const toggleFavs = () => {
-    setFavorites(Favorites=>!Favorites) 
-  }
+  const toggleFavs = () => { setFavorites(Favorites=>!Favorites) }
 
   // const sortedBooks=Books.sort((a, b) => b.citations.length - a.citations.length))
   return (

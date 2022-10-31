@@ -6,16 +6,13 @@ import { CitesList } from './CitesList';
 import { Search } from './Search';
 
 export const Book = () => {
-  //Scroll to the top 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   //Book data extracting
   const Book = useLocation().state;
   const [Cites,setCites] = useState(Book.citations)
+  //Scroll to the top 
+  useEffect(() => {window.scrollTo(0, 0);}, []); 
 
-  //Filtering and searching functionality
+  //Filtering and searching
   const [searchText, setSearchText] = useState("")
   const filterColors=(n)=>{
     (n===7) ? setCites(Book.citations) : setCites(Book.citations.filter(cite=>cite.note_mark===n))
@@ -50,9 +47,7 @@ export const Book = () => {
         <span onClick={() => filterColors(4)} className="btn btn-primary m-1">{Book.citations.filter(cite=>cite.note_mark===4).length}</span>
         </span>
         {/* Export quotes button */}
-        <div className='btn btn-dark m-1' onClick={() => copyCites()}>
-          <FaCopy/> Copy all quotes to the clipboard 
-        </div>
+        <div className='btn btn-dark m-1' onClick={() => copyCites()}><FaCopy/> Copy all quotes to the clipboard</div>
       </div>
       <CitesList cites={Cites.filter((cite)=> cite.note_body.toLowerCase().includes(searchText))}/>
     </div>
