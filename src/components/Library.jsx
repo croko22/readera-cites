@@ -1,36 +1,50 @@
 import React, {useEffect,useState} from "react";
 import { useNavigate } from "react-router-dom";
-import { FaRegStar } from "react-icons/fa";
-import { FaStar } from "react-icons/fa";
+import { FaRedo, FaRegStar, FaStar, FaSortAmountDown } from "react-icons/fa";
 import {Search} from "./Search";
 import { BookCard } from "./BookCard";
 
 export const Library = () => {
-  const [Books,setBooks] = useState(null)
+  const storedData = JSON.parse(localStorage.getItem("Books"));
+  const [Books,setBooks] = useState(storedData)
   const [Favorites,setFavorites] = useState(false)
+  const [isSorting,setIsorting] = useState(false)
   const [SearchText,setSearchText] = useState('')
-  //Cargar la informacion de los libros desde localstorage
+  
   const navigate = useNavigate(); 
   useEffect(() => {
-    const storedData = localStorage.getItem("Books");
-     if (!storedData) navigate('/upload'); 
-     else setBooks(JSON.parse(storedData))
-  })
+    if (!storedData) navigate('/upload'); 
+  },[])
 
-  const toggleFavs = () => { setFavorites(Favorites=>!Favorites) }
+  const toggleFavs = () => { 
+    setFavorites(Favorites=>!Favorites) 
+    if(!Favorites) setBooks(Books.filter(book=> book.data.doc_favorites_time != 0))
+    else restoreChanges()
+  }
 
-  // const sortedBooks=Books.sort((a, b) => b.citations.length - a.citations.length))
+  const sortByNofQuotes = () => {
+    setIsorting(isSorting=>!isSorting)
+    if(!isSorting) setBooks(Books.sort((a, b) => b.citations.length - a.citations.length))
+    else restoreChanges()
+  }
+
+  const restoreChanges = () => {
+    setBooks(storedData)
+    setFavorites(false)
+    setIsorting(false)
+  }
+
   return (
     <div className="container mt-3">
       <Search handleSearchNote={setSearchText}/>
-      <button className="mt-1 p-2 border-0" onClick={toggleFavs}>Filter by starred {Favorites ? <FaStar/> : <FaRegStar/>}</button>  
+      <button className="btn btn-outline-dark btn-sm mt-2" onClick={toggleFavs}>Filter by starred {Favorites ? <FaStar/> : <FaRegStar/>}</button>  
+      <button className="btn btn-outline-dark btn-sm mt-2" onClick={sortByNofQuotes}>Sort by number of quotes <FaSortAmountDown/></button>
+      <button className="btn btn-outline-dark btn-sm mt-2" onClick={restoreChanges}>Restore changes <FaRedo/></button>
+      
       <div className="list-group mt-3 mb-3">
         {
-          //Filtering books by favorites and searchterm
-          Favorites ? Books?.filter(book=> book.data.doc_favorites_time != 0)
-            .filter(book=> book.data.doc_file_name_title.toLowerCase().includes(SearchText))
-            .map((libro, index) => (<BookCard libro={libro} key={index} />)) 
-          : Books?.filter(book=> book.data.doc_file_name_title.toLowerCase().includes(SearchText)).map((libro, index) => (<BookCard libro={libro} key={index} />))
+          Books?.filter(book=> book.data.doc_file_name_title.toLowerCase().includes(SearchText))
+          .map((libro, index) => (<BookCard libro={libro} key={index} />)) 
         }
       </div>
     </div>
