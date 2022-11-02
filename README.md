@@ -12,13 +12,13 @@ Book data viewer from Readera Json files
 ## Usage
 ### Upload your json file
 - In the ReadEra app go to **Backup and restore** section and export a security copy 
-![ReadEra backup file]()
+![ReadEra backup file](https://github.com/kchambit/readera-cites/blob/main/docs/img/bak%20file.jpg)
 
 - That contains a .bak file, inside it there is a file called **library.json** that contains your books data
-![Library json file]()
+![Library json file](https://github.com/kchambit/readera-cites/blob/main/docs/img/json%20file.png)
 
 - Upload the file to the app and wait for the data to be loaded, then you're able to visualize and export your data
-![App screenshot]()
+![App screenshot](https://github.com/kchambit/readera-cites/blob/main/docs/img/demo.gif)
 
 ## Development
 ### 1.0 Version
