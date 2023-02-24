@@ -30,10 +30,10 @@ Book data viewer from Readera Json files
 - [x] Export quotes and notes to the clipboard
 - [x] Search and filter books (favorites and by search)
 - [x] Sort books by (date, number of notes)
+- [ ] Collapse -> Showing more info about the book
 
 ### 2.0 Version (Coming soon) 
-- [ ] Multilanguage app
-- [ ] Show more info about the book
-- [ ] Export to md file (Obsidian, Logseq)
 - [ ] Share your quotes and notes (twitter)
-- [ ] Save and share notes with a link
+- [ ] Save and share notes with a code 
+- [ ] Export to md file (Obsidian)
+- [ ] Multilanguage app
