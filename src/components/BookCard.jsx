@@ -15,8 +15,17 @@ export const BookCard = ({ libro, bookKey }) => {
       </Accordion.Header>
 
       <Accordion.Body>
-        <p className="mb-1">
-          <b>Author:</b> {libro.data.doc_authors}
+        <p className="mb-1 d-flex justify-content-between">
+          <span>
+            <b>Author:</b> {libro.data.doc_authors}
+          </span>
+          <span>
+            Rating:{" "}
+            {libro.data.doc_rating > 0
+              ? "⭐".repeat(libro.data.doc_rating)
+              : "None"}
+          </span>
+          <span></span>
         </p>
         <ProgressBar
           now={Math.round(JSON.parse(libro.data.doc_position).ratio * 100)}
@@ -25,7 +34,7 @@ export const BookCard = ({ libro, bookKey }) => {
           )}%`}
         />
         <Link
-          to="/book"
+          to={`/book/${libro.data.doc_md5}`}
           state={libro}
           className="mt-2 list-group-item list-group-item-action flex-column align-items-start"
         >
