@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from "react";
 import Toastify from "toastify-js";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { FaCopy } from "react-icons/fa";
 import { CitesList } from "./CitesList";
 import { Search } from "./Search";
 
 export const Book = () => {
   //*Book data extracting
-  const Book = useLocation().state;
+  const { id } = useParams();
+  const Book =
+    useLocation().state ||
+    JSON.parse(localStorage.getItem("Books")).filter(
+      (book) => book.data.doc_md5 === id
+    )[0];
   const [Cites, setCites] = useState(Book.citations);
   //*Scroll to the top
   useEffect(() => {
     window.scrollTo(0, 0);
+    console.log(Book.data.doc_md5);
   }, []);
 
   //*Filtering and searching
