@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaRedo, FaRegStar, FaStar, FaSortAmountDown } from "react-icons/fa";
-import { Search } from "./Search";
-import { BookCard } from "./BookCard";
+import { Search } from "../components/Search";
+import { BookCard } from "../components/BookCard";
 import { Accordion } from "react-bootstrap";
 
 export const Library = () => {

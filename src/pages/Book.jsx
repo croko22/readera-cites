@@ -2,22 +2,21 @@ import React, { useEffect, useState } from "react";
 import Toastify from "toastify-js";
 import { useLocation, useParams } from "react-router-dom";
 import { FaCopy } from "react-icons/fa";
-import { CitesList } from "./CitesList";
-import { Search } from "./Search";
+import { CitesList } from "../components/CitesList";
+import { Search } from "../components/Search";
 
 export const Book = () => {
   //*Book data extracting
   const { id } = useParams();
   const Book =
     useLocation().state ||
-    JSON.parse(localStorage.getItem("Books")).filter(
+    JSON.parse(localStorage.getItem("Books")).find(
       (book) => book.data.doc_md5 === id
-    )[0];
+    );
   const [Cites, setCites] = useState(Book.citations);
   //*Scroll to the top
   useEffect(() => {
     window.scrollTo(0, 0);
-    console.log(Book.data.doc_md5);
   }, []);
 
   //*Filtering and searching
@@ -43,13 +42,13 @@ export const Book = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container mt-1">
       <h3>Book: {Book.data.doc_title}</h3>
       <Search handleSearchNote={setSearchText} />
       {/* Filtering by color */}
       <div className="mt-1 d-flex justify-content-between">
         <span className="h4">
-          Filter by color:
+          Colors:
           <span onClick={() => filterColors(7)} className="btn btn-info m-1">
             All {Book.citations.length}
           </span>
@@ -73,9 +72,9 @@ export const Book = () => {
           </span>
         </span>
         {/* Export quotes button */}
-        <div className="btn btn-dark m-1" onClick={() => copyCites()}>
-          <FaCopy /> Copy all quotes to the clipboard
-        </div>
+        <button className="btn btn-dark m-1" onClick={() => copyCites()}>
+          Copy all <FaCopy />
+        </button>
       </div>
       <CitesList
         cites={Cites.filter((cite) =>
