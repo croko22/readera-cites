@@ -12,6 +12,7 @@ dist
 build
 dist-ssr
 *.local
+.fuse*
 
 # Editor directories and files
 .vscode/*
