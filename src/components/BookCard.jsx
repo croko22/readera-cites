@@ -4,14 +4,14 @@ import { Link } from "react-router-dom";
 export const BookCard = ({ libro, bookKey }) => {
   return (
     <Accordion.Item eventKey={bookKey}>
-      <Accordion.Header>
-        <h5 className="mb-1">
-          {libro.data.doc_file_name_title}{" "}
+      <Accordion.Header as="div">
+        <h5>{libro.data.doc_file_name_title}</h5>
+        <span>
           {libro.data.doc_favorites_time !== 0 && (
             <span className="btn btn-warning">Fav</span>
           )}
-        </h5>
-        <small>{libro.citations.length} quotes</small>
+          <small>{libro.citations.length} quotes</small>
+        </span>
       </Accordion.Header>
 
       <Accordion.Body>
