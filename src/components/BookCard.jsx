@@ -10,7 +10,7 @@ import { RiArrowDropDownLine } from "react-icons/ri";
 
 export const BookCard = ({ libro, bookKey }) => {
   return (
-    <Card eventKey={bookKey}>
+    <Card>
       <Card.Header as="div">
         <div className="d-flex w-100 justify-content-between">
           <Link
