@@ -80,6 +80,7 @@ export const Book = () => {
         cites={Cites.filter((cite) =>
           cite.note_body.toLowerCase().includes(searchText)
         )}
+        totalPages={Math.ceil(Cites.length / 10 + 1)}
       />
     </div>
   );
