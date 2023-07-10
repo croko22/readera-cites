@@ -18,7 +18,7 @@ export const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              CrokoDev
+              Croko
             </a>
             .
           </p>
