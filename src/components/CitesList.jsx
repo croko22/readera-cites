@@ -12,23 +12,10 @@ export const CitesList = ({ cites, totalPages = 10 }) => {
   let endPage = Math.min(page + Math.floor(pagesToShow / 2), totalPages - 1);
 
   const paginate = () => {
-    //TODO: Add elipsis when there are more than 5 pages
     return (
       <Pagination className="justify-content-center">
         <Pagination.First onClick={() => setPage(1)} />
         <Pagination.Prev onClick={() => setPage(page - 1)} />
-        {/* {Array(totalPages - 1)
-          .fill("")
-          .map((_, i) => (
-            <Pagination.Item
-              key={i}
-              active={i + 1 === page}
-              href="#"
-              onClick={() => setPage(i + 1)}
-            >
-              {i + 1}
-            </Pagination.Item>
-          ))} */}
         <Pagination.Ellipsis />
         {Array(endPage - startPage + 1)
           .fill("")
@@ -53,11 +40,6 @@ export const CitesList = ({ cites, totalPages = 10 }) => {
     <div>
       {paginate()}
       <ul className="list-group mt-2 mb-3">
-        {/* //? Search works */}
-        {/* {cites.map((cite, index) => (
-          <Cite key={index} cite={cite} />
-        ))} */}
-
         {cites.slice((page - 1) * 10, page * 10).map((cite, index) => (
           <Cite key={index} cite={cite} />
         ))}
