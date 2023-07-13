@@ -6,14 +6,18 @@ import { Pagination } from "react-bootstrap";
 //TODO: Add an option to view as a grid and then expand to a modal
 
 export const CitesList = ({ cites, totalPages = 10 }) => {
-  const [page, setPage] = React.useState(0);
+  const [page, setPage] = React.useState(1);
+  const pagesToShow = 12;
+  let startPage = Math.max(page - Math.floor(pagesToShow / 2), 1);
+  let endPage = Math.min(page + Math.floor(pagesToShow / 2), totalPages - 1);
 
   const paginate = () => {
+    //TODO: Add elipsis when there are more than 5 pages
     return (
-      <Pagination>
+      <Pagination className="justify-content-center">
         <Pagination.First onClick={() => setPage(1)} />
         <Pagination.Prev onClick={() => setPage(page - 1)} />
-        {Array(totalPages - 1)
+        {/* {Array(totalPages - 1)
           .fill("")
           .map((_, i) => (
             <Pagination.Item
@@ -24,7 +28,21 @@ export const CitesList = ({ cites, totalPages = 10 }) => {
             >
               {i + 1}
             </Pagination.Item>
+          ))} */}
+        <Pagination.Ellipsis />
+        {Array(endPage - startPage + 1)
+          .fill("")
+          .map((_, i) => (
+            <Pagination.Item
+              key={i}
+              active={i + startPage === page}
+              href="#"
+              onClick={() => setPage(i + startPage)}
+            >
+              {i + startPage}
+            </Pagination.Item>
           ))}
+        <Pagination.Ellipsis />
         <Pagination.Next onClick={() => setPage(page + 1)} />
         <Pagination.Last onClick={() => setPage(totalPages - 1)} />
       </Pagination>
