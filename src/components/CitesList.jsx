@@ -1,19 +1,16 @@
-import React from "react";
+import { useState } from "react";
 import { Cite } from "./Cite";
 import { Pagination } from "react-bootstrap";
 
-//TODO: Decidir entre paginacion o scroll infinito o grid
-//TODO: Add an option to view as a grid and then expand to a modal
-
 export const CitesList = ({ cites, totalPages = 10 }) => {
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = useState(1);
   const pagesToShow = 12;
   let startPage = Math.max(page - Math.floor(pagesToShow / 2), 1);
   let endPage = Math.min(page + Math.floor(pagesToShow / 2), totalPages - 1);
 
   const paginate = () => {
     return (
-      <Pagination className="justify-content-center">
+      <Pagination className="justify-content-center" size="sm">
         <Pagination.First onClick={() => setPage(1)} />
         <Pagination.Prev onClick={() => page > 1 && setPage(page - 1)} />
         <Pagination.Ellipsis />

@@ -1,4 +1,3 @@
-import React from "react";
 import { FaBookOpen, FaFileUpload } from "react-icons/fa";
 export const Navbar = () => {
   return (
@@ -9,13 +8,13 @@ export const Navbar = () => {
       <div className="container-fluid">
         <div className="navbar-header">
           <a className="navbar-brand" href="/">
-            <FaBookOpen className="text-white mb-1" /> ReadEra book notes &
-            quotes
+            <FaBookOpen className="text-white mb-1" />
+            <span> ReadEra book notes & quotes</span>
           </a>
         </div>
         <a className="btn btn-dark navbar-btn" href="/upload">
           <FaFileUpload className="text-white mb-1" />
-          UPLOAD BOOK DATA
+          Upload backup
         </a>
       </div>
     </nav>
