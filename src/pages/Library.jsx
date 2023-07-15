@@ -10,7 +10,7 @@ export const Library = () => {
   const [Books, setBooks] = useState(storedData);
   const [Favorites, setFavorites] = useState(false);
   const [isSorting, setIsorting] = useState(false);
-  const [SearchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState("");
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -39,7 +39,7 @@ export const Library = () => {
 
   return (
     <div className="container mt-3">
-      <Search handleSearchNote={setSearchText} />
+      <Search searchText={searchText} setSearchText={setSearchText} />
       <button className="btn btn-outline-dark btn-sm mt-2" onClick={toggleFavs}>
         Filter by starred {Favorites ? <FaStar /> : <FaRegStar />}
       </button>
@@ -58,7 +58,7 @@ export const Library = () => {
 
       <Accordion defaultActiveKey="0">
         {Books?.filter((book) =>
-          book.data.doc_file_name_title.toLowerCase().includes(SearchText)
+          book.data.doc_file_name_title.toLowerCase().includes(searchText)
         ).map((libro, index) => (
           <BookCard libro={libro} bookKey={index} key={index} />
         ))}

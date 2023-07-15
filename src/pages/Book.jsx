@@ -44,7 +44,7 @@ export const Book = () => {
   return (
     <div className="container mt-1">
       <h3>Book: {Book.data.doc_title}</h3>
-      <Search handleSearchNote={setSearchText} />
+      <Search searchText={searchText} setSearchText={setSearchText} />
       {/* Filtering by color */}
       <div className="mt-1 d-flex justify-content-between">
         <span className="h4">
