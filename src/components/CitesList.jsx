@@ -15,7 +15,7 @@ export const CitesList = ({ cites, totalPages = 10 }) => {
     return (
       <Pagination className="justify-content-center">
         <Pagination.First onClick={() => setPage(1)} />
-        <Pagination.Prev onClick={() => setPage(page - 1)} />
+        <Pagination.Prev onClick={() => page > 1 && setPage(page - 1)} />
         <Pagination.Ellipsis />
         {Array(endPage - startPage + 1)
           .fill("")
@@ -30,7 +30,9 @@ export const CitesList = ({ cites, totalPages = 10 }) => {
             </Pagination.Item>
           ))}
         <Pagination.Ellipsis />
-        <Pagination.Next onClick={() => setPage(page + 1)} />
+        <Pagination.Next
+          onClick={() => page < totalPages - 1 && setPage(page + 1)}
+        />
         <Pagination.Last onClick={() => setPage(totalPages - 1)} />
       </Pagination>
     );
