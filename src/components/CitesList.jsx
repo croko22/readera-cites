@@ -4,7 +4,7 @@ import { Pagination } from "react-bootstrap";
 
 export const CitesList = ({ cites, totalPages = 10 }) => {
   const [page, setPage] = useState(1);
-  const pagesToShow = 12;
+  const pagesToShow = totalPages > 10 ? 10 : totalPages;
   let startPage = Math.max(page - Math.floor(pagesToShow / 2), 1);
   let endPage = Math.min(page + Math.floor(pagesToShow / 2), totalPages - 1);
 
