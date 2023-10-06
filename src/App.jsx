@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 
-import { Navbar } from "./components/Navbar";
+import { Header } from "./components/Header";
 import { Library } from "./pages/Library";
 import { Book } from "./pages/Book";
 import { Upload } from "./pages/Upload";
@@ -11,7 +11,7 @@ function App() {
   return (
     <>
       <ToTheTopB />
-      <Navbar />
+      <Header />
       <div className="min-vh-100">
         <Routes>
           <Route path="/" element={<Library />} />
