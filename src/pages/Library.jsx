@@ -40,21 +40,24 @@ export const Library = () => {
   return (
     <div className="container mt-3">
       <Search searchText={searchText} setSearchText={setSearchText} />
-      <button className="btn btn-outline-dark btn-sm mt-2" onClick={toggleFavs}>
-        Filter by starred {Favorites ? <FaStar /> : <FaRegStar />}
-      </button>
-      <button
-        className="btn btn-outline-dark btn-sm mt-2"
-        onClick={sortByNofQuotes}
-      >
-        Sort by number of quotes <FaSortAmountDown />
-      </button>
-      <button
-        className="btn btn-outline-dark btn-sm mt-2"
-        onClick={restoreChanges}
-      >
-        Restore changes <FaRedo />
-      </button>
+
+      <div className="my-2">
+        <button className="btn btn-outline-dark btn-sm" onClick={toggleFavs}>
+          Filter by starred {Favorites ? <FaStar /> : <FaRegStar />}
+        </button>
+        <button
+          className="btn btn-outline-dark btn-sm"
+          onClick={sortByNofQuotes}
+        >
+          Sort by number of quotes <FaSortAmountDown />
+        </button>
+        <button
+          className="btn btn-outline-dark btn-sm"
+          onClick={restoreChanges}
+        >
+          Restore changes <FaRedo />
+        </button>
+      </div>
 
       <Accordion defaultActiveKey="0">
         {Books?.filter((book) =>
