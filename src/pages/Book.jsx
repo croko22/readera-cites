@@ -13,7 +13,12 @@ export const Book = () => {
     JSON.parse(localStorage.getItem("Books")).find(
       (book) => book.data.doc_md5 === id
     );
+
+  //*Book elements
+  const title = Book.data.doc_title || Book.data.doc_file_name_title;
+  let isMobile = window.innerWidth < 768;
   const [Cites, setCites] = useState(Book.citations);
+
   //*Scroll to the top
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -32,23 +37,30 @@ export const Book = () => {
     for (const a in Cites) text += `- ${Cites[a].note_body}\n`;
     navigator.clipboard.writeText(text);
     Toastify({
-      text: "All quotes copied to clipboard",
+      text: "All quotes copied!",
       close: true,
       gravity: "top",
-      position: "left",
+      position: "right",
       stopOnFocus: true,
       duration: 3000,
+      backgroundColor: "gray",
     }).showToast();
   };
 
   return (
     <div className="container mt-1">
-      <h3>Book: {Book.data.doc_title}</h3>
+      <div className="d-flex justify-content-between align-items-center">
+        <h3>{isMobile ? title.slice(0, 25) + "..." : title}</h3>
+        <button className="btn btn-dark m-1" onClick={() => copyCites()}>
+          <div className="d-flex align-items-center gap-1">
+            All <FaCopy />
+          </div>
+        </button>
+      </div>
       <Search searchText={searchText} setSearchText={setSearchText} />
       {/* Filtering by color */}
       <div className="mt-1 d-flex justify-content-between">
         <span className="h4">
-          Colors:
           <span onClick={() => filterColors(7)} className="btn btn-info m-1">
             All {Book.citations.length}
           </span>
@@ -71,10 +83,6 @@ export const Book = () => {
             {Book.citations.filter((cite) => cite.note_mark === 4).length}
           </span>
         </span>
-        {/* Export quotes button */}
-        <button className="btn btn-dark m-1" onClick={() => copyCites()}>
-          Copy all <FaCopy />
-        </button>
       </div>
       <CitesList
         cites={Cites.filter((cite) =>
