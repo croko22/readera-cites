@@ -43,25 +43,19 @@ export const Library = () => {
 
       <div className="my-2">
         <button className="btn btn-outline-dark btn-sm" onClick={toggleFavs}>
-          <div className="d-flex align-items-center gap-1">
-            Filter by starred {Favorites ? <FaStar /> : <FaRegStar />}
-          </div>
+          {Favorites ? <FaStar /> : <FaRegStar />} | Favs
         </button>
         <button
           className="btn btn-outline-dark btn-sm"
           onClick={sortByNofQuotes}
         >
-          <div className="d-flex align-items-center gap-1">
-            Sort by number of quotes <FaSortAmountDown />
-          </div>
+          <FaSortAmountDown /> | Quotes
         </button>
         <button
           className="btn btn-outline-dark btn-sm"
           onClick={restoreChanges}
         >
-          <div className="d-flex align-items-center gap-1">
-            Restore changes <FaRedo />
-          </div>
+          <FaRedo /> | Undo
         </button>
       </div>
 
