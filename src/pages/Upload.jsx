@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Toastify from "toastify-js";
 
@@ -34,30 +34,20 @@ export const Upload = () => {
   };
 
   return (
-    <div
-      className="container row align-items-center justify-content-center
-    mt-3"
-    >
-      <div className="col-sm">
+    <div className="container row d-flex justify-content-center align-items-center m-auto">
+      {/* <div className="col-sm"></div> */}
+      <div className="col-sm p-3">
         <h1>Hi</h1>
         <p>
           In the ReadEra app, go to the Backup and restore section and export a
           security copy ReadEra backup file.
         </p>
-        <img
-          src="../../docs/img/bak file.jpg"
-          alt="upload"
-          className="img-fluid"
-        />
+        <img src="assets/img/bak file.jpg" alt="upload" className="img-fluid" />
         <p>
           This will create a .bak file, inside which is a file called
           library.json that contains your books data.
         </p>
-        <img
-          src="../../docs/img/json file.png"
-          alt="json"
-          className="img-fluid"
-        />
+        <img src="assets/img/json file.png" alt="json" className="img-fluid" />
       </div>
       <div className="col-sm">
         <h1 className="text-center mb-3">Upload Json File</h1>
@@ -72,7 +62,7 @@ export const Upload = () => {
           onChange={handleChange}
         />
         <button
-          className="btn btn-lg btn-success mt-3 mb-3"
+          className="btn btn-lg btn-success mt-3 "
           onClick={setLocalStorage}
         >
           Save library
