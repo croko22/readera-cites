@@ -6,7 +6,7 @@ export const Footer = () => {
           <p>
             Book notes visualizer for{" "}
             <a
-              href="https://readera.org/es/book-reader"
+              href="https://readera.org"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -14,7 +14,7 @@ export const Footer = () => {
             </a>
             , by{" "}
             <a
-              href="https://github.com/kchambit"
+              href="https://github.com/croko22"
               target="_blank"
               rel="noopener noreferrer"
             >
