@@ -34,9 +34,9 @@ export const Upload = () => {
   };
 
   return (
-    <div className="container row d-flex justify-content-center align-items-center m-auto">
+    <div className="container row d-flex justify-content-center align-items-center mx-auto">
       {/* <div className="col-sm"></div> */}
-      <div className="col-sm p-3">
+      <div className="col-sm py-3">
         <h1>Hi</h1>
         <p>
           In the ReadEra app, go to the Backup and restore section and export a
@@ -50,13 +50,13 @@ export const Upload = () => {
         <img src="assets/img/json file.png" alt="json" className="img-fluid" />
       </div>
       <div className="col-sm">
-        <h1 className="text-center mb-3">Upload Json File</h1>
-        <p>
+        <h1 className="text-center mb-4">Upload Json File</h1>
+        <p className="mb-3">
           Visualize and manage your readings data from <b>library.json</b> file
           inside your ReadEra .bak file
         </p>
         <input
-          className="form-control form-control-lg"
+          className="form-control form-control-lg mb-3"
           type="file"
           accept=".json"
           onChange={handleChange}
