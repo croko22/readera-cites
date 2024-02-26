@@ -6,12 +6,13 @@ export const Upload = () => {
   const [files, setFiles] = useState();
   const navigate = useNavigate();
 
+  //TODO: Migrate to indexedDB
   const handleChange = (e) => {
     const fileReader = new FileReader();
     fileReader.readAsText(e.target.files[0], "UTF-8");
     fileReader.onload = (e) => {
       const data = JSON.parse(e.target.result).docs.filter(
-        (book) => book.citations.length > 10
+        (book) => book.citations.length > 100
       );
       setFiles(JSON.stringify(data));
     };
