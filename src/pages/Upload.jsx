@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaUpload } from "react-icons/fa";
 import Toastify from "toastify-js";
 
 export const Upload = () => {
@@ -65,7 +66,7 @@ export const Upload = () => {
             className="img-fluid"
           />
         </div>
-        <div className="col-sm">
+        <div className="col-sm my-3">
           <h2 className="mt-2 mb-4">
             Upload your <code>library.json</code> file
           </h2>
@@ -74,18 +75,21 @@ export const Upload = () => {
             <code>library.json</code> file inside your ReadEra <code>.bak</code>{" "}
             file.
           </p>
-          <input
-            className="form-control form-control-lg mb-3"
-            type="file"
-            accept=".json"
-            onChange={handleChange}
-          />
-          <button
-            className="btn btn-lg btn-success mt-3"
-            onClick={setLocalStorage}
-          >
-            Save Library
-          </button>
+          <div className="d-flex gap-1 align-items-center">
+            <input
+              className="form-control form-control-lg"
+              type="file"
+              accept=".json"
+              onChange={handleChange}
+            />
+            <button
+              className="btn btn-lg btn-success"
+              onClick={setLocalStorage}
+              disabled={!files}
+            >
+              <FaUpload className="font-sm" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
