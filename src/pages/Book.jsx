@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Toastify from "toastify-js";
 import { useLocation, useParams } from "react-router-dom";
-import { FaCopy } from "react-icons/fa";
+import { FaCopy, FaList, FaTh } from "react-icons/fa";
 import { CitesList } from "../components/CitesList";
 import { Search } from "../components/Search";
 
 export const Book = () => {
+  //* View
+  const [view, setView] = useState("list");
+
   //*Book data extracting
   const { id } = useParams();
   const Book =
@@ -59,7 +62,7 @@ export const Book = () => {
       </div>
       <Search searchText={searchText} setSearchText={setSearchText} />
       {/* Filtering by color */}
-      <div className="mt-1 d-flex justify-content-between">
+      <div className="mt-1 d-flex justify-content-between align-items-center">
         <span className="h4">
           <span onClick={() => filterColors(7)} className="btn btn-info m-1">
             All {Book.citations.length}
@@ -83,12 +86,20 @@ export const Book = () => {
             {Book.citations.filter((cite) => cite.note_mark === 4).length}
           </span>
         </span>
+        <button
+          onClick={() => (view === "list" ? setView("grid") : setView("list"))}
+          className="btn btn-light btn-sm"
+        >
+          {" "}
+          {view === "list" ? <FaList /> : <FaTh />}{" "}
+        </button>
       </div>
       <CitesList
         cites={Cites.filter((cite) =>
           cite.note_body.toLowerCase().includes(searchText)
         )}
         totalPages={Math.ceil(Cites.length / 10 + 1)}
+        view={view}
       />
     </div>
   );

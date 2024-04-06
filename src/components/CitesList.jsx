@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Cite } from "./Cite";
 import { Pagination } from "react-bootstrap";
 
-export const CitesList = ({ cites, totalPages = 10 }) => {
+export const CitesList = ({ cites, totalPages = 10, view = "list" }) => {
   const [page, setPage] = useState(1);
   const pagesToShow = totalPages > 10 ? 10 : totalPages;
   let startPage = Math.max(page - Math.floor(pagesToShow / 2), 1);
@@ -38,11 +38,27 @@ export const CitesList = ({ cites, totalPages = 10 }) => {
   return (
     <div>
       {paginate()}
-      <ul className="list-group mt-2 mb-3">
-        {cites.slice((page - 1) * 10, page * 10).map((cite, index) => (
-          <Cite key={index} cite={cite} />
-        ))}
-      </ul>
+      {view === "list" ? (
+        <ul className="list-group mt-2 mb-2">
+          {cites.slice((page - 1) * 10, page * 10).map((cite, index) => (
+            <Cite key={index} cite={cite} />
+          ))}
+        </ul>
+      ) : (
+        <div style={{ columnCount: 3, columnGap: "1em", marginBottom: "1em" }}>
+          {cites.slice((page - 1) * 10, page * 10).map((cite, index) => (
+            <div
+              style={{
+                breakInside: "avoid",
+                marginBottom: "1em",
+              }}
+            >
+              <Cite key={index} cite={cite} />
+            </div>
+          ))}
+        </div>
+      )}
+      {paginate()}
     </div>
   );
 };
