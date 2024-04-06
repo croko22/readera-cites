@@ -51,7 +51,7 @@ export const Upload = () => {
             and export a ReadEra backup file.
           </p>
           <img
-            src="assets/img/bak-file.jpg"
+            src="assets/img/bak-file.webp"
             alt="upload"
             className="img-fluid"
           />
@@ -60,7 +60,7 @@ export const Upload = () => {
             <code>library.json</code> file that holds your ReadEra data.
           </p>
           <img
-            src="assets/img/json-file.png"
+            src="assets/img/json-file.webp"
             alt="json"
             className="img-fluid"
           />
