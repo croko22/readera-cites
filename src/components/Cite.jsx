@@ -25,9 +25,10 @@ export const Cite = ({ cite }) => {
   };
 
   return (
-    <li className={`list-group-item ${colors[cite.note_mark]}`}>
+    <li className={`list-group-item ${colors[cite.note_mark]} p-2 rounded`}>
       <div className="d-flex justify-content-between align-items-center">
-        <h6>Page: {cite.note_page}</h6>
+        <small className="text-sm">Page: {cite.note_page}</small>
+
         <span>
           <OverlayTrigger overlay={<Tooltip>Copy this quote</Tooltip>}>
             <span>
