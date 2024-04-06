@@ -4,6 +4,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { FaCopy, FaList, FaTh } from "react-icons/fa";
 import { CitesList } from "../components/CitesList";
 import { Search } from "../components/Search";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 export const Book = () => {
   //* View
@@ -86,13 +87,22 @@ export const Book = () => {
             {Book.citations.filter((cite) => cite.note_mark === 4).length}
           </span>
         </span>
-        <button
-          onClick={() => (view === "list" ? setView("grid") : setView("list"))}
-          className="btn btn-light btn-sm"
+        <OverlayTrigger
+          overlay={
+            <Tooltip>
+              {`Change to ${view === "list" ? "grid" : "list"} view`}
+            </Tooltip>
+          }
         >
-          {" "}
-          {view === "list" ? <FaList /> : <FaTh />}{" "}
-        </button>
+          <button
+            onClick={() =>
+              view === "list" ? setView("grid") : setView("list")
+            }
+            className="btn btn-light btn-sm"
+          >
+            <span>{view === "list" ? <FaList /> : <FaTh />} </span>
+          </button>
+        </OverlayTrigger>
       </div>
       <CitesList
         cites={Cites.filter((cite) =>
