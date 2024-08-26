@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaRedo, FaRegStar, FaStar, FaSortAmountDown } from "react-icons/fa";
+import {
+  FaRedo,
+  FaRegStar,
+  FaStar,
+  FaSortAmountDown,
+  FaTimes,
+} from "react-icons/fa";
 import { Search } from "../components/Search";
 import { BookCard } from "../components/BookCard";
-import { Accordion } from "react-bootstrap";
+import { Accordion, OverlayTrigger, Tooltip } from "react-bootstrap";
 
 export const Library = () => {
   const storedData = JSON.parse(localStorage.getItem("Books"));
@@ -31,6 +37,17 @@ export const Library = () => {
     else restoreChanges();
   };
 
+  const sortAlphabetically = () => {
+    setIsorting((isSorting) => !isSorting);
+    if (!isSorting)
+      setBooks(
+        [...Books].sort((a, b) =>
+          a.data.doc_file_name_title.localeCompare(b.data.doc_file_name_title)
+        )
+      );
+    else restoreChanges();
+  };
+
   const restoreChanges = () => {
     setBooks(storedData);
     setFavorites(false);
@@ -45,18 +62,37 @@ export const Library = () => {
         <button className="btn btn-outline-dark btn-sm" onClick={toggleFavs}>
           {Favorites ? <FaStar /> : <FaRegStar />} | Favs
         </button>
+
         <button
           className="btn btn-outline-dark btn-sm"
           onClick={sortByNofQuotes}
         >
           <FaSortAmountDown /> | Quotes
         </button>
+
         <button
           className="btn btn-outline-dark btn-sm"
-          onClick={restoreChanges}
+          onClick={sortAlphabetically}
         >
-          <FaRedo /> | Undo
+          <FaSortAmountDown /> | Alphabetically
         </button>
+
+        {Favorites || isSorting ? (
+          <OverlayTrigger
+            overlay={
+              <Tooltip>
+                Reset filters <FaRedo />
+              </Tooltip>
+            }
+          >
+            <button
+              className="btn btn-outline-none btn-sm"
+              onClick={restoreChanges}
+            >
+              <FaTimes />
+            </button>
+          </OverlayTrigger>
+        ) : null}
       </div>
 
       <Accordion defaultActiveKey="0">
