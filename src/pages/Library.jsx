@@ -97,7 +97,9 @@ export const Library = () => {
 
       <Accordion defaultActiveKey="0">
         {Books?.filter((book) =>
-          book.data.doc_file_name_title.toLowerCase().includes(searchText)
+          book.data.doc_file_name_title
+            .toLowerCase()
+            .includes(searchText.toLowerCase())
         ).map((libro, index) => (
           <BookCard libro={libro} bookKey={index} key={index} />
         ))}
