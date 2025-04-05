@@ -1,8 +1,14 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUpload } from "react-icons/fa";
+import { FaUpload, FaEye } from "react-icons/fa";
 import Toastify from "toastify-js";
-import { Button, ListGroup, Modal } from "react-bootstrap";
+import {
+  Button,
+  ListGroup,
+  Modal,
+  OverlayTrigger,
+  Tooltip,
+} from "react-bootstrap";
 
 export const Upload = () => {
   const [originalBooks, setOriginalBooks] = useState();
@@ -124,17 +130,22 @@ export const Upload = () => {
               accept=".json"
               onChange={handleChange}
             />
-            <button
-              className="btn btn-lg btn-success"
-              onClick={setLocalStorage}
-              disabled={!originalBooks}
+
+            <OverlayTrigger
+              overlay={<Tooltip>{`Load your library.json file`}</Tooltip>}
             >
-              <FaUpload className="font-sm" />
-            </button>
+              <button
+                className="btn btn-lg btn-success"
+                onClick={setLocalStorage}
+                disabled={!originalBooks}
+              >
+                <FaUpload className="font-sm" />
+              </button>
+            </OverlayTrigger>
           </div>
 
           {originalBooks && (
-            <div className="d-flex flex-column gap-2 mt-3">
+            <div className="d-flex flex-row gap-2 mt-3 align-items-center justify-content-between">
               <div className="d-flex align-items-center gap-2 mt-2">
                 <span className="badge bg-success rounded-pill">
                   File loaded
@@ -147,8 +158,13 @@ export const Upload = () => {
                     : "No books available"}
                 </p>
               </div>
-              <Button variant="success" onClick={() => setShowModal(true)}>
-                Preview Books
+              <Button
+                variant="success"
+                onClick={() => setShowModal(true)}
+                className="d-flex align-items-center gap-2"
+              >
+                <FaEye className="font-sm" />
+                <span className="ms-1">Preview Books</span>
               </Button>
             </div>
           )}
