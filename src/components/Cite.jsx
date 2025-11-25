@@ -1,4 +1,3 @@
-import React from "react";
 import Toastify from "toastify-js";
 
 import { FaCopy, FaTwitter } from "react-icons/fa";
@@ -12,16 +11,71 @@ export const Cite = ({ cite }) => {
     "list-group-item-primary",
   ];
 
-  const copyCite = (text) => {
-    navigator.clipboard.writeText(text);
-    Toastify({
-      text: "Quote copied to clipboard",
-      close: true,
-      gravity: "top",
-      position: "left",
-      stopOnFocus: true,
-      duration: 3000,
-    }).showToast();
+  const copyCite = async (input) => {
+    let text = "";
+    if (typeof input === "string") {
+      text = input;
+    } else if (input && typeof input === "object") {
+      const parts = [];
+      parts.push(input.note_body || "");
+      if (input.note_extra) parts.push(`Note: ${input.note_extra}`);
+      if (input.note_page !== undefined && input.note_page !== null)
+        parts.push(`(Page: ${input.note_page})`);
+      text = parts.join("\n");
+    }
+
+    if (!text) {
+      Toastify({
+        text: "Nothing to copy",
+        close: true,
+        gravity: "top",
+        position: "left",
+        stopOnFocus: true,
+        duration: 2000,
+      }).showToast();
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      Toastify({
+        text: "Quote copied to clipboard",
+        close: true,
+        gravity: "top",
+        position: "left",
+        stopOnFocus: true,
+        duration: 3000,
+      }).showToast();
+    } catch (err) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        Toastify({
+          text: "Quote copied to clipboard (fallback)",
+          close: true,
+          gravity: "top",
+          position: "left",
+          stopOnFocus: true,
+          duration: 3000,
+        }).showToast();
+      } catch (err2) {
+        Toastify({
+          text: "Failed to copy quote",
+          close: true,
+          gravity: "top",
+          position: "left",
+          stopOnFocus: true,
+          duration: 3000,
+          backgroundColor: "#cc0000",
+        }).showToast();
+      }
+    }
   };
 
   return (
@@ -34,7 +88,7 @@ export const Cite = ({ cite }) => {
             <span>
               <FaCopy
                 style={{ cursor: "pointer" }}
-                onClick={() => copyCite(cite.note_body)}
+                onClick={() => copyCite(cite)}
               />
             </span>
           </OverlayTrigger>

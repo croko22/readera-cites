@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Toastify from "toastify-js";
 import { useLocation, useParams } from "react-router-dom";
 import { FaCopy, FaList, FaTh } from "react-icons/fa";
@@ -7,10 +7,8 @@ import { Search } from "../components/Search";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 export const Book = () => {
-  //* View
   const [view, setView] = useState("list");
 
-  //*Book data extracting
   const { id } = useParams();
   const Book =
     useLocation().state ||
@@ -18,17 +16,14 @@ export const Book = () => {
       (book) => book.data.doc_md5 === id
     );
 
-  //*Book elements
   const title = Book.data.doc_title || Book.data.doc_file_name_title;
   let isMobile = window.innerWidth < 768;
   const [Cites, setCites] = useState(Book.citations);
 
-  //*Scroll to the top
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  //*Filtering and searching
   const [searchText, setSearchText] = useState("");
   const filterColors = (n) => {
     n === 7
@@ -36,19 +31,84 @@ export const Book = () => {
       : setCites(Book.citations.filter((cite) => cite.note_mark === n));
   };
 
-  const copyCites = () => {
-    let text = "";
-    for (const a in Cites) text += `- ${Cites[a].note_body}\n`;
-    navigator.clipboard.writeText(text);
-    Toastify({
-      text: "All quotes copied!",
-      close: true,
-      gravity: "top",
-      position: "right",
-      stopOnFocus: true,
-      duration: 3000,
-      backgroundColor: "gray",
-    }).showToast();
+  const copyCites = async () => {
+    const visible = Cites.filter((cite) =>
+      cite.note_body.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    if (!visible.length) {
+      Toastify({
+        text: "No quotes to copy",
+        close: true,
+        gravity: "top",
+        position: "right",
+        stopOnFocus: true,
+        duration: 2500,
+        backgroundColor: "gray",
+      }).showToast();
+      return;
+    }
+
+    const lines = visible.map((c, idx) => {
+      const parts = [];
+
+      parts.push(`${idx + 1}. ${c.note_body}`);
+
+      if (c.note_extra) parts.push(`   Note: ${c.note_extra}`);
+
+      if (c.note_page !== undefined && c.note_page !== null)
+        parts.push(`   (Page: ${c.note_page})`);
+      return parts.join("\n");
+    });
+
+    const text = lines.join("\n");
+
+    try {
+      await navigator.clipboard.writeText(text);
+      Toastify({
+        text: `Copied ${visible.length} quote${
+          visible.length > 1 ? "s" : ""
+        } to clipboard`,
+        close: true,
+        gravity: "top",
+        position: "right",
+        stopOnFocus: true,
+        duration: 3000,
+        backgroundColor: "gray",
+      }).showToast();
+    } catch (err) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        Toastify({
+          text: `Copied ${visible.length} quote${
+            visible.length > 1 ? "s" : ""
+          } (fallback)`,
+          close: true,
+          gravity: "top",
+          position: "right",
+          stopOnFocus: true,
+          duration: 3000,
+          backgroundColor: "gray",
+        }).showToast();
+      } catch (err2) {
+        Toastify({
+          text: "Failed to copy to clipboard",
+          close: true,
+          gravity: "top",
+          position: "right",
+          stopOnFocus: true,
+          duration: 3000,
+          backgroundColor: "#cc0000",
+        }).showToast();
+      }
+    }
   };
 
   return (
