@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUpload, FaEye, FaFileImport, FaCheckCircle } from "react-icons/fa";
 import Toastify from "toastify-js";
+import { unzipSync } from "fflate";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -18,7 +19,7 @@ import {
 // Constants
 const CITATION_PRESETS = [0, 10, 50, 100, 200];
 const DEFAULT_MIN_CITATIONS = 100;
-const ACCEPTED_FILE_TYPE = ".json";
+const ACCEPTED_FILE_TYPES = [".json", ".bak"];
 const LOCAL_STORAGE_KEY = "Books";
 
 // Toast configurations
@@ -38,8 +39,9 @@ const showToast = (text, isSuccess = true) => {
 // Utility functions
 const validateJsonFile = (file) => {
   if (!file) return { valid: false, error: "No file provided" };
-  if (!file.name.endsWith(ACCEPTED_FILE_TYPE)) {
-    return { valid: false, error: "Please upload a .json file!" };
+  const lowerName = file.name.toLowerCase();
+  if (!ACCEPTED_FILE_TYPES.some((ext) => lowerName.endsWith(ext))) {
+    return { valid: false, error: "Please upload a .json or .bak file!" };
   }
   return { valid: true };
 };
@@ -55,6 +57,21 @@ const parseLibraryFile = (fileContent) => {
     console.error("Error parsing JSON file:", error);
     return { data: null, error: "Invalid file format!" };
   }
+};
+
+const getLibraryJsonFromBak = async (file) => {
+  const buffer = await file.arrayBuffer();
+  const unzipped = unzipSync(new Uint8Array(buffer));
+
+  const entryKey = Object.keys(unzipped).find((key) =>
+    key.toLowerCase().endsWith("library.json")
+  );
+
+  if (!entryKey) {
+    throw new Error("library.json not found inside .bak");
+  }
+
+  return new TextDecoder("utf-8").decode(unzipped[entryKey]);
 };
 
 export const Upload = () => {
@@ -81,28 +98,34 @@ export const Upload = () => {
     }
 
     setFileName(file.name);
-    const fileReader = new FileReader();
-    
-    fileReader.onload = (e) => {
-      const { data, error } = parseLibraryFile(e.target.result);
-      
-      if (error) {
-        showToast(error, false);
+    const lowerName = file.name.toLowerCase();
+
+    const load = async () => {
+      try {
+        const content = lowerName.endsWith(".bak")
+          ? await getLibraryJsonFromBak(file)
+          : await file.text();
+
+        const { data, error } = parseLibraryFile(content);
+
+        if (error) {
+          showToast(error, false);
+          setFileName("");
+          setOriginalBooks(null);
+          return;
+        }
+
+        setOriginalBooks(data);
+        showToast("File loaded successfully!");
+      } catch (error) {
+        console.error("Error loading file:", error);
+        showToast("Could not extract library.json from this backup", false);
         setFileName("");
         setOriginalBooks(null);
-        return;
       }
-
-      setOriginalBooks(data);
-      showToast("File loaded successfully!");
     };
 
-    fileReader.onerror = () => {
-      showToast("Failed to read file", false);
-      setFileName("");
-    };
-
-    fileReader.readAsText(file, "UTF-8");
+    void load();
   }, []);
 
   // File input change handler
@@ -172,6 +195,7 @@ export const Upload = () => {
           <p className="py-3 text-slate-400">
             This will create a <b className="text-slate-200">.bak</b> file containing a{" "}
             <code className="bg-white/5 px-2 py-1 rounded text-amber-400 border border-white/10">library.json</code> file that holds your ReadEra data.
+            {" "}You can upload either one here.
           </p>
           <img
             src="assets/img/json-file.webp"
@@ -182,7 +206,11 @@ export const Upload = () => {
         
         <div className="bg-[rgba(26,26,36,0.6)] backdrop-blur-lg p-8 rounded-xl shadow-2xl border border-white/10 space-y-6">
           <h2 className="text-2xl font-bold text-slate-100">
-            Upload your <code className="bg-white/5 px-2 py-1 rounded text-sm text-amber-400 border border-white/10">library.json</code> file
+            Upload your{" "}
+            <code className="bg-white/5 px-2 py-1 rounded text-sm text-amber-400 border border-white/10">library.json</code>
+            {" "}or{" "}
+            <code className="bg-white/5 px-2 py-1 rounded text-sm text-amber-400 border border-white/10">.bak</code>
+            {" "}file
           </h2>
 
           {/* Drag and Drop Zone */}
@@ -202,7 +230,7 @@ export const Upload = () => {
             <input
               ref={fileInputRef}
               type="file"
-              accept={ACCEPTED_FILE_TYPE}
+              accept={ACCEPTED_FILE_TYPES.join(",")}
               onChange={handleChange}
               className="hidden"
             />
@@ -221,7 +249,7 @@ export const Upload = () => {
                 <FaFileImport className="mx-auto text-5xl text-slate-600" />
                 <div>
                   <p className="text-lg font-semibold text-slate-200">
-                    Drag & Drop your library.json file here
+                    Drag & Drop your library.json or .bak file here
                   </p>
                   <p className="text-sm text-slate-500 mt-1">or click to browse files</p>
                 </div>
