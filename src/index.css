@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Minimalist Dark Design System */
+    --background: 224 20% 5%; /* #0A0A0F - Deep slate */
+    --foreground: 0 0% 98%; /* #FAFAFA - Near white */
+    
+    --card: 231 15% 11%; /* #1A1A24 - Elevated surfaces */
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 231 15% 11%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Amber accent as primary */
+    --primary: 38 92% 50%; /* #F59E0B - amber-500 */
+    --primary-foreground: 224 20% 5%; /* Dark text on amber */
+    
+    --secondary: 231 15% 11%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 231 15% 11%;
+    --muted-foreground: 240 5% 46%; /* #71717A */
+    
+    --accent: 38 92% 50%; /* Amber accent */
+    --accent-foreground: 224 20% 5%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 0 0% 100% / 0.08; /* rgba(255,255,255,0.08) */
+    --input: 0 0% 100% / 0.08;
+    --ring: 38 92% 50%; /* Amber ring for focus states */
+    
+    --radius: 0.75rem; /* 12px - rounded-lg default */
+  }
+}
+
+* {
+  @apply border-border;
+}
+
+body {
+  @apply bg-[#0A0A0F] text-foreground;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}

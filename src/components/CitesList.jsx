@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Cite } from "./Cite";
-import { Pagination } from "react-bootstrap";
+import { Button } from "./ui/button";
+import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 
 export const CitesList = ({ cites, totalPages = 10, view = "list" }) => {
   const [page, setPage] = useState(1);
@@ -10,28 +11,63 @@ export const CitesList = ({ cites, totalPages = 10, view = "list" }) => {
 
   const paginate = () => {
     return (
-      <Pagination className="justify-content-center" size="sm">
-        <Pagination.First onClick={() => setPage(1)} />
-        <Pagination.Prev onClick={() => page > 1 && setPage(page - 1)} />
-        <Pagination.Ellipsis />
+      <div className="flex justify-center items-center gap-2 flex-wrap my-6">
+        <Button 
+          variant="outline" 
+          size="default" 
+          onClick={() => setPage(1)}
+          disabled={page === 1}
+          className="hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 border-white/10 text-slate-300 transition-all duration-300"
+        >
+          <ChevronFirst className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="outline" 
+          size="default" 
+          onClick={() => page > 1 && setPage(page - 1)}
+          disabled={page === 1}
+          className="hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 border-white/10 text-slate-300 transition-all duration-300"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="default" disabled className="cursor-default text-slate-600">
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
         {Array(endPage - startPage + 1)
           .fill("")
           .map((_, i) => (
-            <Pagination.Item
+            <Button
               key={i}
-              active={i + startPage === page}
-              href="#"
+              variant={i + startPage === page ? "default" : "outline"}
+              size="default"
               onClick={() => setPage(i + startPage)}
+              className={i + startPage === page ? "bg-amber-500 hover:bg-amber-600 text-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.3)]" : "hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 border-white/10 text-slate-300 transition-all duration-300"}
             >
               {i + startPage}
-            </Pagination.Item>
+            </Button>
           ))}
-        <Pagination.Ellipsis />
-        <Pagination.Next
+        <Button variant="ghost" size="default" disabled className="cursor-default text-slate-600">
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="outline" 
+          size="default" 
           onClick={() => page < totalPages - 1 && setPage(page + 1)}
-        />
-        <Pagination.Last onClick={() => setPage(totalPages - 1)} />
-      </Pagination>
+          disabled={page >= totalPages - 1}
+          className="hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 border-white/10 text-slate-300 transition-all duration-300"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="outline" 
+          size="default" 
+          onClick={() => setPage(totalPages - 1)}
+          disabled={page === totalPages - 1}
+          className="hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 border-white/10 text-slate-300 transition-all duration-300"
+        >
+          <ChevronLast className="h-4 w-4" />
+        </Button>
+      </div>
     );
   };
 
@@ -39,21 +75,19 @@ export const CitesList = ({ cites, totalPages = 10, view = "list" }) => {
     <div>
       {paginate()}
       {view === "list" ? (
-        <ul className="list-group mt-2 mb-2">
+        <ul className="space-y-2 mt-2 mb-2">
           {cites.slice((page - 1) * 10, page * 10).map((cite, index) => (
             <Cite key={index} cite={cite} />
           ))}
         </ul>
       ) : (
-        <div style={{ columnCount: 3, columnGap: "1em", marginBottom: "1em" }}>
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-4 mb-4">
           {cites.slice((page - 1) * 10, page * 10).map((cite, index) => (
             <div
-              style={{
-                breakInside: "avoid",
-                marginBottom: "1em",
-              }}
+              key={index}
+              className="break-inside-avoid mb-4"
             >
-              <Cite key={index} cite={cite} />
+              <Cite cite={cite} />
             </div>
           ))}
         </div>

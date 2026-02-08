@@ -9,7 +9,14 @@ import {
 } from "react-icons/fa";
 import { Search } from "../components/Search";
 import { BookCard } from "../components/BookCard";
-import { Accordion, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Accordion } from "../components/ui/accordion";
+import { Button } from "../components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../components/ui/tooltip";
 
 export const Library = () => {
   const storedData = JSON.parse(localStorage.getItem("Books"));
@@ -55,47 +62,59 @@ export const Library = () => {
   };
 
   return (
-    <div className="container mt-3">
+    <div className="container mx-auto px-4 mt-6 mb-8">
       <Search searchText={searchText} setSearchText={setSearchText} />
 
-      <div className="my-2">
-        <button className="btn btn-outline-dark btn-sm" onClick={toggleFavs}>
-          {Favorites ? <FaStar /> : <FaRegStar />} | Favs
-        </button>
-
-        <button
-          className="btn btn-outline-dark btn-sm"
-          onClick={sortByNofQuotes}
-        >
-          <FaSortAmountDown /> | Quotes
-        </button>
-
-        <button
-          className="btn btn-outline-dark btn-sm"
-          onClick={sortAlphabetically}
-        >
-          <FaSortAmountDown /> | Alphabetically
-        </button>
-
-        {Favorites || isSorting ? (
-          <OverlayTrigger
-            overlay={
-              <Tooltip>
-                Reset filters <FaRedo />
-              </Tooltip>
-            }
+      <TooltipProvider>
+        <div className="my-4 flex gap-3 flex-wrap">
+          <Button 
+            variant="outline" 
+            size="default" 
+            onClick={toggleFavs}
+            className="gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300"
           >
-            <button
-              className="btn btn-outline-none btn-sm"
-              onClick={restoreChanges}
-            >
-              <FaTimes />
-            </button>
-          </OverlayTrigger>
-        ) : null}
-      </div>
+            {Favorites ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
+          </Button>
 
-      <Accordion defaultActiveKey="0">
+          <Button
+            variant="outline"
+            size="default"
+            onClick={sortByNofQuotes}
+            className="gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300"
+          >
+            <FaSortAmountDown /> By Quotes
+          </Button>
+
+          <Button
+            variant="outline"
+            size="default"
+            onClick={sortAlphabetically}
+            className="gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300"
+          >
+            <FaSortAmountDown /> Alphabetically
+          </Button>
+
+          {Favorites || isSorting ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="default"
+                  onClick={restoreChanges}
+                  className="gap-2 font-semibold border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 transition-all duration-300"
+                >
+                  <FaTimes /> Reset
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-[#1A1A24] border-white/10 text-slate-200">
+                <p>Reset filters <FaRedo className="inline" /></p>
+              </TooltipContent>
+            </Tooltip>
+          ) : null}
+        </div>
+      </TooltipProvider>
+
+      <Accordion type="single" collapsible className="space-y-2">
         {Books?.filter((book) =>
           book.data.doc_file_name_title
             .toLowerCase()

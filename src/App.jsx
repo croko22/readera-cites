@@ -5,23 +5,23 @@ import { Library } from "./pages/Library";
 import { Book } from "./pages/Book";
 import { Upload } from "./pages/Upload";
 import { Footer } from "./components/Footer";
-import { ToTheTopB } from "./components/ToTheTopB";
+import { ToTopButton } from "./components/ToTopButton";
 
 function App() {
   return (
-    <>
-      <ToTheTopB />
+    <div className="flex flex-col min-h-screen bg-[#0A0A0F]">
+      <ToTopButton />
       <Header />
-      <div className="min-vh-100">
+      <main className="flex-1">
         <Routes>
           <Route path="/" element={<Library />} />
           <Route path="/book/:id" element={<Book />} />
           <Route exact path="/upload" element={<Upload />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
-      </div>
+      </main>
       <Footer />
-    </>
+    </div>
   );
 }
 

@@ -1,210 +1,332 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUpload, FaEye } from "react-icons/fa";
+import { FaUpload, FaEye, FaFileImport, FaCheckCircle } from "react-icons/fa";
 import Toastify from "toastify-js";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Badge } from "../components/ui/badge";
 import {
-  Button,
-  ListGroup,
-  Modal,
-  OverlayTrigger,
-  Tooltip,
-} from "react-bootstrap";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+
+// Constants
+const CITATION_PRESETS = [0, 10, 50, 100, 200];
+const DEFAULT_MIN_CITATIONS = 100;
+const ACCEPTED_FILE_TYPE = ".json";
+const LOCAL_STORAGE_KEY = "Books";
+
+// Toast configurations
+const TOAST_CONFIG = {
+  position: "center",
+  duration: 1500,
+};
+
+const showToast = (text, isSuccess = true) => {
+  Toastify({
+    ...TOAST_CONFIG,
+    text,
+    style: { background: isSuccess ? "#F59E0B" : "#ef4444" },
+  }).showToast();
+};
+
+// Utility functions
+const validateJsonFile = (file) => {
+  if (!file) return { valid: false, error: "No file provided" };
+  if (!file.name.endsWith(ACCEPTED_FILE_TYPE)) {
+    return { valid: false, error: "Please upload a .json file!" };
+  }
+  return { valid: true };
+};
+
+const parseLibraryFile = (fileContent) => {
+  try {
+    const parsed = JSON.parse(fileContent);
+    if (!parsed.docs || !Array.isArray(parsed.docs)) {
+      throw new Error("Invalid library format");
+    }
+    return { data: parsed.docs, error: null };
+  } catch (error) {
+    console.error("Error parsing JSON file:", error);
+    return { data: null, error: "Invalid file format!" };
+  }
+};
 
 export const Upload = () => {
-  const [originalBooks, setOriginalBooks] = useState();
-  const [minCitations, setMinCitations] = useState(100);
+  const [originalBooks, setOriginalBooks] = useState(null);
+  const [minCitations, setMinCitations] = useState(DEFAULT_MIN_CITATIONS);
   const [showModal, setShowModal] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [fileName, setFileName] = useState("");
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
+  // Memoized filtered books based on citation threshold
   const filteredBooks = useMemo(() => {
-    return (
-      originalBooks?.filter((book) => book.citations.length > minCitations) ||
-      []
-    );
+    if (!originalBooks) return [];
+    return originalBooks.filter((book) => book.citations.length > minCitations);
   }, [originalBooks, minCitations]);
 
-  const handleChange = (e) => {
-    const fileReader = new FileReader();
-    fileReader.readAsText(e.target.files[0], "UTF-8");
-    fileReader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target.result).docs;
-        setOriginalBooks(data);
-      } catch (error) {
-        console.error("Error parsing JSON file:", error);
-        Toastify({
-          text: "Invalid file format!",
-          position: "center",
-          duration: 1500,
-          style: { background: "linear-gradient(to right, #ff416c, #ff4b2b)" },
-        }).showToast();
-      }
-    };
-  };
+  // Process uploaded file
+  const processFile = useCallback((file) => {
+    const validation = validateJsonFile(file);
+    if (!validation.valid) {
+      showToast(validation.error, false);
+      return;
+    }
 
-  const setLocalStorage = () => {
+    setFileName(file.name);
+    const fileReader = new FileReader();
+    
+    fileReader.onload = (e) => {
+      const { data, error } = parseLibraryFile(e.target.result);
+      
+      if (error) {
+        showToast(error, false);
+        setFileName("");
+        setOriginalBooks(null);
+        return;
+      }
+
+      setOriginalBooks(data);
+      showToast("File loaded successfully!");
+    };
+
+    fileReader.onerror = () => {
+      showToast("Failed to read file", false);
+      setFileName("");
+    };
+
+    fileReader.readAsText(file, "UTF-8");
+  }, []);
+
+  // File input change handler
+  const handleChange = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+  }, [processFile]);
+
+  // Drag and drop handlers
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
+  }, [processFile]);
+
+  const handleClickUpload = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  // Load books to localStorage and navigate
+  const loadLibrary = useCallback(() => {
     if (!originalBooks) {
-      Toastify({
-        text: "No file selected!",
-        position: "center",
-        duration: 1500,
-        style: { background: "linear-gradient(to right, #ff416c, #ff4b2b)" },
-      }).showToast();
+      showToast("No file selected!", false);
+      return;
+    }
+
+    if (filteredBooks.length === 0) {
+      showToast("No books match the citation criteria!", false);
       return;
     }
 
     try {
-      window.localStorage.setItem("Books", JSON.stringify(filteredBooks));
-      navigate("/");
-      Toastify({
-        text: "Loaded successfully!",
-        duration: 1500,
-        style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
-      }).showToast();
-    } catch (e) {
-      console.error("LocalStorage error:", e);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filteredBooks));
+      showToast("Library loaded successfully!");
+      setTimeout(() => navigate("/"), 500);
+    } catch (error) {
+      console.error("LocalStorage error:", error);
+      showToast("Failed to save library", false);
     }
-  };
+  }, [originalBooks, filteredBooks, navigate]);
 
   return (
-    <div className="container mt-3">
-      <div className="row gap-3 align-items-center">
-        <div className="col-sm">
-          <h1>Welcome to ReadEra - Book Notes</h1>
-          <p>
-            In the ReadEra app, navigate to the <b>Backup & Restore</b> section
+    <div className="container mx-auto px-4 py-6">
+      <div className="grid md:grid-cols-2 gap-6 items-start">
+        <div>
+          <h1 className="text-4xl font-bold mb-4 text-slate-100">Welcome to ReadEra - Book Notes</h1>
+          <p className="mb-4 text-slate-400 text-lg">
+            In the ReadEra app, navigate to the <b className="text-slate-200">Backup & Restore</b> section
             and export a ReadEra backup file.
-          </p>{" "}
+          </p>
           <img
             src="assets/img/bak-file.webp"
             alt="upload"
-            className="img-fluid"
+            className="w-full rounded-xl shadow-xl mb-4 border border-white/10 hover:border-white/20 transition-all duration-300"
           />
-          <p className="py-3">
-            This will create a <b>.bak</b> file containing a{" "}
-            <code>library.json</code> file that holds your ReadEra data.
+          <p className="py-3 text-slate-400">
+            This will create a <b className="text-slate-200">.bak</b> file containing a{" "}
+            <code className="bg-white/5 px-2 py-1 rounded text-amber-400 border border-white/10">library.json</code> file that holds your ReadEra data.
           </p>
           <img
             src="assets/img/json-file.webp"
             alt="json"
-            className="img-fluid"
+            className="w-full rounded-xl shadow-xl border border-white/10 hover:border-white/20 transition-all duration-300"
           />
         </div>
-        <div className="col-sm my-3">
-          <h2 className="mt-2 mb-4">
-            Upload your <code>library.json</code> file
+        
+        <div className="bg-[rgba(26,26,36,0.6)] backdrop-blur-lg p-8 rounded-xl shadow-2xl border border-white/10 space-y-6">
+          <h2 className="text-2xl font-bold text-slate-100">
+            Upload your <code className="bg-white/5 px-2 py-1 rounded text-sm text-amber-400 border border-white/10">library.json</code> file
           </h2>
 
-          <div className="mb-3">
-            <label htmlFor="citations" className="form-label">
-              Minimum number of citations:
-            </label>
+          {/* Drag and Drop Zone */}
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={handleClickUpload}
+            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${
+              isDragging
+                ? "border-amber-500 bg-amber-500/10 shadow-[0_0_30px_rgba(245,158,11,0.2)]"
+                : originalBooks
+                ? "border-amber-500/50 bg-amber-500/5"
+                : "border-white/10 bg-white/5 hover:border-amber-500/50 hover:bg-amber-500/5"
+            }`}
+          >
             <input
+              ref={fileInputRef}
+              type="file"
+              accept={ACCEPTED_FILE_TYPE}
+              onChange={handleChange}
+              className="hidden"
+            />
+            
+            {originalBooks ? (
+              <div className="space-y-3">
+                <FaCheckCircle className="mx-auto text-5xl text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
+                <div>
+                  <p className="text-lg font-semibold text-amber-400">File uploaded successfully!</p>
+                  <p className="text-sm text-slate-400 mt-1">{fileName}</p>
+                  <p className="text-xs text-slate-500 mt-2">Click to upload a different file</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <FaFileImport className="mx-auto text-5xl text-slate-600" />
+                <div>
+                  <p className="text-lg font-semibold text-slate-200">
+                    Drag & Drop your library.json file here
+                  </p>
+                  <p className="text-sm text-slate-500 mt-1">or click to browse files</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Citation Filter */}
+          <div>
+            <Label htmlFor="citations" className="mb-2 text-sm font-semibold text-slate-300">
+              Minimum citations per book:
+            </Label>
+            <Input
               type="number"
-              className="form-control"
               id="citations"
               value={minCitations}
               onChange={(e) => setMinCitations(Number(e.target.value))}
+              className="mb-3 bg-white/5 border-white/10 text-slate-100 focus:border-amber-500/50 focus:ring-amber-500/20"
             />
-            <div className="d-flex gap-2 mt-2 flex-wrap">
-              {[10, 50, 100, 200].map((value) => (
-                <button
+            <div className="flex gap-2 flex-wrap">
+              {CITATION_PRESETS.map((value) => (
+                <Button
                   key={value}
-                  className={`btn btn-sm ${
-                    minCitations === value
-                      ? "btn-primary"
-                      : "btn-outline-primary"
-                  }`}
+                  size="sm"
+                  variant={minCitations === value ? "default" : "outline"}
                   onClick={() => setMinCitations(value)}
+                  className={minCitations === value ? "bg-amber-500 hover:bg-amber-600 text-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.3)]" : "border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400"}
                 >
                   {value}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
 
-          <div className="d-flex gap-1 align-items-center">
-            <input
-              className="form-control form-control-lg"
-              type="file"
-              accept=".json"
-              onChange={handleChange}
-            />
-
-            <OverlayTrigger
-              overlay={<Tooltip>{`Load your library.json file`}</Tooltip>}
-            >
-              <button
-                className="btn btn-lg btn-success"
-                onClick={setLocalStorage}
-                disabled={!originalBooks}
-              >
-                <FaUpload className="font-sm" />
-              </button>
-            </OverlayTrigger>
-          </div>
-
+          {/* File Info and Actions */}
           {originalBooks && (
-            <div className="d-flex flex-row gap-2 mt-3 align-items-center justify-content-between">
-              <div className="d-flex align-items-center gap-2 mt-2">
-                <span className="badge bg-success rounded-pill">
-                  File loaded
-                </span>
-                <p className="mb-0">
-                  {filteredBooks.length > 0
-                    ? `${filteredBooks.length} ${
-                        filteredBooks.length === 1 ? "book" : "books"
-                      }`
-                    : "No books available"}
-                </p>
+            <div className="space-y-3 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                <div>
+                  <p className="text-sm text-slate-400">Books with {minCitations}+ citations</p>
+                  <p className="text-2xl font-bold text-slate-100">
+                    {filteredBooks.length}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowModal(true)}
+                  className="gap-2 border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400"
+                >
+                  <FaEye />
+                  Preview
+                </Button>
               </div>
+
               <Button
-                variant="success"
-                onClick={() => setShowModal(true)}
-                className="d-flex align-items-center gap-2"
+                className="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold py-6 text-lg gap-2 transition-all hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+                onClick={loadLibrary}
               >
-                <FaEye className="font-sm" />
-                <span className="ms-1">Preview Books</span>
+                <FaUpload />
+                Load Library
               </Button>
             </div>
           )}
         </div>
       </div>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Preview Books</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <ListGroup>
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-[#1A1A24] border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-slate-100">Preview Books</DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Books that will be loaded with {minCitations}+ citations
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-2 max-h-[50vh] overflow-y-auto">
             {filteredBooks.map((book, index) => (
-              <ListGroup.Item
+              <div
                 key={index}
-                className="d-flex align-items-center justify-content-between"
+                className="flex items-center justify-between p-4 border border-white/10 rounded-lg hover:bg-white/5 hover:border-white/20 transition-all duration-200"
               >
-                <strong>
+                <strong className="flex-1 truncate pr-4 text-slate-200">
                   {book.data.doc_file_name_title.length > 70
                     ? `${book.data.doc_file_name_title.slice(0, 70)}...`
                     : book.data.doc_file_name_title}
                 </strong>
-                <span>{book.citations.length} citations</span>
-              </ListGroup.Item>
+                <span className="text-sm font-medium text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">{book.citations.length} citations</span>
+              </div>
             ))}
-          </ListGroup>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="success"
-            onClick={setLocalStorage}
-            disabled={!originalBooks}
-          >
-            Load Books
-          </Button>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setShowModal(false)} className="border-white/10 text-slate-300 hover:bg-white/5">
+              Close
+            </Button>
+            <Button
+              className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-medium transition-all hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+              onClick={loadLibrary}
+              disabled={!originalBooks}
+            >
+              Load Books
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
