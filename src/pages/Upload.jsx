@@ -1,8 +1,9 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUpload, FaEye, FaFileImport, FaCheckCircle } from "react-icons/fa";
 import Toastify from "toastify-js";
 import { unzipSync } from "fflate";
+import { setBooks, getSettings } from "../lib/booksStorage";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -18,9 +19,7 @@ import {
 
 // Constants
 const CITATION_PRESETS = [0, 10, 50, 100, 200];
-const DEFAULT_MIN_CITATIONS = 100;
 const ACCEPTED_FILE_TYPES = [".json", ".bak"];
-const LOCAL_STORAGE_KEY = "Books";
 
 // Toast configurations
 const TOAST_CONFIG = {
@@ -76,12 +75,17 @@ const getLibraryJsonFromBak = async (file) => {
 
 export const Upload = () => {
   const [originalBooks, setOriginalBooks] = useState(null);
-  const [minCitations, setMinCitations] = useState(DEFAULT_MIN_CITATIONS);
+  const [minCitations, setMinCitations] = useState(100);
   const [showModal, setShowModal] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState("");
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+
+  // Load default filter from settings on mount
+  useEffect(() => {
+    getSettings().then((s) => setMinCitations(s.defaultFilter));
+  }, []);
 
   // Memoized filtered books based on citation threshold
   const filteredBooks = useMemo(() => {
@@ -168,14 +172,18 @@ export const Upload = () => {
       return;
     }
 
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filteredBooks));
-      showToast("Library loaded successfully!");
-      setTimeout(() => navigate("/"), 500);
-    } catch (error) {
-      console.error("LocalStorage error:", error);
-      showToast("Failed to save library", false);
-    }
+    const persist = async () => {
+      try {
+        await setBooks(filteredBooks);
+        showToast("Library loaded successfully!");
+        setTimeout(() => navigate("/"), 500);
+      } catch (error) {
+        console.error("Storage error:", error);
+        showToast("Failed to save library", false);
+      }
+    };
+
+    void persist();
   }, [originalBooks, filteredBooks, navigate]);
 
   return (

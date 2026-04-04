@@ -4,6 +4,7 @@ import { Header } from "./components/Header";
 import { Library } from "./pages/Library";
 import { Book } from "./pages/Book";
 import { Upload } from "./pages/Upload";
+import { Settings } from "./pages/Settings";
 import { Footer } from "./components/Footer";
 import { ToTopButton } from "./components/ToTopButton";
 
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<Library />} />
           <Route path="/book/:id" element={<Book />} />
           <Route exact path="/upload" element={<Upload />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </main>

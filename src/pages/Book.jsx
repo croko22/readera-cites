@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import Toastify from "toastify-js";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { FaCopy, FaList, FaTh } from "react-icons/fa";
 import { CitesList } from "../components/CitesList";
 import { Search } from "../components/Search";
 import { Button } from "../components/ui/button";
+import { getBooks } from "../lib/booksStorage";
 import {
   Tooltip,
   TooltipContent,
@@ -16,19 +17,33 @@ export const Book = () => {
   const [view, setView] = useState("list");
 
   const { id } = useParams();
-  const Book =
-    useLocation().state ||
-    JSON.parse(localStorage.getItem("Books")).find(
-      (book) => book.data.doc_md5 === id
-    );
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [Book, setBook] = useState(location.state || null);
 
-  const title = Book.data.doc_title || Book.data.doc_file_name_title;
-  let isMobile = window.innerWidth < 768;
-  const [Cites, setCites] = useState(Book.citations);
+  useEffect(() => {
+    if (Book) return;
+    let cancelled = false;
+    const load = async () => {
+      const books = await getBooks();
+      if (cancelled) return;
+      const found = books?.find((b) => b.data.doc_md5 === id) || null;
+      if (!found) { navigate("/upload"); return; }
+      setBook(found);
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [Book, id, navigate]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  if (!Book) return null;
+
+  const title = Book.data.doc_title || Book.data.doc_file_name_title;
+  let isMobile = window.innerWidth < 768;
+  const [Cites, setCites] = useState(Book.citations);
 
   const [searchText, setSearchText] = useState("");
   const filterColors = (n) => {

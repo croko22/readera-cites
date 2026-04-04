@@ -1,4 +1,5 @@
 import { FaBookOpen, FaFileUpload } from "react-icons/fa";
+import { Settings } from "lucide-react";
 
 export const Header = () => {
   return (
@@ -12,15 +13,24 @@ export const Header = () => {
               <span className="sm:hidden">ReadEra</span>
             </span>
           </a>
-          
-          <a 
-            href="/upload" 
-            className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-slate-900 px-3 py-2 sm:px-5 sm:py-2.5 rounded-lg transition-all duration-200 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] font-medium text-sm sm:text-base"
-          >
-            <FaFileUpload />
-            <span className="hidden sm:inline">Upload backup</span>
-            <span className="sm:hidden">Upload</span>
-          </a>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            <a
+              href="/upload"
+              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-slate-900 px-3 py-2 sm:px-5 sm:py-2.5 rounded-lg transition-all duration-200 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] font-medium text-sm sm:text-base"
+            >
+              <FaFileUpload />
+              <span className="hidden sm:inline">Upload backup</span>
+              <span className="sm:hidden">Upload</span>
+            </a>
+            <a
+              href="/settings"
+              className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg border border-white/10 text-slate-400 hover:text-amber-400 hover:border-amber-500/50 hover:bg-amber-500/10 transition-all duration-200"
+              aria-label="Settings"
+            >
+              <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
+            </a>
+          </div>
         </div>
       </div>
     </nav>

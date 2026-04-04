@@ -17,18 +17,31 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../components/ui/tooltip";
+import { getBooks } from "../lib/booksStorage";
 
 export const Library = () => {
-  const storedData = JSON.parse(localStorage.getItem("Books"));
-  const [Books, setBooks] = useState(storedData);
+  const [storedData, setStoredData] = useState(null);
+  const [Books, setBooks] = useState(null);
   const [Favorites, setFavorites] = useState(false);
   const [isSorting, setIsorting] = useState(false);
   const [searchText, setSearchText] = useState("");
 
   const navigate = useNavigate();
   useEffect(() => {
-    if (!storedData) navigate("/upload");
-  }, []);
+    let cancelled = false;
+    const load = async () => {
+      const stored = await getBooks();
+      if (cancelled) return;
+      if (!stored) {
+        navigate("/upload");
+        return;
+      }
+      setStoredData(stored);
+      setBooks(stored);
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [navigate]);
 
   const toggleFavs = () => {
     setFavorites((Favorites) => !Favorites);
