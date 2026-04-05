@@ -6,6 +6,7 @@ import {
   setSettings,
   clearAllData,
   getStorageInfo,
+  clearSearchHistory,
 } from "@/lib/booksStorage";
 import { Button } from "@/components/ui/button";
 import {
@@ -172,7 +173,7 @@ export const Settings = () => {
               Remove all stored books and reset settings to defaults.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -195,6 +196,33 @@ export const Settings = () => {
                   <AlertDialogCancel className="bg-white/5 border-white/10 text-slate-300 hover:bg-white/10">Cancel</AlertDialogCancel>
                   <AlertDialogAction onClick={handleClearAll} className="bg-red-600 hover:bg-red-700 text-white">
                     Clear everything
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="gap-2 border-amber-500/30 text-amber-400 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-300"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Clear search history
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="bg-[#1A1A24] border-white/10">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-slate-100">Clear search history?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-slate-400">
+                    This will permanently delete your recent search history.
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="bg-white/5 border-white/10 text-slate-300 hover:bg-white/10">Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={clearSearchHistory} className="bg-amber-600 hover:bg-amber-700 text-white">
+                    Clear history
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

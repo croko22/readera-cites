@@ -39,3 +39,36 @@
 body {
   font-feature-settings: "rlig" 1, "calt" 1;
 }
+
+/* ── Page transition fade-in ── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out both;
+}
+
+/* ── Toastify progress bar ── */
+.toastify {
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 4px !important;
+}
+
+.toastify::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: rgba(245, 158, 11, 0.6);
+  border-radius: 0 0 4px 4px;
+  animation: toast-shrink linear forwards;
+}
+
+@keyframes toast-shrink {
+  from { width: 100%; }
+  to   { width: 0%; }
+}

@@ -2,6 +2,8 @@ import { del, get, set } from "idb-keyval";
 
 const BOOKS_KEY = "Books";
 const SETTINGS_KEY = "Settings";
+const SEARCH_HISTORY_KEY = "SearchHistory";
+const MAX_SEARCH_HISTORY = 10;
 
 const DEFAULT_SETTINGS = { defaultFilter: 0, theme: "dark" };
 
@@ -194,6 +196,59 @@ export async function clearAllData() {
   }
   try {
     localStorage.removeItem(SETTINGS_KEY);
+  } catch {
+    // ignore
+  }
+  await clearSearchHistory();
+}
+
+export async function getSearchHistory() {
+  try {
+    const fromIdb = await get(SEARCH_HISTORY_KEY);
+    if (fromIdb) return fromIdb;
+  } catch {
+    // fall through
+  }
+
+  try {
+    const raw = localStorage.getItem(SEARCH_HISTORY_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+export async function addSearchHistory(query) {
+  if (!query || !query.trim()) return;
+  const trimmed = query.trim();
+  let history = await getSearchHistory();
+  // Dedupe: remove existing entry if present
+  history = history.filter((item) => item.toLowerCase() !== trimmed.toLowerCase());
+  // Add to front
+  history.unshift(trimmed);
+  // Keep only last N entries
+  history = history.slice(0, MAX_SEARCH_HISTORY);
+
+  try {
+    await set(SEARCH_HISTORY_KEY, history);
+  } catch {
+    try {
+      localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+    } catch {
+      // ignore
+    }
+  }
+}
+
+export async function clearSearchHistory() {
+  try {
+    await del(SEARCH_HISTORY_KEY);
+  } catch {
+    // ignore
+  }
+  try {
+    localStorage.removeItem(SEARCH_HISTORY_KEY);
   } catch {
     // ignore
   }

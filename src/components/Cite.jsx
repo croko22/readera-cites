@@ -8,6 +8,31 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 
+function formatRelativeTime(timestampMs) {
+  if (!timestampMs) return null;
+  const now = Date.now();
+  const diff = now - timestampMs;
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
+
+  const rtf = new Intl.RelativeTimeFormat(navigator.language || "en", {
+    numeric: "auto",
+  });
+
+  if (years > 0) return rtf.format(-years, "year");
+  if (months > 0) return rtf.format(-months, "month");
+  if (weeks > 0) return rtf.format(-weeks, "week");
+  if (days > 0) return rtf.format(-days, "day");
+  if (hours > 0) return rtf.format(-hours, "hour");
+  if (minutes > 0) return rtf.format(-minutes, "minute");
+  return rtf.format(-seconds, "second");
+}
+
 export const Cite = ({ cite }) => {
   const colors = [
     "bg-white/5 border-slate-600",
@@ -96,7 +121,16 @@ export const Cite = ({ cite }) => {
     <li className={`${colors[cite.note_mark]} p-5 rounded-xl list-none mb-4 shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_40px_rgba(245,158,11,0.15)] transition-all duration-300 border-l-4 ${cite.note_mark === 0 ? 'border-slate-500' : cite.note_mark === 1 ? 'border-red-500' : cite.note_mark === 2 ? 'border-amber-500' : cite.note_mark === 3 ? 'border-emerald-500' : 'border-blue-500'} hover:scale-[1.01] backdrop-blur-sm`}>
       <TooltipProvider>
         <div className="flex justify-between items-start mb-3">
-          <small className={`text-sm font-bold ${textColors[cite.note_mark]} bg-white/5 px-3 py-1 rounded-full border border-white/10`}>📖 Page {cite.note_page}</small>
+          <span className="flex items-center gap-2 flex-wrap">
+            <small className={`text-sm font-bold ${textColors[cite.note_mark]} bg-white/5 px-3 py-1 rounded-full border border-white/10`}>
+              📖 Page {cite.note_page}
+            </small>
+            {cite.note_timestamp ? (
+              <small className="text-xs text-slate-500 bg-white/5 px-2 py-1 rounded-full border border-white/5">
+                {formatRelativeTime(cite.note_timestamp)}
+              </small>
+            ) : null}
+          </span>
 
           <span className="flex gap-3">
             <Tooltip>
