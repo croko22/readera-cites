@@ -4,9 +4,16 @@ import {
   FaRedo,
   FaRegStar,
   FaStar,
-  FaSortAmountDown,
   FaTimes,
 } from "react-icons/fa";
+import {
+  ArrowDownAZ,
+  ArrowUpAZ,
+  ArrowDownNarrowWide,
+  ArrowUpNarrowWide,
+  FileJson,
+  Search as SearchIcon,
+} from "lucide-react";
 import { Search } from "../components/Search";
 import { BookCard } from "../components/BookCard";
 import { LibrarySkeleton } from "../components/Skeleton";
@@ -28,7 +35,6 @@ import {
 } from "../components/ui/tooltip";
 import { getBooks } from "../lib/booksStorage";
 import { buildLibraryJson, downloadFile } from "../lib/exportUtils";
-import { FileJson } from "lucide-react";
 
 const MIN_SKELETON_MS = 300;
 
@@ -37,6 +43,11 @@ const DATE_RANGES = [
   { value: "7d", label: "Last 7 days" },
   { value: "30d", label: "Last 30 days" },
   { value: "3m", label: "Last 3 months" },
+];
+
+const SORT_MODES = [
+  { key: "quotes-desc", label: "By Quotes", iconDesc: ArrowDownNarrowWide, iconAsc: ArrowUpNarrowWide },
+  { key: "alpha-desc", label: "A — Z", iconDesc: ArrowDownAZ, iconAsc: ArrowUpAZ },
 ];
 
 function getDateThreshold(range) {
@@ -52,10 +63,7 @@ function highlightText(text, query) {
   const parts = text.split(new RegExp(`(${escaped})`, "gi"));
   return parts.map((part, i) =>
     part.toLowerCase() === query.toLowerCase() ? (
-      <mark
-        key={i}
-        className="bg-amber-500/30 text-amber-200 rounded-sm px-0.5"
-      >
+      <mark key={i} className="bg-amber-500/30 text-amber-200 rounded-sm px-0.5">
         {part}
       </mark>
     ) : (
@@ -69,11 +77,12 @@ export const Library = () => {
   const [Books, setBooks] = useState(null);
   const [loading, setLoading] = useState(true);
   const [Favorites, setFavorites] = useState(false);
-  const [isSorting, setIsorting] = useState(false);
+  const [sortState, setSortState] = useState(null); // { key: "quotes"|"alpha", dir: "desc"|"asc" }
   const [searchText, setSearchText] = useState("");
   const [searchMode, setSearchMode] = useState("title");
   const [dateRange, setDateRange] = useState("all");
   const [authorFilter, setAuthorFilter] = useState("all");
+  const [authorSearch, setAuthorSearch] = useState("");
   const [minCitations, setMinCitations] = useState("");
 
   const navigate = useNavigate();
@@ -84,27 +93,19 @@ export const Library = () => {
     const load = async () => {
       const stored = await getBooks();
       if (cancelled) return;
-      if (!stored) {
-        navigate("/upload");
-        return;
-      }
+      if (!stored) { navigate("/upload"); return; }
       const elapsed = Date.now() - start;
       const remaining = MIN_SKELETON_MS - elapsed;
-      if (remaining > 0) {
-        await new Promise((r) => setTimeout(r, remaining));
-      }
+      if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
       if (cancelled) return;
       setStoredData(stored);
       setBooks(stored);
       setLoading(false);
     };
     void load();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [navigate]);
 
-  // Extract unique authors from stored data
   const authors = useMemo(() => {
     if (!storedData) return [];
     const authorSet = new Set();
@@ -115,37 +116,32 @@ export const Library = () => {
     return Array.from(authorSet).sort((a, b) => a.localeCompare(b));
   }, [storedData]);
 
-  // Citation search results (when in citation mode)
-  const citationResults = useMemo(() => {
-    if (searchMode !== "citations" || !searchText.trim() || !storedData)
-      return null;
+  const filteredAuthors = useMemo(() => {
+    if (!authorSearch.trim()) return authors;
+    const q = authorSearch.toLowerCase();
+    return authors.filter((a) => a.toLowerCase().includes(q));
+  }, [authors, authorSearch]);
 
+  const citationResults = useMemo(() => {
+    if (searchMode !== "citations" || !searchText.trim() || !storedData) return null;
     const query = searchText.toLowerCase();
     const results = [];
-
     for (const book of storedData) {
       const matches = [];
       for (const cite of book.citations) {
         const body = (cite.note_body || "").toLowerCase();
         const extra = (cite.note_extra || "").toLowerCase();
-        if (body.includes(query) || extra.includes(query)) {
-          matches.push(cite);
-        }
+        if (body.includes(query) || extra.includes(query)) matches.push(cite);
       }
-      if (matches.length > 0) {
-        results.push({ book, matches });
-      }
+      if (matches.length > 0) results.push({ book, matches });
     }
     return results;
   }, [searchMode, searchText, storedData]);
 
-  // Apply all filters to the book list (title search mode)
   const filteredBooks = useMemo(() => {
     if (!Books) return null;
+    let result = [...Books];
 
-    let result = Books;
-
-    // Text search (title mode only)
     if (searchMode === "title" && searchText) {
       const query = searchText.toLowerCase();
       result = result.filter((book) =>
@@ -153,78 +149,74 @@ export const Library = () => {
       );
     }
 
-    // Date range filter
     if (dateRange !== "all") {
       const threshold = getDateThreshold(dateRange);
-      result = result.filter(
-        (book) => book.data.doc_last_read_time >= threshold
-      );
+      result = result.filter((book) => book.data.doc_last_read_time >= threshold);
     }
 
-    // Author filter
     if (authorFilter !== "all") {
-      result = result.filter(
-        (book) => book.data.doc_authors === authorFilter
-      );
+      result = result.filter((book) => book.data.doc_authors === authorFilter);
     }
 
-    // Min citations filter
     if (minCitations && Number(minCitations) > 0) {
       const min = Number(minCitations);
       result = result.filter((book) => book.citations.length >= min);
     }
 
+    if (Favorites) {
+      result = result.filter((book) => book.data.doc_favorites_time != 0);
+    }
+
+    if (sortState) {
+      if (sortState.key === "quotes") {
+        result.sort((a, b) =>
+          sortState.dir === "desc"
+            ? b.citations.length - a.citations.length
+            : a.citations.length - b.citations.length
+        );
+      } else {
+        result.sort((a, b) =>
+          sortState.dir === "desc"
+            ? b.data.doc_file_name_title.localeCompare(a.data.doc_file_name_title)
+            : a.data.doc_file_name_title.localeCompare(b.data.doc_file_name_title)
+        );
+      }
+    }
+
     return result;
-  }, [Books, searchText, searchMode, dateRange, authorFilter, minCitations]);
+  }, [Books, searchText, searchMode, dateRange, authorFilter, minCitations, Favorites, sortState]);
 
   const hasActiveFilters =
     dateRange !== "all" ||
     authorFilter !== "all" ||
     (minCitations && Number(minCitations) > 0);
 
-  const toggleFavs = () => {
-    setFavorites((Favorites) => !Favorites);
-    if (!Favorites)
-      setBooks(Books.filter((book) => book.data.doc_favorites_time != 0));
-    else restoreChanges();
+  const toggleSort = (key) => {
+    setSortState((prev) => {
+      if (prev && prev.key === key) {
+        return prev.dir === "desc" ? { key, dir: "asc" } : null;
+      }
+      return { key, dir: "desc" };
+    });
   };
 
-  const sortByNofQuotes = () => {
-    setIsorting((isSorting) => !isSorting);
-    if (!isSorting)
-      setBooks(Books.sort((a, b) => b.citations.length - a.citations.length));
-    else restoreChanges();
-  };
-
-  const sortAlphabetically = () => {
-    setIsorting((isSorting) => !isSorting);
-    if (!isSorting)
-      setBooks(
-        [...Books].sort((a, b) =>
-          a.data.doc_file_name_title.localeCompare(b.data.doc_file_name_title)
-        )
-      );
-    else restoreChanges();
-  };
+  const toggleFavs = () => setFavorites((v) => !v);
 
   const restoreChanges = () => {
-    setBooks(storedData);
     setFavorites(false);
-    setIsorting(false);
+    setSortState(null);
     setSearchText("");
     setDateRange("all");
     setAuthorFilter("all");
+    setAuthorSearch("");
     setMinCitations("");
   };
 
   const navigateToBook = useCallback(
-    (md5) => {
-      navigate(`/book/${md5}`);
-    },
+    (md5) => navigate(`/book/${md5}`),
     [navigate]
   );
 
-  // Loading skeleton
   if (loading || !Books) {
     return (
       <div className="container mx-auto px-4 mt-6 mb-8">
@@ -239,7 +231,13 @@ export const Library = () => {
     );
   }
 
-  // Citation search mode rendering
+  const btnClass =
+    "gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300";
+  const btnActive =
+    "gap-2 font-semibold bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/60 transition-all duration-300";
+  const selectTriggerClass =
+    "h-10 gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300 bg-transparent";
+
   if (searchMode === "citations" && searchText.trim() && citationResults) {
     return (
       <div className="container mx-auto px-4 mt-6 mb-8">
@@ -249,7 +247,6 @@ export const Library = () => {
           searchMode={searchMode}
           onSearchModeChange={setSearchMode}
         />
-
         {citationResults.length === 0 ? (
           <EmptyState
             icon="search"
@@ -260,19 +257,17 @@ export const Library = () => {
           />
         ) : (
           <>
-            <div className="mt-4 mb-3 flex items-center justify-between">
+            <div className="mt-4 mb-3">
               <p className="text-sm text-slate-400">
                 Found matches in {citationResults.length} book{citationResults.length !== 1 ? "s" : ""}
               </p>
             </div>
-
             <div className="space-y-4">
               {citationResults.map(({ book, matches }) => (
                 <div
                   key={book.data.doc_md5}
                   className="rounded-xl overflow-hidden border border-white/10 bg-[rgba(26,26,36,0.6)] backdrop-blur-lg shadow-2xl hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-300"
                 >
-                  {/* Book header */}
                   <div
                     className="px-4 py-3 bg-[rgba(18,18,26,0.8)] border-l-4 border-amber-500 cursor-pointer hover:bg-[rgba(18,18,26,0.9)]"
                     onClick={() => navigateToBook(book.data.doc_md5)}
@@ -286,13 +281,9 @@ export const Library = () => {
                       </span>
                     </div>
                     {book.data.doc_authors && (
-                      <p className="text-sm text-slate-400 mt-0.5">
-                        {book.data.doc_authors}
-                      </p>
+                      <p className="text-sm text-slate-400 mt-0.5">{book.data.doc_authors}</p>
                     )}
                   </div>
-
-                  {/* Citation previews */}
                   <div className="px-4 py-2 space-y-2 bg-[rgba(26,26,36,0.4)]">
                     {matches.slice(0, 3).map((cite, idx) => (
                       <div
@@ -327,7 +318,6 @@ export const Library = () => {
     );
   }
 
-  // Normal library view (title search + filters)
   return (
     <div className="container mx-auto px-4 mt-6 mb-8">
       <Search
@@ -338,71 +328,76 @@ export const Library = () => {
       />
 
       <TooltipProvider>
-        <div className="my-4 flex gap-3 flex-wrap">
-          <Button
-            variant="outline"
-            size="default"
-            onClick={toggleFavs}
-            className="gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300"
-          >
-            {Favorites ? (
-              <FaStar className="text-amber-500" />
-            ) : (
-              <FaRegStar />
-            )}{" "}
-            Favorites
+        <div className="my-4 flex gap-3 flex-wrap items-center">
+          <Button variant="outline" size="default" onClick={toggleFavs} className={Favorites ? btnActive : btnClass}>
+            {Favorites ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
           </Button>
 
-          <Button
-            variant="outline"
-            size="default"
-            onClick={sortByNofQuotes}
-            className="gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300"
-          >
-            <FaSortAmountDown /> By Quotes
-          </Button>
+          {SORT_MODES.map((mode) => {
+            const isActive = sortState && sortState.key === mode.key.split("-")[0];
+            const isAsc = isActive && sortState.dir === "asc";
+            const Icon = isAsc ? mode.iconAsc : mode.iconDesc;
+            return (
+              <Button
+                key={mode.key}
+                variant="outline"
+                size="default"
+                onClick={() => toggleSort(mode.key.split("-")[0])}
+                className={isActive ? btnActive : btnClass}
+              >
+                <Icon className="h-4 w-4" /> {mode.label}
+                {isActive && (
+                  <span className="text-[10px] opacity-60">{isAsc ? "ASC" : "DESC"}</span>
+                )}
+              </Button>
+            );
+          })}
 
-          <Button
-            variant="outline"
-            size="default"
-            onClick={sortAlphabetically}
-            className="gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300"
-          >
-            <FaSortAmountDown /> Alphabetically
-          </Button>
-
-          {/* Date range filter */}
           <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-36 h-10 gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300 bg-transparent">
+            <SelectTrigger className={selectTriggerClass + " w-36"}>
               <SelectValue placeholder="Date range" />
             </SelectTrigger>
             <SelectContent>
               {DATE_RANGES.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
+                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          {/* Author filter */}
           {authors.length > 0 && (
-            <Select value={authorFilter} onValueChange={setAuthorFilter}>
-              <SelectTrigger className="w-44 h-10 gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300 bg-transparent">
-                <SelectValue placeholder="Author" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All authors</SelectItem>
-                {authors.map((author) => (
-                  <SelectItem key={author} value={author}>
-                    {author}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="relative">
+              <Select value={authorFilter} onValueChange={(v) => { setAuthorFilter(v); setAuthorSearch(""); }}>
+                <SelectTrigger className={selectTriggerClass + " w-48"}>
+                  <SelectValue placeholder="Author" />
+                </SelectTrigger>
+                <SelectContent>
+                  <div className="px-2 pb-2 sticky top-0 bg-[#1A1A24] z-10">
+                    <div className="relative">
+                      <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+                      <input
+                        placeholder="Search authors..."
+                        value={authorSearch}
+                        onChange={(e) => setAuthorSearch(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => { if (e.key === "Escape") setAuthorSearch(""); }}
+                        className="w-full h-8 rounded-md border border-white/10 bg-white/5 pl-8 pr-2 text-xs text-slate-300 placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50"
+                      />
+                    </div>
+                  </div>
+                  <div className="max-h-48 overflow-y-auto">
+                    <SelectItem value="all">All authors</SelectItem>
+                    {filteredAuthors.map((author) => (
+                      <SelectItem key={author} value={author}>{author}</SelectItem>
+                    ))}
+                    {filteredAuthors.length === 0 && (
+                      <p className="px-3 py-2 text-xs text-slate-500">No authors match</p>
+                    )}
+                  </div>
+                </SelectContent>
+              </Select>
+            </div>
           )}
 
-          {/* Min citations input */}
           <div className="relative">
             <input
               type="number"
@@ -414,27 +409,19 @@ export const Library = () => {
             />
           </div>
 
-          {Favorites || isSorting || hasActiveFilters ? (
+          {Favorites || sortState || hasActiveFilters ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="default"
-                  onClick={restoreChanges}
-                  className="gap-2 font-semibold border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 transition-all duration-300"
-                >
+                <Button variant="outline" size="default" onClick={restoreChanges} className="gap-2 font-semibold border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 transition-all duration-300">
                   <FaTimes /> Reset
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="bg-[#1A1A24] border-white/10 text-slate-200">
-                <p>
-                  Reset filters <FaRedo className="inline" />
-                </p>
+                <p>Reset filters <FaRedo className="inline" /></p>
               </TooltipContent>
             </Tooltip>
           ) : null}
 
-          {/* Export library */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -444,7 +431,7 @@ export const Library = () => {
                   const json = JSON.stringify(buildLibraryJson(Books), null, 2);
                   downloadFile(json, "readera-library.json", "application/json");
                 }}
-                className="gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300"
+                className={btnClass}
               >
                 <FileJson className="h-4 w-4" /> Export
               </Button>
