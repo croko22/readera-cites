@@ -71,6 +71,7 @@ export const Cite = ({ cite }) => {
         position: "left",
         stopOnFocus: true,
         duration: 2000,
+        style: { "--toast-duration": "2s" },
       }).showToast();
       return;
     }
@@ -84,6 +85,7 @@ export const Cite = ({ cite }) => {
         position: "left",
         stopOnFocus: true,
         duration: 3000,
+        style: { "--toast-duration": "3s" },
       }).showToast();
     } catch (err) {
       try {
@@ -102,6 +104,7 @@ export const Cite = ({ cite }) => {
           position: "left",
           stopOnFocus: true,
           duration: 3000,
+          style: { "--toast-duration": "3s" },
         }).showToast();
       } catch (err2) {
         Toastify({
@@ -111,6 +114,7 @@ export const Cite = ({ cite }) => {
           position: "left",
           stopOnFocus: true,
           duration: 3000,
+          style: { "--toast-duration": "3s" },
           backgroundColor: "#cc0000",
         }).showToast();
       }

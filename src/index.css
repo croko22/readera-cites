@@ -66,6 +66,7 @@ body {
   background: rgba(245, 158, 11, 0.6);
   border-radius: 0 0 4px 4px;
   animation: toast-shrink linear forwards;
+  animation-duration: var(--toast-duration, 3s);
 }
 
 @keyframes toast-shrink {

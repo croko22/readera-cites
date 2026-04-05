@@ -31,7 +31,10 @@ const showToast = (text, isSuccess = true) => {
   Toastify({
     ...TOAST_CONFIG,
     text,
-    style: { background: isSuccess ? "#F59E0B" : "#ef4444" },
+    style: {
+      background: isSuccess ? "#F59E0B" : "#ef4444",
+      "--toast-duration": `${TOAST_CONFIG.duration / 1000}s`,
+    },
   }).showToast();
 };
 

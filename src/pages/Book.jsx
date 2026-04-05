@@ -40,6 +40,8 @@ import {
   TooltipTrigger,
 } from "../components/ui/tooltip";
 
+const MIN_SKELETON_MS = 300;
+
 // ── Relative time formatter ──────────────────────────────────────────
 function formatRelativeTime(timestampMs) {
   if (!timestampMs) return null;
@@ -101,6 +103,7 @@ function sortCitations(citations, sortKey) {
 export const Book = () => {
   const [view, setView] = useState("list");
   const [sortKey, setSortKey] = useState("page-asc");
+  const [loading, setLoading] = useState(true);
 
   const { id } = useParams();
   const location = useLocation();
@@ -111,17 +114,28 @@ export const Book = () => {
   // Load book data when navigating directly (no router state)
   useEffect(() => {
     let cancelled = false;
+    const start = Date.now();
     const load = async () => {
       const books = await getBooks();
       if (cancelled) return;
       setAllBooks(books || []);
-      if (Book) return;
+      if (Book) {
+        setLoading(false);
+        return;
+      }
       const found = books?.find((b) => b.data.doc_md5 === id) || null;
       if (!found) {
         navigate("/upload");
         return;
       }
+      const elapsed = Date.now() - start;
+      const remaining = MIN_SKELETON_MS - elapsed;
+      if (remaining > 0) {
+        await new Promise((r) => setTimeout(r, remaining));
+      }
+      if (cancelled) return;
       setBook(found);
+      setLoading(false);
     };
     void load();
     return () => {
@@ -134,7 +148,13 @@ export const Book = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  if (!Book) return null;
+  if (loading || !Book) {
+    return (
+      <div className="container mx-auto px-4 mt-6 mb-8">
+        <BookSkeleton count={4} />
+      </div>
+    );
+  }
 
   const title = Book.data.doc_title || Book.data.doc_file_name_title;
   const isMobile = window.innerWidth < 768;
@@ -215,6 +235,7 @@ export const Book = () => {
         position: "right",
         stopOnFocus: true,
         duration: 2500,
+        style: { "--toast-duration": "2.5s" },
         backgroundColor: "gray",
       }).showToast();
       return;
@@ -230,6 +251,7 @@ export const Book = () => {
       position: "right",
       stopOnFocus: true,
       duration: 3000,
+      style: { "--toast-duration": "3s" },
       backgroundColor: ok ? "gray" : "#cc0000",
     }).showToast();
   };
@@ -246,6 +268,7 @@ export const Book = () => {
       position: "right",
       stopOnFocus: true,
       duration: 2500,
+      style: { "--toast-duration": "2.5s" },
       backgroundColor: "gray",
     }).showToast();
   };
@@ -263,6 +286,7 @@ export const Book = () => {
       position: "right",
       stopOnFocus: true,
       duration: 2500,
+      style: { "--toast-duration": "2.5s" },
       backgroundColor: "gray",
     }).showToast();
   };
@@ -470,7 +494,21 @@ export const Book = () => {
       </TooltipProvider>
 
       {/* ── Citations list ── */}
-      <CitesList cites={sortedCites} view={view} />
+      {sortedCites.length === 0 ? (
+        <EmptyState
+          icon="palette"
+          title="No citations match"
+          description={
+            searchText
+              ? "Try adjusting your search or color filter."
+              : "No citations with this color. Try selecting a different filter or 'All'."
+          }
+          actionLabel="Show all"
+          onAction={() => { filterColors(7); setSearchText(""); }}
+        />
+      ) : (
+        <CitesList cites={sortedCites} view={view} />
+      )}
 
       {/* ── Prev / Next book navigation ── */}
       {(prevBook || nextBook) && (
