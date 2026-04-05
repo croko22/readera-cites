@@ -104,6 +104,8 @@ export const Book = () => {
   const [view, setView] = useState("list");
   const [sortKey, setSortKey] = useState("page-asc");
   const [loading, setLoading] = useState(true);
+  const [Cites, setCites] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
   const { id } = useParams();
   const location = useLocation();
@@ -148,6 +150,11 @@ export const Book = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Sync citations when Book loads
+  useEffect(() => {
+    if (Book) setCites(Book.citations);
+  }, [Book]);
+
   if (loading || !Book) {
     return (
       <div className="container mx-auto px-4 mt-6 mb-8">
@@ -158,9 +165,6 @@ export const Book = () => {
 
   const title = Book.data.doc_title || Book.data.doc_file_name_title;
   const isMobile = window.innerWidth < 768;
-
-  const [Cites, setCites] = useState(Book.citations);
-  const [searchText, setSearchText] = useState("");
 
   const filterColors = (n) => {
     n === 7
