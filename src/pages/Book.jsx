@@ -157,14 +157,13 @@ export const Book = () => {
 
   if (loading || !Book) {
     return (
-      <div className="container mx-auto px-4 mt-6 mb-8">
+      <div className="container mx-auto mb-10 mt-7 px-4">
         <BookSkeleton count={4} />
       </div>
     );
   }
 
   const title = Book.data.doc_title || Book.data.doc_file_name_title;
-  const isMobile = window.innerWidth < 768;
 
   const filterColors = (n) => {
     n === 7
@@ -296,25 +295,23 @@ export const Book = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 mt-6 mb-8">
+    <div className="container mx-auto mb-10 mt-7 px-4">
       {/* ── Back to library ── */}
       <Link
         to="/"
-        className="inline-flex items-center gap-2 text-slate-400 hover:text-amber-400 transition-colors duration-200 mb-4 group"
+        className="group mb-4 inline-flex items-center gap-2 text-slate-400 transition-colors duration-200 hover:text-amber-400"
       >
         <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
         <span className="text-sm font-medium">Back to Library</span>
       </Link>
 
       {/* ── Book header ── */}
-      <div className="rounded-xl p-5 mb-6 bg-[rgba(26,26,36,0.6)] backdrop-blur-lg border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:border-amber-500/20 transition-all duration-300">
+      <div className="panel mb-6 rounded-xl p-5">
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-100 mb-2 truncate">
-              {isMobile && title.length > 30
-                ? title.slice(0, 30) + "..."
-                : title}
-            </h1>
+              <h1 className="mb-2 line-clamp-2 text-2xl font-semibold tracking-tight text-slate-100 md:line-clamp-1 md:text-3xl">
+               {title}
+             </h1>
             {authors && (
               <p className="text-slate-400 text-sm mb-3">
                 by <span className="text-slate-200 font-medium">{authors}</span>
@@ -344,10 +341,7 @@ export const Book = () => {
           <div className="flex flex-col items-start md:items-end gap-2 shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="default"
-                  className="gap-2 bg-amber-500 hover:bg-amber-600 text-slate-900 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] transition-all duration-300"
-                >
+                <Button variant="default" className="motion-lift gap-2 bg-amber-500 text-slate-900 hover:bg-amber-600">
                   Export <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -370,7 +364,7 @@ export const Book = () => {
         </div>
 
         {/* Progress & last read */}
-        <div className="mt-4 pt-3 border-t border-white/5">
+        <div className="mt-5 border-t border-white/8 pt-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div className="flex-1 max-w-md">
               <div className="flex justify-between items-center mb-1">
@@ -396,52 +390,52 @@ export const Book = () => {
 
       {/* ── Filter + sort + view toggle toolbar ── */}
       <TooltipProvider>
-        <div className="mt-4 flex justify-between items-center flex-wrap gap-3">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
           {/* Color filter buttons */}
           <span className="flex gap-2 flex-wrap">
             <Button
               onClick={() => filterColors(7)}
               variant="secondary"
               size="default"
-              className="bg-white/10 hover:bg-white/15 border border-white/10 text-slate-200 shadow-lg transition-all duration-300 font-semibold"
-            >
+               className="motion-lift border border-white/10 bg-white/10 font-semibold text-slate-200 transition-all duration-200 hover:bg-white/15"
+             >
               All {Book.citations.length}
             </Button>
             <Button
               onClick={() => filterColors(0)}
               variant="secondary"
               size="default"
-              className="bg-slate-500/20 hover:bg-slate-500/30 border border-slate-500/30 text-slate-300 shadow-lg transition-all duration-300"
-            >
+               className="motion-lift border border-slate-500/30 bg-slate-500/20 text-slate-300 transition-all duration-200 hover:bg-slate-500/30"
+             >
               {Book.citations.filter((cite) => cite.note_mark === 0).length}
             </Button>
             <Button
               onClick={() => filterColors(1)}
               variant="secondary"
               size="default"
-              className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 shadow-lg transition-all duration-300"
-            >
+               className="motion-lift border border-red-500/30 bg-red-500/20 text-red-300 transition-all duration-200 hover:bg-red-500/30"
+             >
               {Book.citations.filter((cite) => cite.note_mark === 1).length}
             </Button>
             <Button
               onClick={() => filterColors(2)}
               size="default"
-              className="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 shadow-lg transition-all duration-300"
-            >
+               className="motion-lift border border-amber-500/30 bg-amber-500/20 text-amber-300 transition-all duration-200 hover:bg-amber-500/30"
+             >
               {Book.citations.filter((cite) => cite.note_mark === 2).length}
             </Button>
             <Button
               onClick={() => filterColors(3)}
               size="default"
-              className="bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 shadow-lg transition-all duration-300"
-            >
+               className="motion-lift border border-emerald-500/30 bg-emerald-500/20 text-emerald-300 transition-all duration-200 hover:bg-emerald-500/30"
+             >
               {Book.citations.filter((cite) => cite.note_mark === 3).length}
             </Button>
             <Button
               onClick={() => filterColors(4)}
               size="default"
-              className="bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 shadow-lg transition-all duration-300"
-            >
+               className="motion-lift border border-blue-500/30 bg-blue-500/20 text-blue-300 transition-all duration-200 hover:bg-blue-500/30"
+             >
               {Book.citations.filter((cite) => cite.note_mark === 4).length}
             </Button>
           </span>
@@ -458,16 +452,17 @@ export const Book = () => {
                       onClick={() => setSortKey(opt.key)}
                       variant={isActive ? "default" : "outline"}
                       size="icon"
+                      aria-label={`Sort citations by ${opt.label}`}
                       className={
                         isActive
-                          ? "bg-amber-500 hover:bg-amber-600 text-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
-                          : "shadow-lg border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300"
+                          ? "bg-amber-500 text-slate-900 hover:bg-amber-600"
+                          : "motion-lift border-white/10 text-slate-300 transition-all duration-200 hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-400"
                       }
                     >
                       <Icon className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent className="bg-[#1A1A24] border-white/10 text-slate-200">
+                  <TooltipContent className="border-white/10 bg-card text-slate-200">
                     <p>Sort by {opt.label}</p>
                   </TooltipContent>
                 </Tooltip>
@@ -484,12 +479,13 @@ export const Book = () => {
                   }
                   variant="outline"
                   size="icon"
-                  className="shadow-lg border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300"
+                  aria-label={`Change to ${view === "list" ? "grid" : "list"} view`}
+                  className="motion-lift border-white/10 text-slate-300 transition-all duration-200 hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-400"
                 >
                   {view === "list" ? <FaList /> : <FaTh />}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className="bg-[#1A1A24] border-white/10 text-slate-200">
+              <TooltipContent className="border-white/10 bg-card text-slate-200">
                 <p>{`Change to ${view === "list" ? "grid" : "list"} view`}</p>
               </TooltipContent>
             </Tooltip>

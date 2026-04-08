@@ -219,11 +219,11 @@ export const Library = () => {
 
   if (loading || !Books) {
     return (
-      <div className="container mx-auto px-4 mt-6 mb-8">
-        <div className="animate-pulse h-12 w-full rounded-lg bg-white/5 mb-4" />
-        <div className="my-4 flex gap-3 flex-wrap">
+      <div className="container mx-auto mb-10 mt-7 px-4">
+        <div className="panel mb-4 h-12 w-full animate-pulse rounded-xl" />
+        <div className="my-5 flex flex-wrap gap-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="animate-pulse h-10 w-28 rounded-md bg-white/5" />
+            <div key={i} className="surface-muted h-10 w-28 animate-pulse rounded-md" />
           ))}
         </div>
         <LibrarySkeleton count={5} />
@@ -232,15 +232,15 @@ export const Library = () => {
   }
 
   const btnClass =
-    "gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300";
+    "motion-lift gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200";
   const btnActive =
-    "gap-2 font-semibold bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/60 transition-all duration-300";
+    "motion-lift gap-2 font-semibold bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/60 transition-all duration-200";
   const selectTriggerClass =
-    "h-10 gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300 bg-transparent";
+    "h-10 gap-2 bg-transparent font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200";
 
   if (searchMode === "citations" && searchText.trim() && citationResults) {
     return (
-      <div className="container mx-auto px-4 mt-6 mb-8">
+      <div className="container mx-auto mb-10 mt-7 px-4">
         <Search
           searchText={searchText}
           setSearchText={setSearchText}
@@ -257,7 +257,7 @@ export const Library = () => {
           />
         ) : (
           <>
-            <div className="mt-4 mb-3">
+            <div className="mb-4 mt-5">
               <p className="text-sm text-slate-400">
                 Found matches in {citationResults.length} book{citationResults.length !== 1 ? "s" : ""}
               </p>
@@ -266,11 +266,13 @@ export const Library = () => {
               {citationResults.map(({ book, matches }) => (
                 <div
                   key={book.data.doc_md5}
-                  className="rounded-xl overflow-hidden border border-white/10 bg-[rgba(26,26,36,0.6)] backdrop-blur-lg shadow-2xl hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-300"
+                  className="panel motion-lift overflow-hidden rounded-xl"
                 >
-                  <div
-                    className="px-4 py-3 bg-[rgba(18,18,26,0.8)] border-l-4 border-amber-500 cursor-pointer hover:bg-[rgba(18,18,26,0.9)]"
+                  <button
+                    type="button"
+                    className="w-full cursor-pointer border-l-4 border-amber-500 bg-[rgba(18,18,26,0.8)] px-4 py-3 text-left"
                     onClick={() => navigateToBook(book.data.doc_md5)}
+                    aria-label={`Open ${book.data.doc_file_name_title}`}
                   >
                     <div className="flex items-center justify-between">
                       <h5 className="text-lg font-bold text-slate-100 hover:text-amber-400 transition-colors truncate mr-4">
@@ -283,12 +285,12 @@ export const Library = () => {
                     {book.data.doc_authors && (
                       <p className="text-sm text-slate-400 mt-0.5">{book.data.doc_authors}</p>
                     )}
-                  </div>
-                  <div className="px-4 py-2 space-y-2 bg-[rgba(26,26,36,0.4)]">
+                  </button>
+                   <div className="space-y-2 bg-[rgba(26,26,36,0.4)] px-4 py-2">
                     {matches.slice(0, 3).map((cite, idx) => (
                       <div
                         key={idx}
-                        className="text-sm text-slate-300 py-1.5 px-3 rounded-lg bg-white/[0.02] border-l-2 border-amber-500/30"
+                        className="rounded-lg border-l-2 border-amber-500/30 bg-white/[0.02] px-3 py-1.5 text-sm text-slate-300"
                       >
                         <p className="line-clamp-2">
                           {highlightText(cite.note_body || "", searchText.trim())}
@@ -319,7 +321,7 @@ export const Library = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 mt-6 mb-8">
+    <div className="container mx-auto mb-10 mt-7 px-4">
       <Search
         searchText={searchText}
         setSearchText={setSearchText}
@@ -328,7 +330,7 @@ export const Library = () => {
       />
 
       <TooltipProvider>
-        <div className="my-4 flex gap-3 flex-wrap items-center">
+        <div className="my-5 flex flex-wrap items-center gap-3">
           <Button variant="outline" size="default" onClick={toggleFavs} className={Favorites ? btnActive : btnClass}>
             {Favorites ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
           </Button>
@@ -371,7 +373,7 @@ export const Library = () => {
                   <SelectValue placeholder="Author" />
                 </SelectTrigger>
                 <SelectContent>
-                  <div className="px-2 pb-2 sticky top-0 bg-[#1A1A24] z-10">
+                  <div className="sticky top-0 z-10 bg-card px-2 pb-2">
                     <div className="relative">
                       <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
                       <input
@@ -416,7 +418,7 @@ export const Library = () => {
                   <FaTimes /> Reset
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className="bg-[#1A1A24] border-white/10 text-slate-200">
+              <TooltipContent className="border-white/10 bg-card text-slate-200">
                 <p>Reset filters <FaRedo className="inline" /></p>
               </TooltipContent>
             </Tooltip>
@@ -436,7 +438,7 @@ export const Library = () => {
                 <FileJson className="h-4 w-4" /> Export
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="bg-[#1A1A24] border-white/10 text-slate-200">
+            <TooltipContent className="border-white/10 bg-card text-slate-200">
               <p>Download library as JSON</p>
             </TooltipContent>
           </Tooltip>

@@ -190,20 +190,20 @@ export const Upload = () => {
   }, [originalBooks, filteredBooks, navigate]);
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="grid md:grid-cols-2 gap-6 items-start">
+    <div className="container mx-auto px-4 py-7">
+      <div className="grid items-start gap-7 md:grid-cols-2">
         <div>
-          <h1 className="text-4xl font-bold mb-4 text-slate-100">Welcome to ReadEra - Book Notes</h1>
-          <p className="mb-4 text-slate-400 text-lg">
+          <h1 className="mb-4 text-3xl font-semibold tracking-tight text-slate-100 sm:text-4xl">Welcome to ReadEra - Book Notes</h1>
+          <p className="mb-4 text-base leading-relaxed text-slate-400 sm:text-lg">
             In the ReadEra app, navigate to the <b className="text-slate-200">Backup & Restore</b> section
             and export a ReadEra backup file.
           </p>
           <img
             src="assets/img/bak-file.webp"
             alt="upload"
-            className="w-full rounded-xl shadow-xl mb-4 border border-white/10 hover:border-white/20 transition-all duration-300"
+            className="panel mb-4 w-full rounded-xl"
           />
-          <p className="py-3 text-slate-400">
+          <p className="py-3 leading-relaxed text-slate-400">
             This will create a <b className="text-slate-200">.bak</b> file containing a{" "}
             <code className="bg-white/5 px-2 py-1 rounded text-amber-400 border border-white/10">library.json</code> file that holds your ReadEra data.
             {" "}You can upload either one here.
@@ -211,12 +211,12 @@ export const Upload = () => {
           <img
             src="assets/img/json-file.webp"
             alt="json"
-            className="w-full rounded-xl shadow-xl border border-white/10 hover:border-white/20 transition-all duration-300"
+            className="panel w-full rounded-xl"
           />
         </div>
-        
-        <div className="bg-[rgba(26,26,36,0.6)] backdrop-blur-lg p-8 rounded-xl shadow-2xl border border-white/10 space-y-6">
-          <h2 className="text-2xl font-bold text-slate-100">
+
+        <div className="panel space-y-6 rounded-xl p-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-100">
             Upload your{" "}
             <code className="bg-white/5 px-2 py-1 rounded text-sm text-amber-400 border border-white/10">library.json</code>
             {" "}or{" "}
@@ -225,18 +225,24 @@ export const Upload = () => {
           </h2>
 
           {/* Drag and Drop Zone */}
-          <div
+          <button
+            type="button"
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={handleClickUpload}
-            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${
+            className={`w-full rounded-xl border-2 border-dashed p-8 text-center transition-opacity duration-200 ${
               isDragging
                 ? "border-amber-500 bg-amber-500/10 shadow-[0_0_30px_rgba(245,158,11,0.2)]"
                 : originalBooks
                 ? "border-amber-500/50 bg-amber-500/5"
                 : "border-white/10 bg-white/5 hover:border-amber-500/50 hover:bg-amber-500/5"
             }`}
+            aria-label={
+              originalBooks
+                ? "Upload a different library file"
+                : "Upload a ReadEra library file"
+            }
           >
             <input
               ref={fileInputRef}
@@ -266,7 +272,7 @@ export const Upload = () => {
                 </div>
               </div>
             )}
-          </div>
+          </button>
 
           {/* Citation Filter */}
           <div>
@@ -315,10 +321,10 @@ export const Upload = () => {
                 </Button>
               </div>
 
-              <Button
-                className="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold py-6 text-lg gap-2 transition-all hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]"
-                onClick={loadLibrary}
-              >
+               <Button
+                 className="motion-lift w-full gap-2 bg-amber-500 py-6 text-lg font-semibold text-slate-900 hover:bg-amber-600"
+                 onClick={loadLibrary}
+               >
                 <FaUpload />
                 Load Library
               </Button>
@@ -328,7 +334,7 @@ export const Upload = () => {
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-[#1A1A24] border-white/10">
+        <DialogContent className="max-h-[80vh] max-w-3xl overflow-y-auto border-white/10 bg-card">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-slate-100">Preview Books</DialogTitle>
             <DialogDescription className="text-slate-400">

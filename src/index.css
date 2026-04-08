@@ -34,6 +34,51 @@
 
     --radius: 0.75rem; /* 12px - rounded-lg default */
   }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    color: hsl(var(--foreground));
+    background:
+      radial-gradient(1200px 500px at 12% -20%, rgba(245, 158, 11, 0.08), transparent 60%),
+      radial-gradient(900px 420px at 88% -30%, rgba(255, 255, 255, 0.04), transparent 58%),
+      hsl(var(--background));
+    font-family: "Manrope", "Inter", "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background: rgba(245, 158, 11, 0.24);
+    color: hsl(var(--foreground));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
 }
 
 body {
@@ -48,6 +93,26 @@ body {
 
 .animate-fade-in {
   animation: fade-in 0.25s ease-out both;
+}
+
+.panel {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(26, 26, 36, 0.56);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.surface-muted {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.motion-lift {
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.motion-lift:hover {
+  transform: translateY(-1px);
 }
 
 /* ── Toastify progress bar ── */

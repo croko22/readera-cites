@@ -122,9 +122,9 @@ export const Cite = ({ cite }) => {
   };
 
   return (
-    <li className={`${colors[cite.note_mark]} p-5 rounded-xl list-none mb-4 shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_40px_rgba(245,158,11,0.15)] transition-all duration-300 border-l-4 ${cite.note_mark === 0 ? 'border-slate-500' : cite.note_mark === 1 ? 'border-red-500' : cite.note_mark === 2 ? 'border-amber-500' : cite.note_mark === 3 ? 'border-emerald-500' : 'border-blue-500'} hover:scale-[1.01] backdrop-blur-sm`}>
+    <li className={`${colors[cite.note_mark]} motion-lift mb-4 list-none rounded-xl border-l-4 p-5 backdrop-blur-sm ${cite.note_mark === 0 ? 'border-slate-500' : cite.note_mark === 1 ? 'border-red-500' : cite.note_mark === 2 ? 'border-amber-500' : cite.note_mark === 3 ? 'border-emerald-500' : 'border-blue-500'}`}>
       <TooltipProvider>
-        <div className="flex justify-between items-start mb-3">
+        <div className="mb-3 flex items-start justify-between">
           <span className="flex items-center gap-2 flex-wrap">
             <small className={`text-sm font-bold ${textColors[cite.note_mark]} bg-white/5 px-3 py-1 rounded-full border border-white/10`}>
               📖 Page {cite.note_page}
@@ -140,8 +140,9 @@ export const Cite = ({ cite }) => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className="cursor-pointer text-slate-400 hover:text-amber-400 transition-all duration-200 hover:scale-110 p-1.5 hover:bg-white/5 rounded-lg"
+                  className="cursor-pointer rounded-lg p-1.5 text-slate-400 transition-colors duration-200 hover:bg-white/5 hover:text-amber-400"
                   onClick={() => copyCite(cite)}
+                  aria-label="Copy citation"
                 >
                   <FaCopy />
                 </button>
@@ -157,7 +158,8 @@ export const Cite = ({ cite }) => {
                   href={`https://twitter.com/intent/tweet?text=${cite.note_body}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-slate-400 hover:text-amber-400 transition-all duration-200 hover:scale-110 p-1.5 hover:bg-white/5 rounded-lg"
+                  className="rounded-lg p-1.5 text-slate-400 transition-colors duration-200 hover:bg-white/5 hover:text-amber-400"
+                  aria-label="Share citation on X"
                 >
                   <FaTwitter />
                 </a>

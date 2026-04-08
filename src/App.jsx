@@ -12,10 +12,10 @@ function App() {
   const location = useLocation();
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0A0A0F]">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <ToTopButton />
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 pt-2 sm:pt-3">
         <div key={location.pathname} className="animate-fade-in">
           <Routes location={location}>
             <Route path="/" element={<Library />} />

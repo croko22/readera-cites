@@ -2,7 +2,7 @@ import React from "react";
 
 /* ── BookCard skeleton ── */
 export const BookCardSkeleton = () => (
-  <div className="rounded-xl mb-4 overflow-hidden bg-[rgba(26,26,36,0.6)] border border-white/10">
+  <div className="panel mb-4 overflow-hidden rounded-xl">
     {/* Header row */}
     <div className="bg-[rgba(18,18,26,0.8)] border-l-4 border-amber-500/20 px-4 py-3">
       <div className="flex items-center justify-between pr-4">
@@ -18,29 +18,29 @@ export const BookCardSkeleton = () => (
         <div className="animate-pulse h-4 w-40 rounded bg-white/5" />
         <div className="animate-pulse h-4 w-20 rounded bg-white/5" />
       </div>
-      <div className="animate-pulse h-2 w-full rounded bg-white/5" />
+      <div className="surface-muted h-2 w-full animate-pulse rounded" />
     </div>
   </div>
 );
 
 /* ── Citation skeleton ── */
 export const CiteSkeleton = () => (
-  <div className="p-5 rounded-xl mb-4 bg-white/5 border-l-4 border-slate-600/30">
+  <div className="surface-muted mb-4 rounded-xl border-l-4 border-slate-600/30 p-5">
     <div className="flex justify-between items-start mb-3">
       <span className="flex items-center gap-2">
         <div className="animate-pulse h-6 w-20 rounded-full bg-white/5" />
         <div className="animate-pulse h-5 w-16 rounded-full bg-white/5" />
       </span>
       <span className="flex gap-3">
-        <div className="animate-pulse h-5 w-5 rounded bg-white/5" />
-        <div className="animate-pulse h-5 w-5 rounded bg-white/5" />
+        <div className="surface-muted h-5 w-5 animate-pulse rounded" />
+        <div className="surface-muted h-5 w-5 animate-pulse rounded" />
       </span>
     </div>
     <div className="space-y-2 mb-3">
       <div className="animate-pulse h-4 w-full rounded bg-white/5" />
       <div className="animate-pulse h-4 w-5/6 rounded bg-white/5" />
     </div>
-    <div className="animate-pulse h-5 w-2/3 rounded-lg bg-white/5" />
+      <div className="surface-muted h-5 w-2/3 animate-pulse rounded-lg" />
   </div>
 );
 
