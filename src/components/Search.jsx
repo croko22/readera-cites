@@ -7,6 +7,20 @@ import {
   clearSearchHistory,
 } from "../lib/booksStorage";
 
+const SEARCH_MODES = [
+  { key: "title", label: "Titles", title: "Search by book title" },
+  {
+    key: "citations",
+    label: "Citations",
+    title: "Search inside all citations",
+  },
+  {
+    key: "insights",
+    label: "Insights",
+    title: "Visualize query-to-book match graph",
+  },
+];
+
 export const Search = ({
   searchText,
   setSearchText,
@@ -76,8 +90,14 @@ export const Search = ({
     });
   }, [history]);
 
-  const visibleHistory =
-    showHistory && history.length > 0 && !searchText;
+  const visibleHistory = showHistory && history.length > 0 && !searchText;
+
+  const placeholder =
+    searchMode === "citations"
+      ? "Search inside all citations..."
+      : searchMode === "insights"
+        ? "Find patterns across books..."
+        : "Search your quotes and notes...";
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -90,31 +110,39 @@ export const Search = ({
           onKeyDown={handleKeyDown}
           className="h-10 flex-1 border-0 bg-transparent px-0 text-[0.98rem] text-slate-100 shadow-none placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0"
           type="text"
-          placeholder={
-            searchMode === "citations"
-              ? "Search inside all citations..."
-              : "Search your quotes and notes..."
-          }
+          placeholder={placeholder}
           value={searchText}
         />
 
         {/* Search mode toggle */}
         {onSearchModeChange && (
-          <button
-            onClick={() =>
-              onSearchModeChange(
-                searchMode === "title" ? "citations" : "title"
-              )
-            }
-            className="motion-lift whitespace-nowrap rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-400 transition-all duration-200"
-            title={
-              searchMode === "title"
-                ? "Switch to citation search"
-                : "Switch to title search"
-            }
+          <div
+            role="radiogroup"
+            aria-label="Search mode"
+            className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] p-1"
           >
-            {searchMode === "title" ? "Titles" : "Citations"}
-          </button>
+            {SEARCH_MODES.map((mode) => {
+              const active = searchMode === mode.key;
+              return (
+                <button
+                  key={mode.key}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  aria-label={mode.title}
+                  onClick={() => onSearchModeChange(mode.key)}
+                  className={`rounded-md px-2 py-1 text-xs font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-0 ${
+                    active
+                      ? "border border-amber-500/35 bg-amber-500/14 text-amber-300"
+                      : "border border-transparent text-slate-400 hover:border-amber-500/30 hover:bg-amber-500/8 hover:text-amber-400"
+                  }`}
+                  title={mode.title}
+                >
+                  {mode.label}
+                </button>
+              );
+            })}
+          </div>
         )}
 
         <button

@@ -18,6 +18,7 @@ import { Search } from "../components/Search";
 import { BookCard } from "../components/BookCard";
 import { LibrarySkeleton } from "../components/Skeleton";
 import { EmptyState } from "../components/EmptyState";
+import { InsightsView } from "../components/insights/InsightsView";
 import { Accordion } from "../components/ui/accordion";
 import { Button } from "../components/ui/button";
 import {
@@ -137,6 +138,11 @@ export const Library = () => {
     }
     return results;
   }, [searchMode, searchText, storedData]);
+
+  const insightsBooks = useMemo(() => {
+    if (searchMode !== "insights") return [];
+    return filteredBooks || [];
+  }, [searchMode, filteredBooks]);
 
   const filteredBooks = useMemo(() => {
     if (!Books) return null;
@@ -325,6 +331,147 @@ export const Library = () => {
             </div>
           </>
         )}
+      </div>
+    );
+  }
+
+  if (searchMode === "insights") {
+    return (
+      <div className="container mx-auto mb-10 mt-7 px-4">
+        <section className="panel mb-5 rounded-2xl border-white/15 px-4 py-4 sm:px-6 sm:py-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/80">Library Insights</p>
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">See where ideas cluster across your books</h1>
+            </div>
+            <p className="max-w-sm text-sm text-slate-400">
+              Explore a query-to-book graph with a synchronized grouped list and side panel.
+            </p>
+          </div>
+        </section>
+
+        <Search
+          searchText={searchText}
+          setSearchText={setSearchText}
+          searchMode={searchMode}
+          onSearchModeChange={setSearchMode}
+        />
+
+        <TooltipProvider>
+          <div className="my-5 flex flex-wrap items-center gap-3">
+            <Button variant="outline" size="default" onClick={toggleFavs} className={Favorites ? btnActive : btnClass}>
+              {Favorites ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
+            </Button>
+
+            {SORT_MODES.map((mode) => {
+              const isActive = sortState && sortState.key === mode.key.split("-")[0];
+              const isAsc = isActive && sortState.dir === "asc";
+              const Icon = isAsc ? mode.iconAsc : mode.iconDesc;
+              return (
+                <Button
+                  key={mode.key}
+                  variant="outline"
+                  size="default"
+                  onClick={() => toggleSort(mode.key.split("-")[0])}
+                  className={isActive ? btnActive : btnClass}
+                >
+                  <Icon className="h-4 w-4" /> {mode.label}
+                  {isActive && <span className="text-[10px] opacity-60">{isAsc ? "ASC" : "DESC"}</span>}
+                </Button>
+              );
+            })}
+
+            <Select value={dateRange} onValueChange={setDateRange}>
+              <SelectTrigger className={selectTriggerClass + " w-36"}>
+                <SelectValue placeholder="Date range" />
+              </SelectTrigger>
+              <SelectContent>
+                {DATE_RANGES.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {authors.length > 0 && (
+              <div className="relative">
+                <Select
+                  value={authorFilter}
+                  onValueChange={(v) => {
+                    setAuthorFilter(v);
+                    setAuthorSearch("");
+                  }}
+                >
+                  <SelectTrigger className={selectTriggerClass + " w-48"}>
+                    <SelectValue placeholder="Author" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <div className="sticky top-0 z-10 bg-card px-2 pb-2">
+                      <div className="relative">
+                        <SearchIcon className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+                        <input
+                          placeholder="Search authors..."
+                          value={authorSearch}
+                          onChange={(e) => setAuthorSearch(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Escape") setAuthorSearch("");
+                          }}
+                          className="h-8 w-full rounded-md border border-white/10 bg-white/5 pl-8 pr-2 text-xs text-slate-300 placeholder:text-slate-500 focus:border-amber-500/50 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div className="max-h-48 overflow-y-auto">
+                      <SelectItem value="all">All authors</SelectItem>
+                      {filteredAuthors.map((author) => (
+                        <SelectItem key={author} value={author}>
+                          {author}
+                        </SelectItem>
+                      ))}
+                      {filteredAuthors.length === 0 && (
+                        <p className="px-3 py-2 text-xs text-slate-500">No authors match</p>
+                      )}
+                    </div>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="relative">
+              <input
+                type="number"
+                min="0"
+                placeholder="Min citations"
+                value={minCitations}
+                onChange={(e) => setMinCitations(e.target.value)}
+                className="h-10 w-32 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300 placeholder:text-slate-500 transition-all duration-300 [appearance:textfield] focus:border-amber-500/50 focus:bg-amber-500/5 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              />
+            </div>
+
+            {Favorites || sortState || hasActiveFilters ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="default"
+                    onClick={restoreChanges}
+                    className="gap-2 border-red-500/30 font-semibold text-red-400 transition-all duration-300 hover:border-red-500/50 hover:bg-red-500/10"
+                  >
+                    <FaTimes /> Reset
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="border-white/10 bg-card text-slate-200">
+                  <p>
+                    Reset filters <FaRedo className="inline" />
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            ) : null}
+          </div>
+        </TooltipProvider>
+
+        <InsightsView books={insightsBooks} query={searchText} onOpenBook={navigateToBook} />
       </div>
     );
   }

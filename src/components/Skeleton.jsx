@@ -79,3 +79,21 @@ export const BookSkeleton = ({ count = 4 }) => (
     </ul>
   </div>
 );
+
+export const InsightsSkeleton = ({ compact = false }) => (
+  <div className="space-y-3">
+    <div className="panel rounded-xl border-white/15 p-3">
+      <div className="animate-pulse h-4 w-44 rounded bg-white/8" />
+      <div className={`mt-3 w-full rounded-lg border border-white/10 bg-white/[0.03] ${compact ? "h-28" : "h-56"}`}>
+        <div className="h-full w-full animate-pulse rounded-lg bg-white/[0.04]" />
+      </div>
+    </div>
+    {!compact && (
+      <div className="panel rounded-xl border-white/15 p-3 space-y-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="animate-pulse h-11 rounded-lg bg-white/[0.04]" />
+        ))}
+      </div>
+    )}
+  </div>
+);
