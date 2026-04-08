@@ -19,10 +19,10 @@ export const EmptyState = ({
   const Icon = ICON_MAP[icon] || SearchX;
 
   return (
-    <div className="animate-fade-in px-4 py-18 text-center">
-      <div className="panel mx-auto flex max-w-xl flex-col items-center rounded-2xl px-6 py-10">
-        <div className="mb-4 rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
-          <Icon className="h-10 w-10 text-amber-500/70" />
+    <div className="animate-fade-in-up px-4 py-18 text-center">
+      <div className="panel mx-auto flex max-w-xl flex-col items-center rounded-2xl border-white/15 px-6 py-10">
+        <div className="mb-4 rounded-2xl border border-amber-400/30 bg-amber-400/14 p-4 shadow-[0_0_24px_rgba(245,158,11,0.18)]">
+          <Icon className="h-10 w-10 text-amber-300" />
         </div>
         <h4 className="mb-1 text-lg font-semibold tracking-tight text-slate-100">{title}</h4>
         {description && (

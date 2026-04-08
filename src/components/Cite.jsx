@@ -122,11 +122,11 @@ export const Cite = ({ cite }) => {
   };
 
   return (
-    <li className={`${colors[cite.note_mark]} motion-lift mb-4 list-none rounded-xl border-l-4 p-5 backdrop-blur-sm ${cite.note_mark === 0 ? 'border-slate-500' : cite.note_mark === 1 ? 'border-red-500' : cite.note_mark === 2 ? 'border-amber-500' : cite.note_mark === 3 ? 'border-emerald-500' : 'border-blue-500'}`}>
+    <li className={`${colors[cite.note_mark]} motion-lift mb-4 list-none rounded-xl border-l-4 p-5 backdrop-blur-sm ${cite.note_mark === 0 ? 'border-slate-500' : cite.note_mark === 1 ? 'border-red-500' : cite.note_mark === 2 ? 'border-amber-400' : cite.note_mark === 3 ? 'border-emerald-500' : 'border-blue-500'}`}>
       <TooltipProvider>
         <div className="mb-3 flex items-start justify-between">
           <span className="flex items-center gap-2 flex-wrap">
-            <small className={`text-sm font-bold ${textColors[cite.note_mark]} bg-white/5 px-3 py-1 rounded-full border border-white/10`}>
+            <small className={`text-sm font-bold ${textColors[cite.note_mark]} bg-white/[0.07] px-3 py-1 rounded-full border border-white/14`}>
               📖 Page {cite.note_page}
             </small>
             {cite.note_timestamp ? (
@@ -140,7 +140,7 @@ export const Cite = ({ cite }) => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className="cursor-pointer rounded-lg p-1.5 text-slate-400 transition-colors duration-200 hover:bg-white/5 hover:text-amber-400"
+                  className="cursor-pointer rounded-lg p-1.5 text-slate-400 transition-colors duration-300 hover:bg-white/8 hover:text-amber-300"
                   onClick={() => copyCite(cite)}
                   aria-label="Copy citation"
                 >
@@ -158,7 +158,7 @@ export const Cite = ({ cite }) => {
                   href={`https://twitter.com/intent/tweet?text=${cite.note_body}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-lg p-1.5 text-slate-400 transition-colors duration-200 hover:bg-white/5 hover:text-amber-400"
+                  className="rounded-lg p-1.5 text-slate-400 transition-colors duration-300 hover:bg-white/8 hover:text-amber-300"
                   aria-label="Share citation on X"
                 >
                   <FaTwitter />
@@ -173,8 +173,8 @@ export const Cite = ({ cite }) => {
       </TooltipProvider>
       <p className="mb-3 text-slate-100 leading-relaxed text-base font-medium">{cite.note_body}</p>
       {cite.note_extra && (
-        <small className="text-slate-300 bg-white/5 px-3 py-2 rounded-lg inline-block border border-white/10">
-          <b className="text-amber-400">📝 Note:</b> {cite.note_extra}
+        <small className="text-slate-300 bg-white/[0.06] px-3 py-2 rounded-lg inline-block border border-white/14">
+          <b className="text-amber-300">Note:</b> {cite.note_extra}
         </small>
       )}
     </li>

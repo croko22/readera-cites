@@ -306,12 +306,13 @@ export const Book = () => {
       </Link>
 
       {/* ── Book header ── */}
-      <div className="panel mb-6 rounded-xl p-5">
+      <div className="panel mb-6 rounded-2xl border-white/15 p-5 sm:p-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
           <div className="min-w-0 flex-1">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/80">Book Detail</p>
               <h1 className="mb-2 line-clamp-2 text-2xl font-semibold tracking-tight text-slate-100 md:line-clamp-1 md:text-3xl">
                {title}
-             </h1>
+              </h1>
             {authors && (
               <p className="text-slate-400 text-sm mb-3">
                 by <span className="text-slate-200 font-medium">{authors}</span>
@@ -333,15 +334,15 @@ export const Book = () => {
                   {totalPages} pages
                 </Badge>
               )}
-              <Badge className="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold">
-                {Book.citations.length} citations
-              </Badge>
+                <Badge className="bg-amber-400/14 border border-amber-300/35 text-amber-300 text-xs font-semibold">
+                  {Book.citations.length} citations
+                </Badge>
+              </div>
             </div>
-          </div>
           <div className="flex flex-col items-start md:items-end gap-2 shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="default" className="motion-lift gap-2 bg-amber-500 text-slate-900 hover:bg-amber-600">
+                <Button variant="default" className="motion-lift gap-2 border border-amber-300/35 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 hover:brightness-105">
                   Export <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -364,7 +365,7 @@ export const Book = () => {
         </div>
 
         {/* Progress & last read */}
-        <div className="mt-5 border-t border-white/8 pt-3">
+        <div className="mt-5 border-t border-white/10 pt-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div className="flex-1 max-w-md">
               <div className="flex justify-between items-center mb-1">
@@ -390,14 +391,14 @@ export const Book = () => {
 
       {/* ── Filter + sort + view toggle toolbar ── */}
       <TooltipProvider>
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="panel mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border-white/15 p-3">
           {/* Color filter buttons */}
           <span className="flex gap-2 flex-wrap">
             <Button
               onClick={() => filterColors(7)}
               variant="secondary"
               size="default"
-               className="motion-lift border border-white/10 bg-white/10 font-semibold text-slate-200 transition-all duration-200 hover:bg-white/15"
+                className="motion-lift border border-white/12 bg-white/[0.08] font-semibold text-slate-200 transition-all duration-300 hover:bg-white/[0.16]"
              >
               All {Book.citations.length}
             </Button>
@@ -405,7 +406,7 @@ export const Book = () => {
               onClick={() => filterColors(0)}
               variant="secondary"
               size="default"
-               className="motion-lift border border-slate-500/30 bg-slate-500/20 text-slate-300 transition-all duration-200 hover:bg-slate-500/30"
+                className="motion-lift border border-slate-500/35 bg-slate-500/24 text-slate-300 transition-all duration-300 hover:bg-slate-500/34"
              >
               {Book.citations.filter((cite) => cite.note_mark === 0).length}
             </Button>
@@ -413,28 +414,28 @@ export const Book = () => {
               onClick={() => filterColors(1)}
               variant="secondary"
               size="default"
-               className="motion-lift border border-red-500/30 bg-red-500/20 text-red-300 transition-all duration-200 hover:bg-red-500/30"
+                className="motion-lift border border-red-500/35 bg-red-500/22 text-red-300 transition-all duration-300 hover:bg-red-500/34"
              >
               {Book.citations.filter((cite) => cite.note_mark === 1).length}
             </Button>
             <Button
               onClick={() => filterColors(2)}
               size="default"
-               className="motion-lift border border-amber-500/30 bg-amber-500/20 text-amber-300 transition-all duration-200 hover:bg-amber-500/30"
+                className="motion-lift border border-amber-400/40 bg-amber-400/24 text-amber-200 transition-all duration-300 hover:bg-amber-400/34"
              >
               {Book.citations.filter((cite) => cite.note_mark === 2).length}
             </Button>
             <Button
               onClick={() => filterColors(3)}
               size="default"
-               className="motion-lift border border-emerald-500/30 bg-emerald-500/20 text-emerald-300 transition-all duration-200 hover:bg-emerald-500/30"
+                className="motion-lift border border-emerald-500/35 bg-emerald-500/22 text-emerald-300 transition-all duration-300 hover:bg-emerald-500/34"
              >
               {Book.citations.filter((cite) => cite.note_mark === 3).length}
             </Button>
             <Button
               onClick={() => filterColors(4)}
               size="default"
-               className="motion-lift border border-blue-500/30 bg-blue-500/20 text-blue-300 transition-all duration-200 hover:bg-blue-500/30"
+                className="motion-lift border border-blue-500/35 bg-blue-500/22 text-blue-300 transition-all duration-300 hover:bg-blue-500/34"
              >
               {Book.citations.filter((cite) => cite.note_mark === 4).length}
             </Button>
@@ -455,8 +456,8 @@ export const Book = () => {
                       aria-label={`Sort citations by ${opt.label}`}
                       className={
                         isActive
-                          ? "bg-amber-500 text-slate-900 hover:bg-amber-600"
-                          : "motion-lift border-white/10 text-slate-300 transition-all duration-200 hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-400"
+                          ? "border border-amber-300/40 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 hover:brightness-105"
+                          : "motion-lift border-white/12 bg-white/[0.03] text-slate-300 transition-all duration-300 hover:border-amber-400/50 hover:bg-amber-400/12 hover:text-amber-300"
                       }
                     >
                       <Icon className="h-4 w-4" />
@@ -480,7 +481,7 @@ export const Book = () => {
                   variant="outline"
                   size="icon"
                   aria-label={`Change to ${view === "list" ? "grid" : "list"} view`}
-                  className="motion-lift border-white/10 text-slate-300 transition-all duration-200 hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-400"
+                  className="motion-lift border-white/12 bg-white/[0.03] text-slate-300 transition-all duration-300 hover:border-amber-400/50 hover:bg-amber-400/12 hover:text-amber-300"
                 >
                   {view === "list" ? <FaList /> : <FaTh />}
                 </Button>

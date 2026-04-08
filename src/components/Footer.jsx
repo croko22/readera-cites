@@ -1,6 +1,6 @@
 export const Footer = () => {
   return (
-    <footer className="mt-12 border-t border-white/10 bg-[rgba(18,18,26,0.72)] backdrop-blur-xl">
+    <footer className="mt-12 border-t border-white/10 bg-[linear-gradient(180deg,rgba(12,16,28,0.72),rgba(6,8,14,0.88))] backdrop-blur-xl">
       <div className="container mx-auto px-4 py-8">
         <p className="text-center text-sm leading-relaxed text-slate-300">
           Book notes visualizer for{" "}
@@ -8,7 +8,7 @@ export const Footer = () => {
             href="https://readera.org"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-amber-400 transition-colors hover:text-amber-300"
+            className="font-medium text-amber-300 transition-colors hover:text-amber-200"
           >
             Readera
           </a>

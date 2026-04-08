@@ -19,7 +19,7 @@ export const CitesList = ({ cites, view = "list" }) => {
           size="default"
           onClick={() => setPage(1)}
           disabled={page === 1}
-          className="motion-lift border-white/10 text-slate-300 transition-all duration-200 hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-400"
+          className="motion-lift border-white/12 bg-white/[0.03] text-slate-300 transition-all duration-300 hover:border-amber-400/50 hover:bg-amber-400/12 hover:text-amber-300"
         >
           <ChevronFirst className="h-4 w-4" />
         </Button>
@@ -28,7 +28,7 @@ export const CitesList = ({ cites, view = "list" }) => {
           size="default"
           onClick={() => page > 1 && setPage(page - 1)}
           disabled={page === 1}
-          className="motion-lift border-white/10 text-slate-300 transition-all duration-200 hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-400"
+          className="motion-lift border-white/12 bg-white/[0.03] text-slate-300 transition-all duration-300 hover:border-amber-400/50 hover:bg-amber-400/12 hover:text-amber-300"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -43,8 +43,8 @@ export const CitesList = ({ cites, view = "list" }) => {
               variant={i + startPage === page ? "default" : "outline"}
               size="default"
               onClick={() => setPage(i + startPage)}
-               className={i + startPage === page ? "bg-amber-500 text-slate-900 hover:bg-amber-600" : "motion-lift border-white/10 text-slate-300 transition-all duration-200 hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-400"}
-             >
+               className={i + startPage === page ? "border border-amber-300/40 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 hover:brightness-105" : "motion-lift border-white/12 bg-white/[0.03] text-slate-300 transition-all duration-300 hover:border-amber-400/50 hover:bg-amber-400/12 hover:text-amber-300"}
+              >
               {i + startPage}
             </Button>
           ))}
@@ -56,7 +56,7 @@ export const CitesList = ({ cites, view = "list" }) => {
           size="default"
           onClick={() => page < totalPages && setPage(page + 1)}
           disabled={page >= totalPages}
-          className="motion-lift border-white/10 text-slate-300 transition-all duration-200 hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-400"
+          className="motion-lift border-white/12 bg-white/[0.03] text-slate-300 transition-all duration-300 hover:border-amber-400/50 hover:bg-amber-400/12 hover:text-amber-300"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -65,7 +65,7 @@ export const CitesList = ({ cites, view = "list" }) => {
           size="default"
           onClick={() => setPage(totalPages)}
           disabled={page === totalPages}
-          className="motion-lift border-white/10 text-slate-300 transition-all duration-200 hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-400"
+          className="motion-lift border-white/12 bg-white/[0.03] text-slate-300 transition-all duration-300 hover:border-amber-400/50 hover:bg-amber-400/12 hover:text-amber-300"
         >
           <ChevronLast className="h-4 w-4" />
         </Button>

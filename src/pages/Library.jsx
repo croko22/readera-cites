@@ -241,6 +241,15 @@ export const Library = () => {
   if (searchMode === "citations" && searchText.trim() && citationResults) {
     return (
       <div className="container mx-auto mb-10 mt-7 px-4">
+        <section className="panel mb-5 rounded-2xl border-white/15 px-4 py-4 sm:px-6 sm:py-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/80">Citation Search</p>
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">Find phrases across your entire vault</h1>
+            </div>
+            <p className="max-w-sm text-sm text-slate-400">Search body text and note extras at once, then jump to the source book in one tap.</p>
+          </div>
+        </section>
         <Search
           searchText={searchText}
           setSearchText={setSearchText}
@@ -266,11 +275,11 @@ export const Library = () => {
               {citationResults.map(({ book, matches }) => (
                 <div
                   key={book.data.doc_md5}
-                  className="panel motion-lift overflow-hidden rounded-xl"
+                  className="panel motion-lift overflow-hidden rounded-xl border-white/15"
                 >
                   <button
                     type="button"
-                    className="w-full cursor-pointer border-l-4 border-amber-500 bg-[rgba(18,18,26,0.8)] px-4 py-3 text-left"
+                    className="w-full cursor-pointer border-l-4 border-amber-400 bg-[rgba(16,18,28,0.82)] px-4 py-3 text-left"
                     onClick={() => navigateToBook(book.data.doc_md5)}
                     aria-label={`Open ${book.data.doc_file_name_title}`}
                   >
@@ -286,12 +295,12 @@ export const Library = () => {
                       <p className="text-sm text-slate-400 mt-0.5">{book.data.doc_authors}</p>
                     )}
                   </button>
-                   <div className="space-y-2 bg-[rgba(26,26,36,0.4)] px-4 py-2">
-                    {matches.slice(0, 3).map((cite, idx) => (
-                      <div
-                        key={idx}
-                        className="rounded-lg border-l-2 border-amber-500/30 bg-white/[0.02] px-3 py-1.5 text-sm text-slate-300"
-                      >
+                   <div className="space-y-2 bg-[rgba(20,24,36,0.56)] px-4 py-2">
+                     {matches.slice(0, 3).map((cite, idx) => (
+                       <div
+                         key={idx}
+                         className="rounded-lg border-l-2 border-amber-400/40 bg-white/[0.04] px-3 py-1.5 text-sm text-slate-300"
+                       >
                         <p className="line-clamp-2">
                           {highlightText(cite.note_body || "", searchText.trim())}
                         </p>
@@ -322,6 +331,18 @@ export const Library = () => {
 
   return (
     <div className="container mx-auto mb-10 mt-7 px-4">
+      <section className="panel mb-5 rounded-2xl border-white/15 px-4 py-4 sm:px-6 sm:py-5">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/80">Library</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">Command center for your highlighted books</h1>
+          </div>
+          <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+            <span className="text-xs uppercase tracking-[0.14em] text-slate-500">Books</span>
+            <span className="text-lg font-semibold text-amber-300">{Books.length}</span>
+          </div>
+        </div>
+      </section>
       <Search
         searchText={searchText}
         setSearchText={setSearchText}
@@ -356,7 +377,7 @@ export const Library = () => {
           })}
 
           <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className={selectTriggerClass + " w-36"}>
+             <SelectTrigger className={selectTriggerClass + " w-36"}>
               <SelectValue placeholder="Date range" />
             </SelectTrigger>
             <SelectContent>
@@ -369,7 +390,7 @@ export const Library = () => {
           {authors.length > 0 && (
             <div className="relative">
               <Select value={authorFilter} onValueChange={(v) => { setAuthorFilter(v); setAuthorSearch(""); }}>
-                <SelectTrigger className={selectTriggerClass + " w-48"}>
+                 <SelectTrigger className={selectTriggerClass + " w-48"}>
                   <SelectValue placeholder="Author" />
                 </SelectTrigger>
                 <SelectContent>
@@ -454,11 +475,17 @@ export const Library = () => {
           onAction={restoreChanges}
         />
       ) : (
-        <Accordion type="single" collapsible className="space-y-2">
-          {filteredBooks?.map((libro, index) => (
-            <BookCard libro={libro} bookKey={index} key={index} />
-          ))}
-        </Accordion>
+         <Accordion type="single" collapsible className="space-y-2">
+           {filteredBooks?.map((libro, index) => (
+             <div
+               key={index}
+               className="animate-fade-in-up"
+               style={{ animationDelay: `${Math.min(index * 30, 300)}ms` }}
+             >
+               <BookCard libro={libro} bookKey={index} />
+             </div>
+           ))}
+         </Accordion>
       )}
     </div>
   );

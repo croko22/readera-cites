@@ -193,6 +193,7 @@ export const Upload = () => {
     <div className="container mx-auto px-4 py-7">
       <div className="grid items-start gap-7 md:grid-cols-2">
         <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/80">Import Flow</p>
           <h1 className="mb-4 text-3xl font-semibold tracking-tight text-slate-100 sm:text-4xl">Welcome to ReadEra - Book Notes</h1>
           <p className="mb-4 text-base leading-relaxed text-slate-400 sm:text-lg">
             In the ReadEra app, navigate to the <b className="text-slate-200">Backup & Restore</b> section
@@ -201,7 +202,7 @@ export const Upload = () => {
           <img
             src="assets/img/bak-file.webp"
             alt="upload"
-            className="panel mb-4 w-full rounded-xl"
+            className="panel mb-4 w-full rounded-xl border-white/15"
           />
           <p className="py-3 leading-relaxed text-slate-400">
             This will create a <b className="text-slate-200">.bak</b> file containing a{" "}
@@ -211,11 +212,11 @@ export const Upload = () => {
           <img
             src="assets/img/json-file.webp"
             alt="json"
-            className="panel w-full rounded-xl"
+            className="panel w-full rounded-xl border-white/15"
           />
         </div>
 
-        <div className="panel space-y-6 rounded-xl p-8">
+        <div className="panel space-y-6 rounded-2xl border-white/15 p-8">
           <h2 className="text-2xl font-semibold tracking-tight text-slate-100">
             Upload your{" "}
             <code className="bg-white/5 px-2 py-1 rounded text-sm text-amber-400 border border-white/10">library.json</code>
@@ -231,12 +232,12 @@ export const Upload = () => {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={handleClickUpload}
-            className={`w-full rounded-xl border-2 border-dashed p-8 text-center transition-opacity duration-200 ${
+            className={`w-full rounded-xl border-2 border-dashed p-8 text-center transition-[transform,border-color,background-color,box-shadow] duration-300 ${
               isDragging
-                ? "border-amber-500 bg-amber-500/10 shadow-[0_0_30px_rgba(245,158,11,0.2)]"
+                ? "border-amber-400 bg-amber-400/14 shadow-[0_0_40px_rgba(245,158,11,0.28)]"
                 : originalBooks
-                ? "border-amber-500/50 bg-amber-500/5"
-                : "border-white/10 bg-white/5 hover:border-amber-500/50 hover:bg-amber-500/5"
+                ? "border-amber-400/50 bg-amber-400/8"
+                : "border-white/10 bg-white/5 hover:border-amber-400/50 hover:bg-amber-400/8"
             }`}
             aria-label={
               originalBooks
@@ -254,7 +255,7 @@ export const Upload = () => {
             
             {originalBooks ? (
               <div className="space-y-3">
-                <FaCheckCircle className="mx-auto text-5xl text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
+                 <FaCheckCircle className="mx-auto text-5xl text-amber-400 drop-shadow-[0_0_14px_rgba(245,158,11,0.56)]" />
                 <div>
                   <p className="text-lg font-semibold text-amber-400">File uploaded successfully!</p>
                   <p className="text-sm text-slate-400 mt-1">{fileName}</p>
@@ -293,7 +294,7 @@ export const Upload = () => {
                   size="sm"
                   variant={minCitations === value ? "default" : "outline"}
                   onClick={() => setMinCitations(value)}
-                  className={minCitations === value ? "bg-amber-500 hover:bg-amber-600 text-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.3)]" : "border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400"}
+                 className={minCitations === value ? "border border-amber-300/40 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 shadow-[0_0_20px_rgba(245,158,11,0.35)]" : "border-white/10 text-slate-300 hover:bg-amber-400/10 hover:border-amber-400/50 hover:text-amber-300"}
                 >
                   {value}
                 </Button>
@@ -311,20 +312,20 @@ export const Upload = () => {
                     {filteredBooks.length}
                   </p>
                 </div>
-                <Button
+                 <Button
                   variant="outline"
                   onClick={() => setShowModal(true)}
-                  className="gap-2 border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400"
+                  className="gap-2 border-white/10 text-slate-300 hover:bg-amber-400/10 hover:border-amber-400/50 hover:text-amber-300"
                 >
                   <FaEye />
                   Preview
                 </Button>
               </div>
 
-               <Button
-                 className="motion-lift w-full gap-2 bg-amber-500 py-6 text-lg font-semibold text-slate-900 hover:bg-amber-600"
-                 onClick={loadLibrary}
-               >
+                <Button
+                  className="motion-lift w-full gap-2 border border-amber-300/45 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] py-6 text-lg font-semibold text-slate-900 hover:brightness-105"
+                  onClick={loadLibrary}
+                >
                 <FaUpload />
                 Load Library
               </Button>
@@ -363,7 +364,7 @@ export const Upload = () => {
               Close
             </Button>
             <Button
-              className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-medium transition-all hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+              className="border border-amber-300/45 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 font-medium transition-all hover:brightness-105 hover:shadow-[0_0_24px_rgba(245,158,11,0.42)]"
               onClick={loadLibrary}
               disabled={!originalBooks}
             >

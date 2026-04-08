@@ -81,8 +81,8 @@ export const Search = ({
 
   return (
     <div ref={wrapperRef} className="relative">
-      <div className="panel flex items-center gap-3 rounded-xl p-2.5 transition-opacity duration-200 focus-within:opacity-100">
-        <MdSearch size="1.4em" className="ml-1 text-amber-500" />
+      <div className="panel flex items-center gap-3 rounded-xl border-white/15 p-2.5 transition-[border-color,box-shadow] duration-300 focus-within:border-amber-400/55 focus-within:shadow-[0_0_0_1px_rgba(245,158,11,0.35),0_12px_34px_rgba(2,6,23,0.46)]">
+        <MdSearch size="1.4em" className="ml-1 text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.4)]" />
         <Input
           ref={inputRef}
           onChange={handleInputChange}
@@ -128,7 +128,7 @@ export const Search = ({
 
       {/* Search history chips */}
       {visibleHistory && (
-        <div className="absolute left-0 right-0 top-full z-40 mt-2 rounded-xl border border-white/10 bg-[rgba(20,20,28,0.95)] p-2.5 shadow-2xl backdrop-blur-lg">
+        <div className="absolute left-0 right-0 top-full z-40 mt-2 rounded-xl border border-white/15 bg-[linear-gradient(170deg,rgba(22,26,38,0.96),rgba(11,13,20,0.94))] p-2.5 shadow-[0_22px_48px_rgba(1,4,14,0.56)] backdrop-blur-lg">
           <div className="flex items-center justify-between mb-1.5 px-1">
             <span className="text-xs text-slate-500 font-medium">
               Recent searches
