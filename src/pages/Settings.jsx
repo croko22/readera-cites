@@ -71,15 +71,15 @@ export const Settings = () => {
   if (!loaded) return null;
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-2xl">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="container mx-auto max-w-2xl px-4 py-7">
+      <div className="mb-6 flex items-center gap-3">
         <SettingsIcon className="h-7 w-7 text-amber-500" />
-        <h1 className="text-3xl font-bold text-slate-100">Settings</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-100">Settings</h1>
       </div>
 
       <div className="space-y-4">
         {/* Default Citation Filter */}
-        <Card className="bg-[rgba(26,26,36,0.6)] backdrop-blur-lg border border-white/10">
+        <Card className="panel border-white/10">
           <CardHeader>
             <CardTitle className="text-lg text-slate-100">
               Default Citation Filter
@@ -112,7 +112,7 @@ export const Settings = () => {
 
         {/* Storage Info */}
         {storageInfo && storageInfo.backend !== "none" && (
-          <Card className="bg-[rgba(26,26,36,0.6)] backdrop-blur-lg border border-white/10">
+          <Card className="panel border-white/10">
             <CardHeader>
               <CardTitle className="text-lg text-slate-100 flex items-center gap-2">
                 <HardDrive className="h-5 w-5 text-amber-500" />
@@ -166,7 +166,7 @@ export const Settings = () => {
         )}
 
         {/* Clear All Data */}
-        <Card className="bg-[rgba(26,26,36,0.6)] backdrop-blur-lg border border-white/10">
+        <Card className="panel border-white/10">
           <CardHeader>
             <CardTitle className="text-lg text-slate-100">Data</CardTitle>
             <CardDescription className="text-slate-400">

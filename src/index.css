@@ -2,37 +2,92 @@
 
 @layer base {
   :root {
-    /* Minimalist Dark Design System */
-    --background: 224 20% 5%; /* #0A0A0F - Deep slate */
-    --foreground: 0 0% 98%; /* #FAFAFA - Near white */
+    --background: 225 26% 6%;
+    --foreground: 210 32% 96%;
 
-    --card: 231 15% 11%; /* #1A1A24 - Elevated surfaces */
+    --card: 228 24% 10%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 231 15% 11%;
+    --popover: 228 24% 10%;
     --popover-foreground: 0 0% 98%;
 
-    /* Amber accent as primary */
-    --primary: 38 92% 50%; /* #F59E0B - amber-500 */
-    --primary-foreground: 224 20% 5%; /* Dark text on amber */
+    --primary: 36 96% 56%;
+    --primary-foreground: 225 26% 6%;
 
-    --secondary: 231 15% 11%;
+    --secondary: 230 20% 14%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 231 15% 11%;
-    --muted-foreground: 240 5% 46%; /* #71717A */
+    --muted: 228 20% 14%;
+    --muted-foreground: 218 12% 64%;
 
-    --accent: 38 92% 50%; /* Amber accent */
-    --accent-foreground: 224 20% 5%;
+    --accent: 36 96% 56%;
+    --accent-foreground: 225 26% 6%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 2 72% 56%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 100% / 0.08; /* rgba(255,255,255,0.08) */
+    --border: 220 22% 72% / 0.12;
     --input: 0 0% 100% / 0.08;
-    --ring: 38 92% 50%; /* Amber ring for focus states */
+    --ring: 36 96% 56%;
 
-    --radius: 0.75rem; /* 12px - rounded-lg default */
+    --radius: 0.78rem;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    color: hsl(var(--foreground));
+    background:
+      radial-gradient(1400px 540px at -12% -18%, rgba(245, 158, 11, 0.2), transparent 58%),
+      radial-gradient(960px 460px at 112% -16%, rgba(56, 189, 248, 0.12), transparent 62%),
+      radial-gradient(680px 340px at 52% 110%, rgba(245, 158, 11, 0.1), transparent 72%),
+      hsl(var(--background));
+    font-family: "Manrope", "Inter", "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background: rgba(245, 158, 11, 0.24);
+    color: hsl(var(--foreground));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -40,14 +95,86 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
-/* ── Page transition fade-in ── */
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.99);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.25s ease-out both;
+.animate-fade-in-up {
+  animation: fade-in-up 560ms cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(150deg, rgba(32, 38, 58, 0.84), rgba(18, 22, 34, 0.68));
+  box-shadow: 0 24px 52px rgba(2, 6, 23, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, rgba(245, 158, 11, 0.14), transparent 24%, transparent 74%, rgba(14, 165, 233, 0.1));
+  opacity: 0.7;
+}
+
+.surface-muted {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.motion-lift {
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 320ms cubic-bezier(0.22, 1, 0.36, 1), border-color 260ms ease;
+  will-change: transform;
+}
+
+.motion-lift:hover {
+  transform: translate3d(0, -3px, 0);
+  box-shadow: 0 18px 38px rgba(245, 158, 11, 0.16);
+}
+
+.route-stage {
+  perspective: 1200px;
+}
+
+.route-enter {
+  transform-origin: top center;
+}
+
+.app-shell::before,
+.app-shell::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  width: clamp(220px, 30vw, 460px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  filter: blur(72px);
+}
+
+.app-shell::before {
+  top: -120px;
+  left: -80px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.42), rgba(245, 158, 11, 0));
+}
+
+.app-shell::after {
+  top: 16vh;
+  right: -160px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.32), rgba(56, 189, 248, 0));
 }
 
 /* ── Toastify progress bar ── */
@@ -67,6 +194,17 @@ body {
   border-radius: 0 0 4px 4px;
   animation: toast-shrink linear forwards;
   animation-duration: var(--toast-duration, 3s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    animation: none;
+  }
+
+  .motion-lift:hover {
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 @keyframes toast-shrink {

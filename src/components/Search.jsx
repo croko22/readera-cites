@@ -63,8 +63,7 @@ export const Search = ({
     getSearchHistory().then(setHistory);
   }, []);
 
-  const handleRemoveHistoryItem = useCallback((e, item) => {
-    e.stopPropagation();
+  const handleRemoveHistoryItem = useCallback((item) => {
     const updated = history.filter((h) => h !== item);
     setHistory(updated);
     clearSearchHistory().then(() => {
@@ -82,14 +81,14 @@ export const Search = ({
 
   return (
     <div ref={wrapperRef} className="relative">
-      <div className="flex items-center gap-3 rounded-lg p-2 bg-[rgba(26,26,36,0.6)] backdrop-blur-lg shadow-xl hover:shadow-[0_0_30px_rgba(245,158,11,0.1)] transition-all duration-300 mb-0 focus-within:shadow-[0_0_20px_rgba(245,158,11,0.2)]">
-        <MdSearch size="1.5em" className="text-amber-500 ml-1" />
+      <div className="panel flex items-center gap-3 rounded-xl border-white/15 p-2.5 transition-[border-color,box-shadow] duration-300 focus-within:border-amber-400/55 focus-within:shadow-[0_0_0_1px_rgba(245,158,11,0.35),0_12px_34px_rgba(2,6,23,0.46)]">
+        <MdSearch size="1.4em" className="ml-1 text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.4)]" />
         <Input
           ref={inputRef}
           onChange={handleInputChange}
           onFocus={handleFocus}
           onKeyDown={handleKeyDown}
-          className="flex-1 border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-slate-500 bg-transparent text-slate-100"
+          className="h-10 flex-1 border-0 bg-transparent px-0 text-[0.98rem] text-slate-100 shadow-none placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0"
           type="text"
           placeholder={
             searchMode === "citations"
@@ -107,8 +106,7 @@ export const Search = ({
                 searchMode === "title" ? "citations" : "title"
               )
             }
-            className="text-xs font-semibold px-2 py-1 rounded-md border transition-all duration-200 cursor-pointer whitespace-nowrap
-              border-amber-500/30 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
+            className="motion-lift whitespace-nowrap rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-400 transition-all duration-200"
             title={
               searchMode === "title"
                 ? "Switch to citation search"
@@ -121,7 +119,8 @@ export const Search = ({
 
         <button
           onClick={handleClear}
-          className="text-slate-500 hover:text-amber-400 cursor-pointer transition-colors duration-200 hover:scale-110 mr-1 focus:outline-none"
+          className="mr-1 rounded-md p-1 text-slate-500 transition-colors duration-200 hover:text-amber-400 focus:outline-none"
+          aria-label="Clear search"
         >
           <MdClose size="1.3em" />
         </button>
@@ -129,7 +128,7 @@ export const Search = ({
 
       {/* Search history chips */}
       {visibleHistory && (
-        <div className="absolute top-full left-0 right-0 z-40 mt-1 p-2 rounded-lg bg-[rgba(26,26,36,0.95)] backdrop-blur-lg border border-white/10 shadow-2xl">
+        <div className="absolute left-0 right-0 top-full z-40 mt-2 rounded-xl border border-white/15 bg-[linear-gradient(170deg,rgba(22,26,38,0.96),rgba(11,13,20,0.94))] p-2.5 shadow-[0_22px_48px_rgba(1,4,14,0.56)] backdrop-blur-lg">
           <div className="flex items-center justify-between mb-1.5 px-1">
             <span className="text-xs text-slate-500 font-medium">
               Recent searches
@@ -137,19 +136,27 @@ export const Search = ({
           </div>
           <div className="flex flex-wrap gap-1.5">
             {history.map((item) => (
-              <button
+              <div
                 key={item}
-                onClick={() => handleSelectHistory(item)}
-                className="group flex items-center gap-1 px-2.5 py-1 rounded-full text-sm bg-white/5 border border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/30 hover:text-amber-400 transition-all duration-200 cursor-pointer"
+                className="group flex items-center gap-1 rounded-full border border-white/10 bg-white/5 pr-1 text-sm text-slate-300 transition-colors duration-200 hover:border-amber-500/30 hover:bg-amber-500/10"
               >
-                <span>{item}</span>
-                <span
-                  onClick={(e) => handleRemoveHistoryItem(e, item)}
-                  className="text-slate-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 ml-0.5"
+                <button
+                  type="button"
+                  onClick={() => handleSelectHistory(item)}
+                  className="rounded-full px-2.5 py-1 text-left transition-colors duration-200 hover:text-amber-400"
+                  aria-label={`Use recent search: ${item}`}
+                >
+                  {item}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveHistoryItem(item)}
+                  className="ml-0.5 rounded-full p-1 text-slate-600 transition-colors hover:text-red-400 group-hover:opacity-100"
+                  aria-label={`Remove recent search: ${item}`}
                 >
                   <MdClose size="0.85em" />
-                </span>
-              </button>
+                </button>
+              </div>
             ))}
           </div>
         </div>
