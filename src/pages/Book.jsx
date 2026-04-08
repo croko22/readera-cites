@@ -155,6 +155,14 @@ export const Book = () => {
     if (Book) setCites(Book.citations);
   }, [Book]);
 
+  // ── Sorted & filtered citations ──
+  const sortedCites = useMemo(() => {
+    const filtered = Cites.filter((cite) =>
+      cite.note_body.toLowerCase().includes(searchText.toLowerCase())
+    );
+    return sortCitations(filtered, sortKey);
+  }, [Cites, searchText, sortKey]);
+
   if (loading || !Book) {
     return (
       <div className="container mx-auto mb-10 mt-7 px-4">
@@ -170,14 +178,6 @@ export const Book = () => {
       ? setCites(Book.citations)
       : setCites(Book.citations.filter((cite) => cite.note_mark === n));
   };
-
-  // ── Sorted & filtered citations ──
-  const sortedCites = useMemo(() => {
-    const filtered = Cites.filter((cite) =>
-      cite.note_body.toLowerCase().includes(searchText.toLowerCase())
-    );
-    return sortCitations(filtered, sortKey);
-  }, [Cites, searchText, sortKey]);
 
   // ── Book metadata ──
   const progress =
