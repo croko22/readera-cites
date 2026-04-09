@@ -62,4 +62,45 @@ export default defineConfig({
     setupFiles: "./src/test/setup.js",
     globals: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          const inPkg = (pkg) =>
+            id.includes(`/node_modules/${pkg}/`) ||
+            id.includes(`\\node_modules\\${pkg}\\`);
+
+          if (!id.includes("node_modules")) return;
+
+          if (inPkg("cytoscape") || inPkg("react-cytoscapejs")) {
+            return "graph-vendor";
+          }
+
+          if (
+            inPkg("react") ||
+            inPkg("react-dom") ||
+            inPkg("scheduler") ||
+            inPkg("react-router") ||
+            inPkg("react-router-dom")
+          ) {
+            return "react-router-vendor";
+          }
+
+          if (
+            inPkg("@radix-ui") ||
+            inPkg("@floating-ui") ||
+            inPkg("lucide-react") ||
+            inPkg("react-icons") ||
+            inPkg("class-variance-authority") ||
+            inPkg("clsx") ||
+            inPkg("tailwind-merge")
+          ) {
+            return "ui-vendor";
+          }
+
+          return "misc-vendor";
+        },
+      },
+    },
+  },
 });
