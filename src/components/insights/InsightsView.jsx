@@ -14,8 +14,21 @@ const LazyInsightsGraph = lazy(() =>
 
 const defaultLoadGraph = () => import("./InsightsGraph");
 
+function getInitialSelection(modelBooks, selectedBookId) {
+  if (!Array.isArray(modelBooks) || modelBooks.length === 0) {
+    return null;
+  }
+
+  if (selectedBookId && modelBooks.some((book) => book.bookId === selectedBookId)) {
+    return selectedBookId;
+  }
+
+  return modelBooks[0].bookId;
+}
+
 export const InsightsView = ({ books, query, loadGraph = defaultLoadGraph }) => {
-  const [debouncedQuery, setDebouncedQuery] = useState(query);
+  const normalizedQuery = String(query || "");
+  const [debouncedQuery, setDebouncedQuery] = useState(normalizedQuery);
   const [selectedBookId, setSelectedBookId] = useState(null);
   const [visibleBookCount, setVisibleBookCount] = useState(MAX_BOOK_NODES);
   const [showListOnly, setShowListOnly] = useState(false);
@@ -29,36 +42,26 @@ export const InsightsView = ({ books, query, loadGraph = defaultLoadGraph }) => 
   }, []);
 
   useEffect(() => {
-    const handle = window.setTimeout(() => setDebouncedQuery(query), 200);
+    const handle = window.setTimeout(() => setDebouncedQuery(normalizedQuery), 200);
     return () => window.clearTimeout(handle);
-  }, [query]);
+  }, [normalizedQuery]);
 
-  const indexing = query !== debouncedQuery;
+  const indexing = normalizedQuery !== debouncedQuery;
 
   const model = useMemo(() => {
-    return buildInsightsModel(books || [], debouncedQuery, {
-      maxNodes: visibleBookCount,
-    });
+      return buildInsightsModel(books || [], debouncedQuery, {
+        maxNodes: visibleBookCount,
+      });
   }, [books, debouncedQuery, visibleBookCount]);
 
   useEffect(() => {
-    if (!debouncedQuery.trim()) {
+    if (!debouncedQuery.trim() || !model.books.length) {
       setSelectedBookId(null);
       return;
     }
 
-    if (!model.books.length) {
-      setSelectedBookId(null);
-      return;
-    }
-
-    if (
-      !selectedBookId ||
-      !model.books.some((book) => book.bookId === selectedBookId)
-    ) {
-      setSelectedBookId(model.books[0].bookId);
-    }
-  }, [debouncedQuery, model.books, selectedBookId]);
+    setSelectedBookId((current) => getInitialSelection(model.books, current));
+  }, [debouncedQuery, model.books]);
 
   useEffect(() => {
     if (!debouncedQuery.trim() || showListOnly || graphStatus === "error") {

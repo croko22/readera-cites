@@ -77,6 +77,46 @@ const SORT_OPTIONS = [
   { key: "color", label: "Color", icon: Palette },
 ];
 
+const ALL_COLORS_FILTER = 7;
+
+function safeParseProgress(value) {
+  if (!value) return 0;
+  try {
+    const parsed = JSON.parse(value);
+    const ratio = Number(parsed?.ratio);
+    if (!Number.isFinite(ratio)) return 0;
+    return Math.max(0, Math.min(100, Math.round(ratio * 100)));
+  } catch {
+    return 0;
+  }
+}
+
+function toSafeFilename(value, fallback = "citations") {
+  const base = String(value || fallback)
+    .replace(/[^a-zA-Z0-9 ]/g, "")
+    .trim()
+    .replace(/\s+/g, "_");
+  return base || fallback;
+}
+
+function filterCitationsByColor(citations, color) {
+  if (!Array.isArray(citations)) return [];
+  if (color === ALL_COLORS_FILTER) return citations;
+  return citations.filter((cite) => cite?.note_mark === color);
+}
+
+function getCitationColorCounts(citations) {
+  const source = Array.isArray(citations) ? citations : [];
+  return {
+    all: source.length,
+    0: source.filter((cite) => cite?.note_mark === 0).length,
+    1: source.filter((cite) => cite?.note_mark === 1).length,
+    2: source.filter((cite) => cite?.note_mark === 2).length,
+    3: source.filter((cite) => cite?.note_mark === 3).length,
+    4: source.filter((cite) => cite?.note_mark === 4).length,
+  };
+}
+
 function sortCitations(citations, sortKey) {
   const sorted = [...citations];
   switch (sortKey) {
@@ -158,10 +198,12 @@ export const Book = () => {
   // ── Sorted & filtered citations ──
   const sortedCites = useMemo(() => {
     const filtered = Cites.filter((cite) =>
-      cite.note_body.toLowerCase().includes(searchText.toLowerCase())
+      String(cite?.note_body || "").toLowerCase().includes(searchText.toLowerCase())
     );
     return sortCitations(filtered, sortKey);
   }, [Cites, searchText, sortKey]);
+
+  const citationCounts = useMemo(() => getCitationColorCounts(Book?.citations), [Book]);
 
   if (loading || !Book) {
     return (
@@ -174,16 +216,11 @@ export const Book = () => {
   const title = Book.data.doc_title || Book.data.doc_file_name_title;
 
   const filterColors = (n) => {
-    n === 7
-      ? setCites(Book.citations)
-      : setCites(Book.citations.filter((cite) => cite.note_mark === n));
+    setCites(filterCitationsByColor(Book?.citations, n));
   };
 
   // ── Book metadata ──
-  const progress =
-    Book.data.doc_position
-      ? Math.round(JSON.parse(Book.data.doc_position).ratio * 100)
-      : 0;
+  const progress = safeParseProgress(Book.data.doc_position);
   const lastRead = formatRelativeTime(Book.data.doc_last_read_time);
   const formatBadge = Book.data.doc_format
     ? Book.data.doc_format.toUpperCase()
@@ -195,7 +232,7 @@ export const Book = () => {
   const authors = Book.data.doc_authors;
 
   // ── Prev / Next navigation ──
-  const books = allBooks;
+  const books = allBooks || [];
   const currentIndex = books
     ? books.findIndex((b) => b.data.doc_md5 === Book.data.doc_md5)
     : -1;
@@ -262,7 +299,7 @@ export const Book = () => {
   // ── Download as Markdown ──
   const downloadMarkdown = () => {
     const md = formatCitationsAsMarkdown(Book, sortedCites);
-    const safeName = (title || "citations").replace(/[^a-zA-Z0-9 ]/g, "").trim().replace(/\s+/g, "_");
+    const safeName = toSafeFilename(title, "citations");
     downloadFile(md, `${safeName}.md`, "text/markdown;charset=utf-8");
     Toastify({
       text: "Downloaded Markdown file",
@@ -280,7 +317,7 @@ export const Book = () => {
   const downloadJson = () => {
     const data = buildBookJson(Book);
     const json = JSON.stringify(data, null, 2);
-    const safeName = (title || "citations").replace(/[^a-zA-Z0-9 ]/g, "").trim().replace(/\s+/g, "_");
+    const safeName = toSafeFilename(title, "citations");
     downloadFile(json, `${safeName}.json`, "application/json;charset=utf-8");
     Toastify({
       text: "Downloaded JSON file",
@@ -399,8 +436,8 @@ export const Book = () => {
               variant="secondary"
               size="default"
                 className="motion-lift border border-white/12 bg-white/[0.08] font-semibold text-slate-200 transition-all duration-300 hover:bg-white/[0.16]"
-             >
-              All {Book.citations.length}
+              >
+              All {citationCounts.all}
             </Button>
             <Button
               onClick={() => filterColors(0)}
@@ -408,7 +445,7 @@ export const Book = () => {
               size="default"
                 className="motion-lift border border-slate-500/35 bg-slate-500/24 text-slate-300 transition-all duration-300 hover:bg-slate-500/34"
              >
-              {Book.citations.filter((cite) => cite.note_mark === 0).length}
+              {citationCounts[0]}
             </Button>
             <Button
               onClick={() => filterColors(1)}
@@ -416,28 +453,28 @@ export const Book = () => {
               size="default"
                 className="motion-lift border border-red-500/35 bg-red-500/22 text-red-300 transition-all duration-300 hover:bg-red-500/34"
              >
-              {Book.citations.filter((cite) => cite.note_mark === 1).length}
+              {citationCounts[1]}
             </Button>
             <Button
               onClick={() => filterColors(2)}
               size="default"
                 className="motion-lift border border-amber-400/40 bg-amber-400/24 text-amber-200 transition-all duration-300 hover:bg-amber-400/34"
              >
-              {Book.citations.filter((cite) => cite.note_mark === 2).length}
+              {citationCounts[2]}
             </Button>
             <Button
               onClick={() => filterColors(3)}
               size="default"
                 className="motion-lift border border-emerald-500/35 bg-emerald-500/22 text-emerald-300 transition-all duration-300 hover:bg-emerald-500/34"
              >
-              {Book.citations.filter((cite) => cite.note_mark === 3).length}
+              {citationCounts[3]}
             </Button>
             <Button
               onClick={() => filterColors(4)}
               size="default"
                 className="motion-lift border border-blue-500/35 bg-blue-500/22 text-blue-300 transition-all duration-300 hover:bg-blue-500/34"
              >
-              {Book.citations.filter((cite) => cite.note_mark === 4).length}
+              {citationCounts[4]}
             </Button>
           </span>
 
@@ -504,9 +541,9 @@ export const Book = () => {
               ? "Try adjusting your search or color filter."
               : "No citations with this color. Try selecting a different filter or 'All'."
           }
-          actionLabel="Show all"
-          onAction={() => { filterColors(7); setSearchText(""); }}
-        />
+           actionLabel="Show all"
+           onAction={() => { filterColors(ALL_COLORS_FILTER); setSearchText(""); }}
+         />
       ) : (
         <CitesList cites={sortedCites} view={view} />
       )}

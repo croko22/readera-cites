@@ -32,10 +32,15 @@ export const Search = ({
   const wrapperRef = useRef(null);
   const inputRef = useRef(null);
 
+  const loadHistory = useCallback(async () => {
+    const entries = await getSearchHistory();
+    setHistory(Array.isArray(entries) ? entries : []);
+  }, []);
+
   // Load history on mount
   useEffect(() => {
-    getSearchHistory().then(setHistory);
-  }, []);
+    void loadHistory();
+  }, [loadHistory]);
 
   // Close history on outside click
   useEffect(() => {
@@ -60,35 +65,34 @@ export const Search = ({
   const handleSelectHistory = useCallback((item) => {
     setSearchText(item);
     setShowHistory(false);
-    addSearchHistory(item);
+    void addSearchHistory(item);
   }, [setSearchText]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === "Enter" && searchText.trim()) {
-      addSearchHistory(searchText.trim()).then(() => {
-        getSearchHistory().then(setHistory);
-      });
+      void addSearchHistory(searchText.trim()).then(loadHistory);
       setShowHistory(false);
     }
-  }, [searchText]);
+  }, [loadHistory, searchText]);
 
   const handleFocus = useCallback(() => {
     setShowHistory(true);
-    getSearchHistory().then(setHistory);
-  }, []);
+    void loadHistory();
+  }, [loadHistory]);
 
-  const handleRemoveHistoryItem = useCallback((item) => {
+  const handleRemoveHistoryItem = useCallback(async (item) => {
     const updated = history.filter((h) => h !== item);
     setHistory(updated);
-    clearSearchHistory().then(() => {
-      const readd = async () => {
-        for (let i = updated.length - 1; i >= 0; i--) {
-          await addSearchHistory(updated[i]);
-        }
-      };
-      readd();
-    });
-  }, [history]);
+    await clearSearchHistory();
+    for (let i = updated.length - 1; i >= 0; i--) {
+      await addSearchHistory(updated[i]);
+    }
+    await loadHistory();
+  }, [history, loadHistory]);
+
+  const onRemoveHistoryItem = useCallback((item) => {
+    void handleRemoveHistoryItem(item);
+  }, [handleRemoveHistoryItem]);
 
   const visibleHistory = showHistory && history.length > 0 && !searchText;
 
@@ -178,10 +182,10 @@ export const Search = ({
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleRemoveHistoryItem(item)}
-                  className="ml-0.5 rounded-full p-1 text-slate-600 transition-colors hover:text-red-400 group-hover:opacity-100"
-                  aria-label={`Remove recent search: ${item}`}
-                >
+                   onClick={() => onRemoveHistoryItem(item)}
+                   className="ml-0.5 rounded-full p-1 text-slate-600 transition-colors hover:text-red-400 group-hover:opacity-100"
+                   aria-label={`Remove recent search: ${item}`}
+                 >
                   <MdClose size="0.85em" />
                 </button>
               </div>

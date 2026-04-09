@@ -47,9 +47,124 @@ const DATE_RANGES = [
 ];
 
 const SORT_MODES = [
-  { key: "quotes-desc", label: "By Quotes", iconDesc: ArrowDownNarrowWide, iconAsc: ArrowUpNarrowWide },
-  { key: "alpha-desc", label: "A — Z", iconDesc: ArrowDownAZ, iconAsc: ArrowUpAZ },
+  {
+    key: "quotes",
+    label: "By Quotes",
+    iconDesc: ArrowDownNarrowWide,
+    iconAsc: ArrowUpNarrowWide,
+  },
+  { key: "alpha", label: "A — Z", iconDesc: ArrowDownAZ, iconAsc: ArrowUpAZ },
 ];
+
+const BTN_CLASS =
+  "motion-lift gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200";
+const BTN_ACTIVE_CLASS =
+  "motion-lift gap-2 font-semibold bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/60 transition-all duration-200";
+const SELECT_TRIGGER_CLASS =
+  "h-10 gap-2 bg-transparent font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200";
+
+function getBookTitle(book) {
+  return book?.data?.doc_file_name_title || "";
+}
+
+function getBookAuthor(book) {
+  return book?.data?.doc_authors || "";
+}
+
+function getBookLastReadTime(book) {
+  return Number(book?.data?.doc_last_read_time) || 0;
+}
+
+function getBookCitationsCount(book) {
+  return Array.isArray(book?.citations) ? book.citations.length : 0;
+}
+
+function isFavoriteBook(book) {
+  return Number(book?.data?.doc_favorites_time) !== 0;
+}
+
+function getCitationSearchResults(books, rawQuery) {
+  if (!Array.isArray(books)) return [];
+  const query = String(rawQuery || "").toLowerCase().trim();
+  if (!query) return [];
+
+  const results = [];
+  for (const book of books) {
+    const citations = Array.isArray(book?.citations) ? book.citations : [];
+    const matches = [];
+    for (const cite of citations) {
+      const body = String(cite?.note_body || "").toLowerCase();
+      const extra = String(cite?.note_extra || "").toLowerCase();
+      if (body.includes(query) || extra.includes(query)) {
+        matches.push(cite);
+      }
+    }
+    if (matches.length > 0) {
+      results.push({ book, matches });
+    }
+  }
+
+  return results;
+}
+
+function applyLibraryFilters(books, options) {
+  if (!Array.isArray(books)) return [];
+
+  const {
+    searchMode,
+    searchText,
+    dateRange,
+    authorFilter,
+    minCitations,
+    favoritesOnly,
+    sortState,
+  } = options;
+
+  let result = [...books];
+
+  if (searchMode === "title" && searchText) {
+    const query = String(searchText).toLowerCase();
+    result = result.filter((book) => getBookTitle(book).toLowerCase().includes(query));
+  }
+
+  if (dateRange !== "all") {
+    const threshold = getDateThreshold(dateRange);
+    result = result.filter((book) => getBookLastReadTime(book) >= threshold);
+  }
+
+  if (authorFilter !== "all") {
+    result = result.filter((book) => getBookAuthor(book) === authorFilter);
+  }
+
+  const min = Number(minCitations);
+  if (min > 0) {
+    result = result.filter((book) => getBookCitationsCount(book) >= min);
+  }
+
+  if (favoritesOnly) {
+    result = result.filter((book) => isFavoriteBook(book));
+  }
+
+  if (sortState?.key === "quotes") {
+    result.sort((a, b) =>
+      sortState.dir === "desc"
+        ? getBookCitationsCount(b) - getBookCitationsCount(a)
+        : getBookCitationsCount(a) - getBookCitationsCount(b)
+    );
+  }
+
+  if (sortState?.key === "alpha") {
+    result.sort((a, b) => {
+      const titleA = getBookTitle(a);
+      const titleB = getBookTitle(b);
+      return sortState.dir === "desc"
+        ? titleB.localeCompare(titleA)
+        : titleA.localeCompare(titleB);
+    });
+  }
+
+  return result;
+}
 
 function getDateThreshold(range) {
   if (range === "all") return 0;
@@ -125,66 +240,20 @@ export const Library = () => {
 
   const citationResults = useMemo(() => {
     if (searchMode !== "citations" || !searchText.trim() || !storedData) return null;
-    const query = searchText.toLowerCase();
-    const results = [];
-    for (const book of storedData) {
-      const matches = [];
-      for (const cite of book.citations) {
-        const body = (cite.note_body || "").toLowerCase();
-        const extra = (cite.note_extra || "").toLowerCase();
-        if (body.includes(query) || extra.includes(query)) matches.push(cite);
-      }
-      if (matches.length > 0) results.push({ book, matches });
-    }
-    return results;
+    return getCitationSearchResults(storedData, searchText);
   }, [searchMode, searchText, storedData]);
 
   const filteredBooks = useMemo(() => {
     if (!Books) return null;
-    let result = [...Books];
-
-    if (searchMode === "title" && searchText) {
-      const query = searchText.toLowerCase();
-      result = result.filter((book) =>
-        book.data.doc_file_name_title.toLowerCase().includes(query)
-      );
-    }
-
-    if (dateRange !== "all") {
-      const threshold = getDateThreshold(dateRange);
-      result = result.filter((book) => book.data.doc_last_read_time >= threshold);
-    }
-
-    if (authorFilter !== "all") {
-      result = result.filter((book) => book.data.doc_authors === authorFilter);
-    }
-
-    if (minCitations && Number(minCitations) > 0) {
-      const min = Number(minCitations);
-      result = result.filter((book) => book.citations.length >= min);
-    }
-
-    if (Favorites) {
-      result = result.filter((book) => book.data.doc_favorites_time != 0);
-    }
-
-    if (sortState) {
-      if (sortState.key === "quotes") {
-        result.sort((a, b) =>
-          sortState.dir === "desc"
-            ? b.citations.length - a.citations.length
-            : a.citations.length - b.citations.length
-        );
-      } else {
-        result.sort((a, b) =>
-          sortState.dir === "desc"
-            ? b.data.doc_file_name_title.localeCompare(a.data.doc_file_name_title)
-            : a.data.doc_file_name_title.localeCompare(b.data.doc_file_name_title)
-        );
-      }
-    }
-
-    return result;
+    return applyLibraryFilters(Books, {
+      searchMode,
+      searchText,
+      dateRange,
+      authorFilter,
+      minCitations,
+      favoritesOnly: Favorites,
+      sortState,
+    });
   }, [Books, searchText, searchMode, dateRange, authorFilter, minCitations, Favorites, sortState]);
 
   const insightsBooks = useMemo(() => {
@@ -236,13 +305,6 @@ export const Library = () => {
       </div>
     );
   }
-
-  const btnClass =
-    "motion-lift gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200";
-  const btnActive =
-    "motion-lift gap-2 font-semibold bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/60 transition-all duration-200";
-  const selectTriggerClass =
-    "h-10 gap-2 bg-transparent font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200";
 
   if (searchMode === "citations" && searchText.trim() && citationResults) {
     return (
@@ -359,22 +421,22 @@ export const Library = () => {
 
         <TooltipProvider>
           <div className="my-5 flex flex-wrap items-center gap-3">
-            <Button variant="outline" size="default" onClick={toggleFavs} className={Favorites ? btnActive : btnClass}>
-              {Favorites ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
-            </Button>
+              <Button variant="outline" size="default" onClick={toggleFavs} className={Favorites ? BTN_ACTIVE_CLASS : BTN_CLASS}>
+                {Favorites ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
+              </Button>
 
-            {SORT_MODES.map((mode) => {
-              const isActive = sortState && sortState.key === mode.key.split("-")[0];
-              const isAsc = isActive && sortState.dir === "asc";
-              const Icon = isAsc ? mode.iconAsc : mode.iconDesc;
-              return (
+              {SORT_MODES.map((mode) => {
+                const isActive = sortState && sortState.key === mode.key;
+                const isAsc = isActive && sortState.dir === "asc";
+                const Icon = isAsc ? mode.iconAsc : mode.iconDesc;
+                return (
                 <Button
-                  key={mode.key}
-                  variant="outline"
-                  size="default"
-                  onClick={() => toggleSort(mode.key.split("-")[0])}
-                  className={isActive ? btnActive : btnClass}
-                >
+                    key={mode.key}
+                    variant="outline"
+                    size="default"
+                    onClick={() => toggleSort(mode.key)}
+                    className={isActive ? BTN_ACTIVE_CLASS : BTN_CLASS}
+                  >
                   <Icon className="h-4 w-4" /> {mode.label}
                   {isActive && <span className="text-[10px] opacity-60">{isAsc ? "ASC" : "DESC"}</span>}
                 </Button>
@@ -382,7 +444,7 @@ export const Library = () => {
             })}
 
             <Select value={dateRange} onValueChange={setDateRange}>
-              <SelectTrigger className={selectTriggerClass + " w-36"}>
+              <SelectTrigger className={SELECT_TRIGGER_CLASS + " w-36"}>
                 <SelectValue placeholder="Date range" />
               </SelectTrigger>
               <SelectContent>
@@ -403,7 +465,7 @@ export const Library = () => {
                     setAuthorSearch("");
                   }}
                 >
-                  <SelectTrigger className={selectTriggerClass + " w-48"}>
+                  <SelectTrigger className={SELECT_TRIGGER_CLASS + " w-48"}>
                     <SelectValue placeholder="Author" />
                   </SelectTrigger>
                   <SelectContent>
@@ -499,12 +561,12 @@ export const Library = () => {
 
       <TooltipProvider>
         <div className="my-5 flex flex-wrap items-center gap-3">
-          <Button variant="outline" size="default" onClick={toggleFavs} className={Favorites ? btnActive : btnClass}>
+          <Button variant="outline" size="default" onClick={toggleFavs} className={Favorites ? BTN_ACTIVE_CLASS : BTN_CLASS}>
             {Favorites ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
           </Button>
 
           {SORT_MODES.map((mode) => {
-            const isActive = sortState && sortState.key === mode.key.split("-")[0];
+            const isActive = sortState && sortState.key === mode.key;
             const isAsc = isActive && sortState.dir === "asc";
             const Icon = isAsc ? mode.iconAsc : mode.iconDesc;
             return (
@@ -512,8 +574,8 @@ export const Library = () => {
                 key={mode.key}
                 variant="outline"
                 size="default"
-                onClick={() => toggleSort(mode.key.split("-")[0])}
-                className={isActive ? btnActive : btnClass}
+                onClick={() => toggleSort(mode.key)}
+                className={isActive ? BTN_ACTIVE_CLASS : BTN_CLASS}
               >
                 <Icon className="h-4 w-4" /> {mode.label}
                 {isActive && (
@@ -524,7 +586,7 @@ export const Library = () => {
           })}
 
           <Select value={dateRange} onValueChange={setDateRange}>
-             <SelectTrigger className={selectTriggerClass + " w-36"}>
+             <SelectTrigger className={SELECT_TRIGGER_CLASS + " w-36"}>
               <SelectValue placeholder="Date range" />
             </SelectTrigger>
             <SelectContent>
@@ -537,7 +599,7 @@ export const Library = () => {
           {authors.length > 0 && (
             <div className="relative">
               <Select value={authorFilter} onValueChange={(v) => { setAuthorFilter(v); setAuthorSearch(""); }}>
-                 <SelectTrigger className={selectTriggerClass + " w-48"}>
+                 <SelectTrigger className={SELECT_TRIGGER_CLASS + " w-48"}>
                   <SelectValue placeholder="Author" />
                 </SelectTrigger>
                 <SelectContent>
@@ -601,7 +663,7 @@ export const Library = () => {
                   const json = JSON.stringify(buildLibraryJson(Books), null, 2);
                   downloadFile(json, "readera-library.json", "application/json");
                 }}
-                className={btnClass}
+                className={BTN_CLASS}
               >
                 <FileJson className="h-4 w-4" /> Export
               </Button>

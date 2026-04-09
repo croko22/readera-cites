@@ -27,6 +27,7 @@ export const InsightsSidePanel = ({ selectedBook, query }) => {
     [matches, visibleMatches]
   );
   const remaining = Math.max(matches.length - shown.length, 0);
+  const safeQuery = String(query || "");
 
   if (!selectedBook) {
     return (
@@ -71,7 +72,7 @@ export const InsightsSidePanel = ({ selectedBook, query }) => {
             <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
               <span>{formatPage(cite.note_page)}</span>
               <span>{formatDate(cite.note_timestamp)}</span>
-              {query ? <span>Query: {query}</span> : null}
+              {safeQuery ? <span>Query: {safeQuery}</span> : null}
             </div>
           </article>
         ))}
