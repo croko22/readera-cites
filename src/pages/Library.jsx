@@ -139,11 +139,6 @@ export const Library = () => {
     return results;
   }, [searchMode, searchText, storedData]);
 
-  const insightsBooks = useMemo(() => {
-    if (searchMode !== "insights") return [];
-    return filteredBooks || [];
-  }, [searchMode, filteredBooks]);
-
   const filteredBooks = useMemo(() => {
     if (!Books) return null;
     let result = [...Books];
@@ -191,6 +186,11 @@ export const Library = () => {
 
     return result;
   }, [Books, searchText, searchMode, dateRange, authorFilter, minCitations, Favorites, sortState]);
+
+  const insightsBooks = useMemo(() => {
+    if (searchMode !== "insights") return [];
+    return filteredBooks || [];
+  }, [searchMode, filteredBooks]);
 
   const hasActiveFilters =
     dateRange !== "all" ||
