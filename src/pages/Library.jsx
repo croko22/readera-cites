@@ -480,6 +480,7 @@ export const Library = () => {
                           onKeyDown={(e) => {
                             if (e.key === "Escape") setAuthorSearch("");
                           }}
+                          aria-label="Filter authors"
                           className="h-8 w-full rounded-md border border-white/10 bg-white/5 pl-8 pr-2 text-xs text-slate-300 placeholder:text-slate-500 focus:border-amber-500/50 focus:outline-none"
                         />
                       </div>
@@ -507,6 +508,7 @@ export const Library = () => {
                 placeholder="Min citations"
                 value={minCitations}
                 onChange={(e) => setMinCitations(e.target.value)}
+                aria-label="Minimum citations"
                 className="h-10 w-32 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300 placeholder:text-slate-500 transition-all duration-300 [appearance:textfield] focus:border-amber-500/50 focus:bg-amber-500/5 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
@@ -612,6 +614,7 @@ export const Library = () => {
                         onChange={(e) => setAuthorSearch(e.target.value)}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => { if (e.key === "Escape") setAuthorSearch(""); }}
+                        aria-label="Filter authors"
                         className="w-full h-8 rounded-md border border-white/10 bg-white/5 pl-8 pr-2 text-xs text-slate-300 placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50"
                       />
                     </div>
@@ -637,6 +640,7 @@ export const Library = () => {
               placeholder="Min citations"
               value={minCitations}
               onChange={(e) => setMinCitations(e.target.value)}
+              aria-label="Minimum citations"
               className="h-10 w-32 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300 placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50 focus:bg-amber-500/5 transition-all duration-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>

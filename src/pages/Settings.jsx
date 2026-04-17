@@ -184,7 +184,7 @@ export const Settings = () => {
                   Clear all data
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-[#1A1A24] border-white/10">
+              <AlertDialogContent className="bg-popover border-white/10">
                 <AlertDialogHeader>
                   <AlertDialogTitle className="text-slate-100">Clear all data?</AlertDialogTitle>
                   <AlertDialogDescription className="text-slate-400">
@@ -211,7 +211,7 @@ export const Settings = () => {
                   Clear search history
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-[#1A1A24] border-white/10">
+              <AlertDialogContent className="bg-popover border-white/10">
                 <AlertDialogHeader>
                   <AlertDialogTitle className="text-slate-100">Clear search history?</AlertDialogTitle>
                   <AlertDialogDescription className="text-slate-400">

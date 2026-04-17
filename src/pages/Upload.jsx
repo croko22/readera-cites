@@ -250,6 +250,7 @@ export const Upload = () => {
               type="file"
               accept={ACCEPTED_FILE_TYPES.join(",")}
               onChange={handleChange}
+              aria-label="Upload library file"
               className="hidden"
             />
             

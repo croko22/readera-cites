@@ -15,7 +15,7 @@ function App() {
     <div className="app-shell flex min-h-screen flex-col bg-background text-foreground">
       <ToTopButton />
       <Header />
-      <main className="route-stage flex-1 pt-2 sm:pt-3">
+      <main id="main-content" className="route-stage flex-1 pt-2 sm:pt-3">
         <div key={location.pathname} className="animate-fade-in-up route-enter">
           <Routes location={location}>
             <Route path="/" element={<Library />} />

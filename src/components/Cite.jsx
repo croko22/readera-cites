@@ -147,7 +147,7 @@ export const Cite = ({ cite }) => {
                   <FaCopy />
                 </button>
               </TooltipTrigger>
-              <TooltipContent className="bg-[#1A1A24] border-white/10 text-slate-200">
+              <TooltipContent className="bg-popover border-white/10 text-slate-200">
                 <p>Copy this quote</p>
               </TooltipContent>
             </Tooltip>
@@ -164,7 +164,7 @@ export const Cite = ({ cite }) => {
                   <FaTwitter />
                 </a>
               </TooltipTrigger>
-              <TooltipContent className="bg-[#1A1A24] border-white/10 text-slate-200">
+              <TooltipContent className="bg-popover border-white/10 text-slate-200">
                 <p>Tweet this quote</p>
               </TooltipContent>
             </Tooltip>
