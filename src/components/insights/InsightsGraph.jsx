@@ -118,12 +118,12 @@ export const InsightsGraph = ({
         </button>
       </div>
 
-      <div className="h-[280px] rounded-lg border border-white/10 bg-[rgba(10,12,20,0.76)] sm:h-[340px]">
+      <div className="h-[280px] rounded-lg border border-white/10 bg-[rgba(10,12,20,0.76)] sm:h-[340px]" style={{ willChange: "transform" }}>
         <CytoscapeComponent
           elements={elements}
           stylesheet={cytoscapeStylesheet}
           layout={{ name: "breadthfirst", directed: true, spacingFactor: 1.25 }}
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: "100%", willChange: "transform" }}
           cy={(cy) => {
             cy.on("tap", "node", (event) => {
               const node = event.target;
