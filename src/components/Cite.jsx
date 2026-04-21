@@ -8,6 +8,14 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 
+const COLORS = [
+  { bg: "bg-white/5 border-slate-600", border: "border-slate-500", text: "text-slate-300" },
+  { bg: "bg-red-500/5 border-red-600", border: "border-red-500", text: "text-red-300" },
+  { bg: "bg-amber-500/5 border-amber-600", border: "border-amber-400", text: "text-amber-300" },
+  { bg: "bg-emerald-500/5 border-emerald-600", border: "border-emerald-500", text: "text-emerald-300" },
+  { bg: "bg-blue-500/5 border-blue-600", border: "border-blue-500", text: "text-blue-300" },
+];
+
 function formatRelativeTime(timestampMs) {
   if (!timestampMs) return null;
   const now = Date.now();
@@ -33,22 +41,9 @@ function formatRelativeTime(timestampMs) {
   return rtf.format(-seconds, "second");
 }
 
-export const Cite = ({ cite }) => {
-  const colors = [
-    "bg-white/5 border-slate-600",
-    "bg-red-500/5 border-red-600",
-    "bg-amber-500/5 border-amber-600",
-    "bg-emerald-500/5 border-emerald-600",
-    "bg-blue-500/5 border-blue-600",
-  ];
-
-  const textColors = [
-    "text-slate-300",
-    "text-red-300",
-    "text-amber-300",
-    "text-emerald-300",
-    "text-blue-300",
-  ];
+export const Cite = ({ cite, variant = "list", index = 0 }) => {
+  const c = COLORS[cite.note_mark] ?? COLORS[0];
+  const isGrid = variant === "grid";
 
   const copyCite = async (input) => {
     let text = "";
@@ -87,7 +82,7 @@ export const Cite = ({ cite }) => {
         duration: 3000,
         style: { "--toast-duration": "3s" },
       }).showToast();
-    } catch (err) {
+    } catch {
       try {
         const ta = document.createElement("textarea");
         ta.value = text;
@@ -106,7 +101,7 @@ export const Cite = ({ cite }) => {
           duration: 3000,
           style: { "--toast-duration": "3s" },
         }).showToast();
-      } catch (err2) {
+      } catch {
         Toastify({
           text: "Failed to copy quote",
           close: true,
@@ -122,11 +117,27 @@ export const Cite = ({ cite }) => {
   };
 
   return (
-    <li className={`${colors[cite.note_mark]} motion-lift mb-4 list-none rounded-xl border-l-4 p-5 backdrop-blur-sm ${cite.note_mark === 0 ? 'border-slate-500' : cite.note_mark === 1 ? 'border-red-500' : cite.note_mark === 2 ? 'border-amber-400' : cite.note_mark === 3 ? 'border-emerald-500' : 'border-blue-500'}`}>
+    <li
+      className={[
+        c.bg,
+        isGrid ? "card-appear card-grid" : "motion-lift",
+        "list-none rounded-xl border-l-4 backdrop-blur-sm",
+        isGrid ? "p-3.5" : "p-5",
+        c.border,
+      ].join(" ")}
+      style={isGrid ? { animationDelay: `${index * 30}ms` } : undefined}
+    >
       <TooltipProvider>
-        <div className="mb-3 flex items-start justify-between">
-          <span className="flex items-center gap-2 flex-wrap">
-            <small className={`text-sm font-bold ${textColors[cite.note_mark]} bg-white/[0.07] px-3 py-1 rounded-full border border-white/14`}>
+        <div className={isGrid ? "mb-2 flex items-start justify-between gap-2" : "mb-3 flex items-start justify-between"}>
+          <span className="flex items-center gap-1.5 flex-wrap">
+            <small
+              className={[
+                "font-bold",
+                c.text,
+                "bg-white/[0.07] rounded-full border border-white/14",
+                isGrid ? "text-[11px] px-2 py-0.5" : "text-sm px-3 py-1",
+              ].join(" ")}
+            >
               📖 Page {cite.note_page}
             </small>
             {cite.note_timestamp ? (
@@ -136,15 +147,18 @@ export const Cite = ({ cite }) => {
             ) : null}
           </span>
 
-          <span className="flex gap-3">
+          <span className={isGrid ? "flex gap-1" : "flex gap-3"}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className="cursor-pointer rounded-lg p-1.5 text-slate-400 transition-colors duration-300 hover:bg-white/8 hover:text-amber-300"
+                  className={[
+                    "cursor-pointer rounded-lg text-slate-400 transition-colors duration-300 hover:bg-white/8 hover:text-amber-300",
+                    isGrid ? "p-1" : "p-1.5",
+                  ].join(" ")}
                   onClick={() => copyCite(cite)}
                   aria-label="Copy citation"
                 >
-                  <FaCopy />
+                  <FaCopy className={isGrid ? "text-xs" : ""} />
                 </button>
               </TooltipTrigger>
               <TooltipContent className="bg-popover border-white/10 text-slate-200">
@@ -158,10 +172,13 @@ export const Cite = ({ cite }) => {
                   href={`https://twitter.com/intent/tweet?text=${cite.note_body}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-lg p-1.5 text-slate-400 transition-colors duration-300 hover:bg-white/8 hover:text-amber-300"
+                  className={[
+                    "rounded-lg text-slate-400 transition-colors duration-300 hover:bg-white/8 hover:text-amber-300",
+                    isGrid ? "p-1" : "p-1.5",
+                  ].join(" ")}
                   aria-label="Share citation on X"
                 >
-                  <FaTwitter />
+                  <FaTwitter className={isGrid ? "text-xs" : ""} />
                 </a>
               </TooltipTrigger>
               <TooltipContent className="bg-popover border-white/10 text-slate-200">
@@ -171,9 +188,21 @@ export const Cite = ({ cite }) => {
           </span>
         </div>
       </TooltipProvider>
-      <p className="mb-3 text-slate-100 leading-relaxed text-base font-medium">{cite.note_body}</p>
+      <p
+        className={[
+          "text-slate-100 leading-relaxed font-medium",
+          isGrid ? "mb-2 text-[13px]" : "mb-3 text-base",
+        ].join(" ")}
+      >
+        {cite.note_body}
+      </p>
       {cite.note_extra && (
-        <small className="text-slate-300 bg-white/[0.06] px-3 py-2 rounded-lg inline-block border border-white/14">
+        <small
+          className={[
+            "text-slate-300 bg-white/[0.06] rounded-lg inline-block border border-white/14",
+            isGrid ? "text-[11px] px-2.5 py-1.5" : "px-3 py-2",
+          ].join(" ")}
+        >
           <b className="text-amber-300">Note:</b> {cite.note_extra}
         </small>
       )}
