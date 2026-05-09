@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BOOK_NODE_INCREMENT,
   MAX_BOOK_NODES,
@@ -7,12 +7,7 @@ import {
 import { InsightsFallbackList } from "./InsightsFallbackList";
 import { InsightsSidePanel } from "./InsightsSidePanel";
 import { InsightsSkeleton } from "../Skeleton";
-
-const LazyInsightsGraph = lazy(() =>
-  import("./InsightsGraph").then((mod) => ({ default: mod.InsightsGraph }))
-);
-
-const defaultLoadGraph = () => import("./InsightsGraph");
+import { GraphErrorBoundary } from "./GraphErrorBoundary";
 
 function getInitialSelection(modelBooks, selectedBookId) {
   if (!Array.isArray(modelBooks) || modelBooks.length === 0) {
@@ -26,13 +21,14 @@ function getInitialSelection(modelBooks, selectedBookId) {
   return modelBooks[0].bookId;
 }
 
-export const InsightsView = ({ books, query, loadGraph = defaultLoadGraph }) => {
+export const InsightsView = ({ books, query, loadGraph = () => import("./InsightsGraph") }) => {
   const normalizedQuery = String(query || "");
   const [debouncedQuery, setDebouncedQuery] = useState(normalizedQuery);
   const [selectedBookId, setSelectedBookId] = useState(null);
   const [visibleBookCount, setVisibleBookCount] = useState(MAX_BOOK_NODES);
   const [showListOnly, setShowListOnly] = useState(false);
   const [graphStatus, setGraphStatus] = useState("idle");
+  const [GraphComponent, setGraphComponent] = useState(null);
   const isMountedRef = useRef(true);
 
   useEffect(() => {
@@ -63,26 +59,31 @@ export const InsightsView = ({ books, query, loadGraph = defaultLoadGraph }) => 
     setSelectedBookId((current) => getInitialSelection(model.books, current));
   }, [debouncedQuery, model.books]);
 
-  useEffect(() => {
-    if (!debouncedQuery.trim() || showListOnly || graphStatus === "error") {
-      return;
-    }
+  const loadWithTimeout = useCallback((importPromise, ms = 10000) =>
+    Promise.race([
+      importPromise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Graph import timed out")), ms)
+      ),
+    ]),
+  []);
 
-    if (graphStatus === "ready" || graphStatus === "loading") {
-      return;
-    }
+  useEffect(() => {
+    if (graphStatus !== "idle") return;
+    if (!debouncedQuery.trim() || model.books.length === 0 || showListOnly) return;
 
     setGraphStatus("loading");
-    loadGraph()
-      .then(() => {
+    loadWithTimeout(loadGraph(), 10000)
+      .then((mod) => {
         if (!isMountedRef.current) return;
+        setGraphComponent(() => mod.default || mod.InsightsGraph);
         setGraphStatus("ready");
       })
       .catch(() => {
         if (!isMountedRef.current) return;
         setGraphStatus("error");
       });
-  }, [debouncedQuery, graphStatus, loadGraph, showListOnly]);
+  }, [debouncedQuery, model.books.length, graphStatus, showListOnly, loadWithTimeout, loadGraph]);
 
   const selectedBook = useMemo(
     () => model.books.find((book) => book.bookId === selectedBookId) || null,
@@ -129,24 +130,42 @@ export const InsightsView = ({ books, query, loadGraph = defaultLoadGraph }) => 
       ) : (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
           <div className="space-y-3">
-            {!showListOnly && graphStatus === "ready" ? (
-              <Suspense fallback={<InsightsSkeleton compact />}>
-                <LazyInsightsGraph
+            {graphStatus === "loading" && (
+              <div className="flex items-center justify-center gap-2 py-12 text-stone-400">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-stone-500 border-t-transparent" />
+                <span className="text-sm">Loading graph...</span>
+              </div>
+            )}
+
+            {!showListOnly && graphStatus === "ready" && GraphComponent ? (
+              <GraphErrorBoundary
+                onError={() => setGraphStatus("error")}
+                fallback={
+                  <div className="rounded-lg border border-amber-600/30 bg-amber-900/20 px-4 py-3 text-sm text-amber-200">
+                    Graph render error. List + side panel still work.
+                  </div>
+                }
+              >
+                <GraphComponent
                   model={model}
                   selectedBookId={selectedBookId}
                   onSelectBook={setSelectedBookId}
                   onUseListView={() => setShowListOnly(true)}
                 />
-              </Suspense>
+              </GraphErrorBoundary>
             ) : null}
 
-            {!showListOnly && graphStatus === "loading" ? <InsightsSkeleton compact /> : null}
-
-            {graphStatus === "error" ? (
-              <div className="rounded-lg border border-amber-500/35 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
-                Graph is unavailable in this session. List and side panel remain fully functional.
+            {graphStatus === "error" && (
+              <div className="flex items-center gap-3 rounded-lg border border-amber-600/30 bg-amber-900/20 px-4 py-3 text-sm text-amber-200">
+                <span>Graph is unavailable in this session. List and side panel remain fully functional.</span>
+                <button
+                  onClick={() => setGraphStatus("idle")}
+                  className="ml-auto shrink-0 rounded-md bg-amber-700/40 px-3 py-1 text-xs font-medium text-amber-100 hover:bg-amber-700/60 transition-colors"
+                >
+                  Retry Graph
+                </button>
               </div>
-            ) : null}
+            )}
 
             <InsightsFallbackList
               books={model.books}

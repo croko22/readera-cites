@@ -221,6 +221,11 @@ body {
   to   { width: 0%; }
 }
 
+@keyframes graphFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes card-appear {
   from {
     opacity: 0;

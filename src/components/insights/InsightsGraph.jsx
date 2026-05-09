@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 
 function createElements(nodes, edges, selectedBookId) {
@@ -8,6 +8,7 @@ function createElements(nodes, edges, selectedBookId) {
       label: node.label,
       type: node.type,
       weight: node.weight,
+      matchCount: node.matchCount || node.weight,
       bookId: node.bookId,
       selected: node.bookId && node.bookId === selectedBookId,
     },
@@ -62,6 +63,8 @@ const cytoscapeStylesheet = [
       shape: "ellipse",
       "background-color": "#1e293b",
       "border-color": "#94a3b8",
+      width: "mapData(matchCount, 0, 20, 30, 80)",
+      height: "mapData(matchCount, 0, 20, 30, 80)",
     },
   },
   {
@@ -95,53 +98,117 @@ export const InsightsGraph = ({
     [model.nodes, model.edges, selectedBookId]
   );
 
+  const cyRef = useRef(null);
+  const onSelectBookRef = useRef(onSelectBook);
+  onSelectBookRef.current = onSelectBook;
+
+  const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, text: "" });
+
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy) return;
+
+    const tapHandler = (evt) => {
+      const node = evt.target;
+      if (node.isNode && node.data("type") === "book") {
+        const bookId = node.data("bookId");
+        if (bookId) onSelectBookRef.current(bookId);
+      }
+    };
+
+    const mouseoverHandler = (evt) => {
+      const node = evt.target;
+      setTooltip({
+        visible: true,
+        x: evt.originalEvent?.clientX || 0,
+        y: evt.originalEvent?.clientY || 0,
+        text: node.data("label"),
+      });
+    };
+
+    const mouseoutHandler = () => {
+      setTooltip({ visible: false, x: 0, y: 0, text: "" });
+    };
+
+    cy.on("tap", "node", tapHandler);
+    cy.on("mouseover", "node", mouseoverHandler);
+    cy.on("mouseout", "node", mouseoutHandler);
+
+    return () => {
+      cy.off("tap", "node", tapHandler);
+      cy.off("mouseover", "node", mouseoverHandler);
+      cy.off("mouseout", "node", mouseoutHandler);
+    };
+  }, []);
+
   if (!model.nodes.length) {
     return null;
   }
 
   return (
-    <section
-      className="panel rounded-xl border-white/15 p-3"
-      aria-label="Insights graph"
-      aria-describedby="insights-graph-help"
-    >
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <p id="insights-graph-help" className="text-xs text-slate-400">
-          Select a book node to inspect matched citations in the side panel.
-        </p>
-        <button
-          type="button"
-          onClick={onUseListView}
-          className="rounded-md border border-white/10 px-2 py-1 text-xs font-semibold text-slate-300 transition-colors hover:border-amber-400/40 hover:text-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
-        >
-          Use list view
-        </button>
-      </div>
+    <div style={{ animation: "graphFadeIn 0.4s ease-out" }}>
+      <section
+        className="panel rounded-xl border-white/15 p-3"
+        aria-label="Insights graph"
+        aria-describedby="insights-graph-help"
+      >
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <p id="insights-graph-help" className="text-xs text-slate-400">
+            Select a book node to inspect matched citations in the side panel.
+          </p>
+          <button
+            type="button"
+            onClick={onUseListView}
+            className="rounded-md border border-white/10 px-2 py-1 text-xs font-semibold text-slate-300 transition-colors hover:border-amber-400/40 hover:text-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+          >
+            Use list view
+          </button>
+        </div>
 
-      <div className="h-[280px] rounded-lg border border-white/10 bg-[rgba(10,12,20,0.76)] sm:h-[340px]" style={{ willChange: "transform" }}>
-        <CytoscapeComponent
-          elements={elements}
-          stylesheet={cytoscapeStylesheet}
-          layout={{ name: "breadthfirst", directed: true, spacingFactor: 1.25 }}
-          style={{ width: "100%", height: "100%", willChange: "transform" }}
-          cy={(cy) => {
-            cy.on("tap", "node", (event) => {
-              const node = event.target;
-              const type = node.data("type");
-              const bookId = node.data("bookId");
-              if (type === "book" && bookId) {
-                onSelectBook(bookId);
-              }
-            });
-          }}
-        />
-      </div>
+        <div className="h-[280px] rounded-lg border border-white/10 bg-[rgba(10,12,20,0.76)] sm:h-[340px]" style={{ willChange: "transform" }}>
+          {elements.length > 0 ? (
+            <CytoscapeComponent
+              cy={(cy) => { cyRef.current = cy; }}
+              elements={elements}
+              stylesheet={cytoscapeStylesheet}
+              layout={{ name: "breadthfirst", directed: true, spacingFactor: 1.25 }}
+              style={{ width: "100%", height: "100%", willChange: "transform" }}
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-stone-500">
+              No connections to display for this selection.
+            </div>
+          )}
+        </div>
 
-      {model.truncated && model.hiddenBooksCount > 0 && (
-        <p className="mt-2 text-xs text-slate-400">
-          Showing top matches in graph. {model.hiddenBooksCount} more books available in the list below.
-        </p>
-      )}
-    </section>
+        {tooltip.visible && (
+          <div
+            style={{
+              position: "fixed",
+              left: tooltip.x + 12,
+              top: tooltip.y - 10,
+              background: "#1c1917",
+              color: "#e7e5e4",
+              padding: "4px 10px",
+              borderRadius: 6,
+              fontSize: 13,
+              pointerEvents: "none",
+              zIndex: 100,
+              whiteSpace: "nowrap",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+              border: "1px solid #44403c",
+            }}
+          >
+            {tooltip.text}
+          </div>
+        )}
+
+        {model.truncated && model.hiddenBooksCount > 0 && (
+          <p className="mt-2 text-xs text-slate-400">
+            Showing top matches in graph. {model.hiddenBooksCount} more books available in the list below.
+          </p>
+        )}
+      </section>
+    </div>
   );
 };
