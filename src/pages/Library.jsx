@@ -1,11 +1,6 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  FaRedo,
-  FaRegStar,
-  FaStar,
-  FaTimes,
-} from "react-icons/fa";
+import { FaRedo, FaRegStar, FaStar, FaTimes } from "react-icons/fa";
 import {
   ArrowDownAZ,
   ArrowUpAZ,
@@ -36,15 +31,8 @@ import {
 } from "../components/ui/tooltip";
 import { getBooks } from "../lib/booksStorage";
 import { buildLibraryJson, downloadFile } from "../lib/exportUtils";
-
-const MIN_SKELETON_MS = 300;
-
-const DATE_RANGES = [
-  { value: "all", label: "All time" },
-  { value: "7d", label: "Last 7 days" },
-  { value: "30d", label: "Last 30 days" },
-  { value: "3m", label: "Last 3 months" },
-];
+import { DATE_RANGES } from "../lib/libraryFilters";
+import { useLibraryFilters } from "../hooks/useLibraryFilters";
 
 const SORT_MODES = [
   {
@@ -56,122 +44,14 @@ const SORT_MODES = [
   { key: "alpha", label: "A — Z", iconDesc: ArrowDownAZ, iconAsc: ArrowUpAZ },
 ];
 
+const MIN_SKELETON_MS = 300;
+
 const BTN_CLASS =
   "motion-lift gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200";
 const BTN_ACTIVE_CLASS =
   "motion-lift gap-2 font-semibold bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/60 transition-all duration-200";
 const SELECT_TRIGGER_CLASS =
   "h-10 gap-2 bg-transparent font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200";
-
-function getBookTitle(book) {
-  return book?.data?.doc_file_name_title || "";
-}
-
-function getBookAuthor(book) {
-  return book?.data?.doc_authors || "";
-}
-
-function getBookLastReadTime(book) {
-  return Number(book?.data?.doc_last_read_time) || 0;
-}
-
-function getBookCitationsCount(book) {
-  return Array.isArray(book?.citations) ? book.citations.length : 0;
-}
-
-function isFavoriteBook(book) {
-  return Number(book?.data?.doc_favorites_time) !== 0;
-}
-
-function getCitationSearchResults(books, rawQuery) {
-  if (!Array.isArray(books)) return [];
-  const query = String(rawQuery || "").toLowerCase().trim();
-  if (!query) return [];
-
-  const results = [];
-  for (const book of books) {
-    const citations = Array.isArray(book?.citations) ? book.citations : [];
-    const matches = [];
-    for (const cite of citations) {
-      const body = String(cite?.note_body || "").toLowerCase();
-      const extra = String(cite?.note_extra || "").toLowerCase();
-      if (body.includes(query) || extra.includes(query)) {
-        matches.push(cite);
-      }
-    }
-    if (matches.length > 0) {
-      results.push({ book, matches });
-    }
-  }
-
-  return results;
-}
-
-function applyLibraryFilters(books, options) {
-  if (!Array.isArray(books)) return [];
-
-  const {
-    searchMode,
-    searchText,
-    dateRange,
-    authorFilter,
-    minCitations,
-    favoritesOnly,
-    sortState,
-  } = options;
-
-  let result = [...books];
-
-  if (searchMode === "title" && searchText) {
-    const query = String(searchText).toLowerCase();
-    result = result.filter((book) => getBookTitle(book).toLowerCase().includes(query));
-  }
-
-  if (dateRange !== "all") {
-    const threshold = getDateThreshold(dateRange);
-    result = result.filter((book) => getBookLastReadTime(book) >= threshold);
-  }
-
-  if (authorFilter !== "all") {
-    result = result.filter((book) => getBookAuthor(book) === authorFilter);
-  }
-
-  const min = Number(minCitations);
-  if (min > 0) {
-    result = result.filter((book) => getBookCitationsCount(book) >= min);
-  }
-
-  if (favoritesOnly) {
-    result = result.filter((book) => isFavoriteBook(book));
-  }
-
-  if (sortState?.key === "quotes") {
-    result.sort((a, b) =>
-      sortState.dir === "desc"
-        ? getBookCitationsCount(b) - getBookCitationsCount(a)
-        : getBookCitationsCount(a) - getBookCitationsCount(b)
-    );
-  }
-
-  if (sortState?.key === "alpha") {
-    result.sort((a, b) => {
-      const titleA = getBookTitle(a);
-      const titleB = getBookTitle(b);
-      return sortState.dir === "desc"
-        ? titleB.localeCompare(titleA)
-        : titleA.localeCompare(titleB);
-    });
-  }
-
-  return result;
-}
-
-function getDateThreshold(range) {
-  if (range === "all") return 0;
-  const now = Date.now();
-  const days = { "7d": 7, "30d": 30, "3m": 90 };
-  return now - (days[range] || 0) * 24 * 60 * 60 * 1000;
-}
 
 function highlightText(text, query) {
   if (!query) return text;
@@ -184,114 +64,73 @@ function highlightText(text, query) {
       </mark>
     ) : (
       part
-    )
+    ),
   );
 }
 
 export const Library = () => {
-  const [storedData, setStoredData] = useState(null);
   const [Books, setBooks] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [Favorites, setFavorites] = useState(false);
-  const [sortState, setSortState] = useState(null); // { key: "quotes"|"alpha", dir: "desc"|"asc" }
-  const [searchText, setSearchText] = useState("");
-  const [searchMode, setSearchMode] = useState("title");
-  const [dateRange, setDateRange] = useState("all");
-  const [authorFilter, setAuthorFilter] = useState("all");
-  const [authorSearch, setAuthorSearch] = useState("");
-  const [minCitations, setMinCitations] = useState("");
 
   const navigate = useNavigate();
 
+  // ── Data loading ──
   useEffect(() => {
     let cancelled = false;
     const start = Date.now();
     const load = async () => {
       const stored = await getBooks();
       if (cancelled) return;
-      if (!stored) { navigate("/upload"); return; }
+      if (!stored) {
+        navigate("/upload");
+        return;
+      }
       const elapsed = Date.now() - start;
       const remaining = MIN_SKELETON_MS - elapsed;
       if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
       if (cancelled) return;
-      setStoredData(stored);
       setBooks(stored);
       setLoading(false);
     };
     void load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
-  const authors = useMemo(() => {
-    if (!storedData) return [];
-    const authorSet = new Set();
-    storedData.forEach((book) => {
-      const a = book.data.doc_authors;
-      if (a && a.trim()) authorSet.add(a.trim());
-    });
-    return Array.from(authorSet).sort((a, b) => a.localeCompare(b));
-  }, [storedData]);
-
-  const filteredAuthors = useMemo(() => {
-    if (!authorSearch.trim()) return authors;
-    const q = authorSearch.toLowerCase();
-    return authors.filter((a) => a.toLowerCase().includes(q));
-  }, [authors, authorSearch]);
-
-  const citationResults = useMemo(() => {
-    if (searchMode !== "citations" || !searchText.trim() || !storedData) return null;
-    return getCitationSearchResults(storedData, searchText);
-  }, [searchMode, searchText, storedData]);
-
-  const filteredBooks = useMemo(() => {
-    if (!Books) return null;
-    return applyLibraryFilters(Books, {
-      searchMode,
-      searchText,
-      dateRange,
-      authorFilter,
-      minCitations,
-      favoritesOnly: Favorites,
-      sortState,
-    });
-  }, [Books, searchText, searchMode, dateRange, authorFilter, minCitations, Favorites, sortState]);
-
-  const insightsBooks = useMemo(() => {
-    if (searchMode !== "insights") return [];
-    return filteredBooks || [];
-  }, [searchMode, filteredBooks]);
-
-  const hasActiveFilters =
-    dateRange !== "all" ||
-    authorFilter !== "all" ||
-    (minCitations && Number(minCitations) > 0);
-
-  const toggleSort = (key) => {
-    setSortState((prev) => {
-      if (prev && prev.key === key) {
-        return prev.dir === "desc" ? { key, dir: "asc" } : null;
-      }
-      return { key, dir: "desc" };
-    });
-  };
-
-  const toggleFavs = () => setFavorites((v) => !v);
-
-  const restoreChanges = () => {
-    setFavorites(false);
-    setSortState(null);
-    setSearchText("");
-    setDateRange("all");
-    setAuthorFilter("all");
-    setAuthorSearch("");
-    setMinCitations("");
-  };
+  // ── Filter state + derivations (encapsulated in hook) ──
+  const filters = useLibraryFilters(Books);
+  const {
+    searchText,
+    searchMode,
+    dateRange,
+    authorFilter,
+    authorSearch,
+    minCitations,
+    favoritesOnly,
+    sortState,
+    filteredBooks,
+    citationResults,
+    authors,
+    filteredAuthors,
+    hasActiveFilters,
+    setSearchText,
+    setSearchMode,
+    setDateRange,
+    setAuthorFilter,
+    setAuthorSearch,
+    setMinCitations,
+    toggleFavs,
+    toggleSort,
+    restoreChanges,
+  } = filters;
 
   const navigateToBook = useCallback(
     (md5) => navigate(`/book/${md5}`),
-    [navigate]
+    [navigate],
   );
 
+  // ── Loading state ──
   if (loading || !Books) {
     return (
       <div className="container mx-auto mb-10 mt-7 px-4">
@@ -306,6 +145,7 @@ export const Library = () => {
     );
   }
 
+  // ── Citation search mode ──
   if (searchMode === "citations" && searchText.trim() && citationResults) {
     return (
       <div className="container mx-auto mb-10 mt-7 px-4">
@@ -363,12 +203,12 @@ export const Library = () => {
                       <p className="text-sm text-slate-400 mt-0.5">{book.data.doc_authors}</p>
                     )}
                   </button>
-                   <div className="space-y-2 bg-[rgba(20,24,36,0.56)] px-4 py-2">
-                     {matches.slice(0, 3).map((cite, idx) => (
-                       <div
-                         key={idx}
-                         className="rounded-lg border-l-2 border-amber-400/40 bg-white/[0.04] px-3 py-1.5 text-sm text-slate-300"
-                       >
+                  <div className="space-y-2 bg-[rgba(20,24,36,0.56)] px-4 py-2">
+                    {matches.slice(0, 3).map((cite, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-lg border-l-2 border-amber-400/40 bg-white/[0.04] px-3 py-1.5 text-sm text-slate-300"
+                      >
                         <p className="line-clamp-2">
                           {highlightText(cite.note_body || "", searchText.trim())}
                         </p>
@@ -397,6 +237,7 @@ export const Library = () => {
     );
   }
 
+  // ── Insights mode ──
   if (searchMode === "insights") {
     return (
       <div className="container mx-auto mb-10 mt-7 px-4">
@@ -421,22 +262,27 @@ export const Library = () => {
 
         <TooltipProvider>
           <div className="my-5 flex flex-wrap items-center gap-3">
-              <Button variant="outline" size="default" onClick={toggleFavs} className={Favorites ? BTN_ACTIVE_CLASS : BTN_CLASS}>
-                {Favorites ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
-              </Button>
+            <Button
+              variant="outline"
+              size="default"
+              onClick={toggleFavs}
+              className={favoritesOnly ? BTN_ACTIVE_CLASS : BTN_CLASS}
+            >
+              {favoritesOnly ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
+            </Button>
 
-              {SORT_MODES.map((mode) => {
-                const isActive = sortState && sortState.key === mode.key;
-                const isAsc = isActive && sortState.dir === "asc";
-                const Icon = isAsc ? mode.iconAsc : mode.iconDesc;
-                return (
+            {SORT_MODES.map((mode) => {
+              const isActive = sortState && sortState.key === mode.key;
+              const isAsc = isActive && sortState.dir === "asc";
+              const Icon = isAsc ? mode.iconAsc : mode.iconDesc;
+              return (
                 <Button
-                    key={mode.key}
-                    variant="outline"
-                    size="default"
-                    onClick={() => toggleSort(mode.key)}
-                    className={isActive ? BTN_ACTIVE_CLASS : BTN_CLASS}
-                  >
+                  key={mode.key}
+                  variant="outline"
+                  size="default"
+                  onClick={() => toggleSort(mode.key)}
+                  className={isActive ? BTN_ACTIVE_CLASS : BTN_CLASS}
+                >
                   <Icon className="h-4 w-4" /> {mode.label}
                   {isActive && <span className="text-[10px] opacity-60">{isAsc ? "ASC" : "DESC"}</span>}
                 </Button>
@@ -458,13 +304,7 @@ export const Library = () => {
 
             {authors.length > 0 && (
               <div className="relative">
-                <Select
-                  value={authorFilter}
-                  onValueChange={(v) => {
-                    setAuthorFilter(v);
-                    setAuthorSearch("");
-                  }}
-                >
+                <Select value={authorFilter} onValueChange={setAuthorFilter}>
                   <SelectTrigger className={SELECT_TRIGGER_CLASS + " w-48"}>
                     <SelectValue placeholder="Author" />
                   </SelectTrigger>
@@ -513,7 +353,7 @@ export const Library = () => {
               />
             </div>
 
-            {Favorites || sortState || hasActiveFilters ? (
+            {favoritesOnly || sortState || hasActiveFilters ? (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -535,11 +375,12 @@ export const Library = () => {
           </div>
         </TooltipProvider>
 
-        <InsightsView books={insightsBooks} query={searchText} onOpenBook={navigateToBook} />
+        <InsightsView books={filteredBooks || []} query={searchText} onOpenBook={navigateToBook} />
       </div>
     );
   }
 
+  // ── Default: title search / library view ──
   return (
     <div className="container mx-auto mb-10 mt-7 px-4">
       <section className="panel mb-5 rounded-2xl border-white/15 px-4 py-4 sm:px-6 sm:py-5">
@@ -563,8 +404,8 @@ export const Library = () => {
 
       <TooltipProvider>
         <div className="my-5 flex flex-wrap items-center gap-3">
-          <Button variant="outline" size="default" onClick={toggleFavs} className={Favorites ? BTN_ACTIVE_CLASS : BTN_CLASS}>
-            {Favorites ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
+          <Button variant="outline" size="default" onClick={toggleFavs} className={favoritesOnly ? BTN_ACTIVE_CLASS : BTN_CLASS}>
+            {favoritesOnly ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
           </Button>
 
           {SORT_MODES.map((mode) => {
@@ -588,20 +429,22 @@ export const Library = () => {
           })}
 
           <Select value={dateRange} onValueChange={setDateRange}>
-             <SelectTrigger className={SELECT_TRIGGER_CLASS + " w-36"}>
+            <SelectTrigger className={SELECT_TRIGGER_CLASS + " w-36"}>
               <SelectValue placeholder="Date range" />
             </SelectTrigger>
             <SelectContent>
               {DATE_RANGES.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           {authors.length > 0 && (
             <div className="relative">
-              <Select value={authorFilter} onValueChange={(v) => { setAuthorFilter(v); setAuthorSearch(""); }}>
-                 <SelectTrigger className={SELECT_TRIGGER_CLASS + " w-48"}>
+              <Select value={authorFilter} onValueChange={setAuthorFilter}>
+                <SelectTrigger className={SELECT_TRIGGER_CLASS + " w-48"}>
                   <SelectValue placeholder="Author" />
                 </SelectTrigger>
                 <SelectContent>
@@ -613,7 +456,9 @@ export const Library = () => {
                         value={authorSearch}
                         onChange={(e) => setAuthorSearch(e.target.value)}
                         onClick={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => { if (e.key === "Escape") setAuthorSearch(""); }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Escape") setAuthorSearch("");
+                        }}
                         aria-label="Filter authors"
                         className="w-full h-8 rounded-md border border-white/10 bg-white/5 pl-8 pr-2 text-xs text-slate-300 placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50"
                       />
@@ -622,7 +467,9 @@ export const Library = () => {
                   <div className="max-h-48 overflow-y-auto">
                     <SelectItem value="all">All authors</SelectItem>
                     {filteredAuthors.map((author) => (
-                      <SelectItem key={author} value={author}>{author}</SelectItem>
+                      <SelectItem key={author} value={author}>
+                        {author}
+                      </SelectItem>
                     ))}
                     {filteredAuthors.length === 0 && (
                       <p className="px-3 py-2 text-xs text-slate-500">No authors match</p>
@@ -645,7 +492,7 @@ export const Library = () => {
             />
           </div>
 
-          {Favorites || sortState || hasActiveFilters ? (
+          {favoritesOnly || sortState || hasActiveFilters ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="outline" size="default" onClick={restoreChanges} className="gap-2 font-semibold border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 transition-all duration-300">
@@ -688,17 +535,17 @@ export const Library = () => {
           onAction={restoreChanges}
         />
       ) : (
-         <Accordion type="single" collapsible className="space-y-2">
-           {filteredBooks?.map((libro, index) => (
-             <div
-               key={index}
-               className="animate-fade-in-up"
-               style={{ animationDelay: `${Math.min(index * 30, 300)}ms` }}
-             >
-               <BookCard libro={libro} bookKey={index} />
-             </div>
-           ))}
-         </Accordion>
+        <Accordion type="single" collapsible className="space-y-2">
+          {filteredBooks?.map((libro, index) => (
+            <div
+              key={index}
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${Math.min(index * 30, 300)}ms` }}
+            >
+              <BookCard libro={libro} bookKey={index} />
+            </div>
+          ))}
+        </Accordion>
       )}
     </div>
   );

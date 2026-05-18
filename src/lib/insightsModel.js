@@ -1,3 +1,5 @@
+import { getBookTitle, getBookAuthor } from "./libraryFilters";
+
 export const MAX_BOOK_NODES = 120;
 export const BOOK_NODE_INCREMENT = 40;
 export const INITIAL_PANEL_MATCHES = 5;
@@ -26,18 +28,6 @@ export function createSnippet(text, query) {
   const prefix = start > 0 ? "..." : "";
   const suffix = end < source.length ? "..." : "";
   return `${prefix}${source.slice(start, end)}${suffix}`;
-}
-
-function getBookTitle(book) {
-  return (
-    book?.data?.doc_file_name_title ||
-    book?.data?.doc_title ||
-    "Untitled book"
-  );
-}
-
-function getBookAuthor(book) {
-  return book?.data?.doc_authors?.trim() || "Unknown author";
 }
 
 function citationHasMatch(citation, query) {
