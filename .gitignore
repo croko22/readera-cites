@@ -26,3 +26,7 @@ dist-ssr
 *.sw?
 
 bun.lockb
+# Local Pi runtime state
+.atl/
+# Remotion video project
+readera-cites-video/

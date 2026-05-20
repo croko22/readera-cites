@@ -7,7 +7,7 @@
 ![react](https://img.shields.io/github/package-json/dependency-version/croko22/readera-cites/react?label=react)
 ![vite](https://img.shields.io/github/package-json/dependency-version/croko22/readera-cites/dev/vite?label=vite)
 
-![Screenshot](docs/screenshot.png)
+<video src="docs/readera-cites-promo.mp4" controls width="100%" poster="docs/screenshot.png"></video>
 
 ## Features
 
@@ -32,28 +32,28 @@ The dev server starts on `http://localhost:5173`.
 
 ## Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| React 19 | UI library |
-| React Router 7 | Client-side routing |
-| Vite 7 | Build tool and dev server |
-| Tailwind CSS 4 | Utility-first styling |
-| Shadcn/ui + Radix UI | Accessible component primitives |
-| fflate | Decompression of `.bak` backup files |
-| idb-keyval | IndexedDB storage wrapper |
-| Lucide React | Icon set |
-| vite-plugin-pwa | Service worker and offline caching |
+| Technology           | Purpose                              |
+| -------------------- | ------------------------------------ |
+| React 19             | UI library                           |
+| React Router 7       | Client-side routing                  |
+| Vite 7               | Build tool and dev server            |
+| Tailwind CSS 4       | Utility-first styling                |
+| Shadcn/ui + Radix UI | Accessible component primitives      |
+| fflate               | Decompression of `.bak` backup files |
+| idb-keyval           | IndexedDB storage wrapper            |
+| Lucide React         | Icon set                             |
+| vite-plugin-pwa      | Service worker and offline caching   |
 
 ## Architecture
 
 Single-page application with no backend. React Router handles client-side navigation across four views. Uploaded files are parsed in the browser and persisted through a storage abstraction (`src/lib/booksStorage.js`) that prefers IndexedDB for large datasets and falls back to localStorage. The app is built as a PWA with a service worker for offline access.
 
-| Route | Page | Description |
-|-------|------|-------------|
-| `/` | Library | Main view listing all books with citations |
-| `/book/:id` | Book | Single book detail with all its citations |
-| `/upload` | Upload | File upload and backup parsing |
-| `/settings` | Settings | App preferences and dark mode toggle |
+| Route       | Page     | Description                                |
+| ----------- | -------- | ------------------------------------------ |
+| `/`         | Library  | Main view listing all books with citations |
+| `/book/:id` | Book     | Single book detail with all its citations  |
+| `/upload`   | Upload   | File upload and backup parsing             |
+| `/settings` | Settings | App preferences and dark mode toggle       |
 
 ## License
 
