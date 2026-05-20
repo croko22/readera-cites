@@ -7,7 +7,7 @@
 ![react](https://img.shields.io/github/package-json/dependency-version/croko22/readera-cites/react?label=react)
 ![vite](https://img.shields.io/github/package-json/dependency-version/croko22/readera-cites/dev/vite?label=vite)
 
-<video src="docs/readera-cites-promo.mp4" controls width="100%" poster="docs/screenshot.png"></video>
+<video src="https://github.com/croko22/readera-cites/releases/download/v2.0.0/readera-cites-promo.mp4" controls width="100%" poster="docs/screenshot.png"></video>
 
 ## Features
 
