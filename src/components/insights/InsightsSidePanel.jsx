@@ -4,18 +4,10 @@ import {
   INITIAL_PANEL_MATCHES,
   PANEL_MATCHES_INCREMENT,
 } from "../../lib/insightsModel";
+import { getCitationTimestamp, formatDate } from "../../lib/readeraVocab";
 
 function formatPage(value) {
   return value == null ? "Page unavailable" : `Page ${value}`;
-}
-
-function formatDate(timestamp) {
-  if (!timestamp) return "Date unavailable";
-  try {
-    return new Date(timestamp).toLocaleDateString();
-  } catch {
-    return "Date unavailable";
-  }
 }
 
 export const InsightsSidePanel = ({ selectedBook, query }) => {
@@ -71,7 +63,7 @@ export const InsightsSidePanel = ({ selectedBook, query }) => {
             <p className="text-sm text-slate-200">{cite.snippet || "No preview available"}</p>
             <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
               <span>{formatPage(cite.note_page)}</span>
-              <span>{formatDate(cite.note_timestamp)}</span>
+              <span>{formatDate(getCitationTimestamp(cite))}</span>
               {safeQuery ? <span>Query: {safeQuery}</span> : null}
             </div>
           </article>

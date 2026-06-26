@@ -32,6 +32,7 @@ import {
 import { getBooks } from "../lib/booksStorage";
 import { buildLibraryJson, downloadFile } from "../lib/exportUtils";
 import { DATE_RANGES } from "../lib/libraryFilters";
+import { getBookTitle, getBookAuthor } from "../lib/readeraVocab";
 import { useLibraryFilters } from "../hooks/useLibraryFilters";
 
 const SORT_MODES = [
@@ -189,18 +190,18 @@ export const Library = () => {
                     type="button"
                     className="w-full cursor-pointer border-l-4 border-amber-400 bg-[rgba(16,18,28,0.82)] px-4 py-3 text-left"
                     onClick={() => navigateToBook(book.data.doc_md5)}
-                    aria-label={`Open ${book.data.doc_file_name_title}`}
+                    aria-label={`Open ${getBookTitle(book)}`}
                   >
                     <div className="flex items-center justify-between">
                       <h5 className="text-lg font-bold text-slate-100 hover:text-amber-400 transition-colors truncate mr-4">
-                        {book.data.doc_file_name_title}
+                        {getBookTitle(book)}
                       </h5>
                       <span className="text-xs font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 whitespace-nowrap">
                         {matches.length} match{matches.length !== 1 ? "es" : ""}
                       </span>
                     </div>
                     {book.data.doc_authors && (
-                      <p className="text-sm text-slate-400 mt-0.5">{book.data.doc_authors}</p>
+                      <p className="text-sm text-slate-400 mt-0.5">{getBookAuthor(book)}</p>
                     )}
                   </button>
                   <div className="space-y-2 bg-[rgba(20,24,36,0.56)] px-4 py-2">

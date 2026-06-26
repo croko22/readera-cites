@@ -28,6 +28,14 @@ import {
 } from "../components/ui/dropdown-menu";
 import { getBooks } from "../lib/booksStorage";
 import {
+  getBookTitle,
+  getBookAuthor,
+  getBookProgress,
+  getCitationColorKey,
+  getCitationTimestamp,
+  formatRelativeTime,
+} from "../lib/readeraVocab";
+import {
   formatCitationsAsText,
   formatCitationsAsMarkdown,
   buildBookJson,
@@ -42,32 +50,6 @@ import {
 
 const MIN_SKELETON_MS = 300;
 
-// ── Relative time formatter ──────────────────────────────────────────
-function formatRelativeTime(timestampMs) {
-  if (!timestampMs) return null;
-  const now = Date.now();
-  const diff = now - timestampMs;
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  const weeks = Math.floor(days / 7);
-  const months = Math.floor(days / 30);
-  const years = Math.floor(days / 365);
-
-  const rtf = new Intl.RelativeTimeFormat(navigator.language || "en", {
-    numeric: "auto",
-  });
-
-  if (years > 0) return rtf.format(-years, "year");
-  if (months > 0) return rtf.format(-months, "month");
-  if (weeks > 0) return rtf.format(-weeks, "week");
-  if (days > 0) return rtf.format(-days, "day");
-  if (hours > 0) return rtf.format(-hours, "hour");
-  if (minutes > 0) return rtf.format(-minutes, "minute");
-  return rtf.format(-seconds, "second");
-}
-
 // ── Sort options ─────────────────────────────────────────────────────
 const SORT_OPTIONS = [
   { key: "page-asc", label: "Page", icon: ArrowUp },
@@ -78,18 +60,6 @@ const SORT_OPTIONS = [
 ];
 
 const ALL_COLORS_FILTER = 7;
-
-function safeParseProgress(value) {
-  if (!value) return 0;
-  try {
-    const parsed = JSON.parse(value);
-    const ratio = Number(parsed?.ratio);
-    if (!Number.isFinite(ratio)) return 0;
-    return Math.max(0, Math.min(100, Math.round(ratio * 100)));
-  } catch {
-    return 0;
-  }
-}
 
 function toSafeFilename(value, fallback = "citations") {
   const base = String(value || fallback)
@@ -102,18 +72,18 @@ function toSafeFilename(value, fallback = "citations") {
 function filterCitationsByColor(citations, color) {
   if (!Array.isArray(citations)) return [];
   if (color === ALL_COLORS_FILTER) return citations;
-  return citations.filter((cite) => cite?.note_mark === color);
+  return citations.filter((cite) => getCitationColorKey(cite) === color);
 }
 
 function getCitationColorCounts(citations) {
   const source = Array.isArray(citations) ? citations : [];
   return {
     all: source.length,
-    0: source.filter((cite) => cite?.note_mark === 0).length,
-    1: source.filter((cite) => cite?.note_mark === 1).length,
-    2: source.filter((cite) => cite?.note_mark === 2).length,
-    3: source.filter((cite) => cite?.note_mark === 3).length,
-    4: source.filter((cite) => cite?.note_mark === 4).length,
+    0: source.filter((cite) => getCitationColorKey(cite) === 0).length,
+    1: source.filter((cite) => getCitationColorKey(cite) === 1).length,
+    2: source.filter((cite) => getCitationColorKey(cite) === 2).length,
+    3: source.filter((cite) => getCitationColorKey(cite) === 3).length,
+    4: source.filter((cite) => getCitationColorKey(cite) === 4).length,
   };
 }
 
@@ -126,14 +96,14 @@ function sortCitations(citations, sortKey) {
       return sorted.sort((a, b) => (b.note_page ?? 0) - (a.note_page ?? 0));
     case "date-new":
       return sorted.sort(
-        (a, b) => (b.note_timestamp ?? 0) - (a.note_timestamp ?? 0)
+        (a, b) => (getCitationTimestamp(b) ?? 0) - (getCitationTimestamp(a) ?? 0)
       );
     case "date-old":
       return sorted.sort(
-        (a, b) => (a.note_timestamp ?? 0) - (b.note_timestamp ?? 0)
+        (a, b) => (getCitationTimestamp(a) ?? 0) - (getCitationTimestamp(b) ?? 0)
       );
     case "color":
-      return sorted.sort((a, b) => (a.note_mark ?? 0) - (b.note_mark ?? 0));
+      return sorted.sort((a, b) => (getCitationColorKey(a) ?? 0) - (getCitationColorKey(b) ?? 0));
     default:
       return sorted;
   }
@@ -213,14 +183,14 @@ export const Book = () => {
     );
   }
 
-  const title = Book.data.doc_title || Book.data.doc_file_name_title;
+  const title = getBookTitle(Book);
 
   const filterColors = (n) => {
     setCites(filterCitationsByColor(Book?.citations, n));
   };
 
   // ── Book metadata ──
-  const progress = safeParseProgress(Book.data.doc_position);
+  const progress = getBookProgress(Book)?.percent ?? 0;
   const lastRead = formatRelativeTime(Book.data.doc_last_read_time);
   const formatBadge = Book.data.doc_format
     ? Book.data.doc_format.toUpperCase()
@@ -229,7 +199,7 @@ export const Book = () => {
     ? Book.data.doc_lang.toUpperCase()
     : null;
   const totalPages = Book.data.doc_page_count;
-  const authors = Book.data.doc_authors;
+  const authors = getBookAuthor(Book);
 
   // ── Prev / Next navigation ──
   const books = allBooks || [];
@@ -560,7 +530,7 @@ export const Book = () => {
             >
               <ArrowLeft className="h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-1" />
               <span className="text-sm truncate">
-                {prevBook.data.doc_title || prevBook.data.doc_file_name_title}
+                {getBookTitle(prevBook)}
               </span>
             </Link>
           ) : (
@@ -574,7 +544,7 @@ export const Book = () => {
               className="flex items-center gap-2 text-slate-400 hover:text-amber-400 transition-colors duration-200 group max-w-[45%] justify-end text-right"
             >
               <span className="text-sm truncate">
-                {nextBook.data.doc_title || nextBook.data.doc_file_name_title}
+                {getBookTitle(nextBook)}
               </span>
               <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
             </Link>

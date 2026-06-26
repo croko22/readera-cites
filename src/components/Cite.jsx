@@ -7,42 +7,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
-
-const COLORS = [
-  { bg: "bg-white/5 border-slate-600", border: "border-slate-500", text: "text-slate-300" },
-  { bg: "bg-red-500/5 border-red-600", border: "border-red-500", text: "text-red-300" },
-  { bg: "bg-amber-500/5 border-amber-600", border: "border-amber-400", text: "text-amber-300" },
-  { bg: "bg-emerald-500/5 border-emerald-600", border: "border-emerald-500", text: "text-emerald-300" },
-  { bg: "bg-blue-500/5 border-blue-600", border: "border-blue-500", text: "text-blue-300" },
-];
-
-function formatRelativeTime(timestampMs) {
-  if (!timestampMs) return null;
-  const now = Date.now();
-  const diff = now - timestampMs;
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  const weeks = Math.floor(days / 7);
-  const months = Math.floor(days / 30);
-  const years = Math.floor(days / 365);
-
-  const rtf = new Intl.RelativeTimeFormat(navigator.language || "en", {
-    numeric: "auto",
-  });
-
-  if (years > 0) return rtf.format(-years, "year");
-  if (months > 0) return rtf.format(-months, "month");
-  if (weeks > 0) return rtf.format(-weeks, "week");
-  if (days > 0) return rtf.format(-days, "day");
-  if (hours > 0) return rtf.format(-hours, "hour");
-  if (minutes > 0) return rtf.format(-minutes, "minute");
-  return rtf.format(-seconds, "second");
-}
+import {
+  CITATION_COLORS,
+  getCitationColorKey,
+  getCitationTimestamp,
+  formatRelativeTime,
+} from "../lib/readeraVocab";
 
 export const Cite = ({ cite, variant = "list", index = 0 }) => {
-  const c = COLORS[cite.note_mark] ?? COLORS[0];
+  const c = CITATION_COLORS[getCitationColorKey(cite)] ?? CITATION_COLORS[0];
   const isGrid = variant === "grid";
 
   const copyCite = async (input) => {
@@ -140,9 +113,9 @@ export const Cite = ({ cite, variant = "list", index = 0 }) => {
             >
               📖 Page {cite.note_page}
             </small>
-            {cite.note_timestamp ? (
+            {getCitationTimestamp(cite) ? (
               <small className="text-xs text-slate-500 bg-white/5 px-2 py-1 rounded-full border border-white/5">
-                {formatRelativeTime(cite.note_timestamp)}
+                {formatRelativeTime(getCitationTimestamp(cite))}
               </small>
             ) : null}
           </span>

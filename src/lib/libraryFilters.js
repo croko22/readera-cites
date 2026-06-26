@@ -4,31 +4,21 @@
 // book data access behind a small interface. No React deps.
 // ────────────────────────────────────────────────────────────
 
-// ── Shared accessors (consolidated from Library.jsx + insightsModel.js) ──
+// ── Shared accessors (consolidated into readeraVocab) ──
 
-export function getBookTitle(book) {
-  return (
-    book?.data?.doc_file_name_title ||
-    book?.data?.doc_title ||
-    "Untitled book"
-  );
-}
-
-export function getBookAuthor(book) {
-  return book?.data?.doc_authors?.trim() || "Unknown author";
-}
-
-export function getBookLastReadTime(book) {
-  return Number(book?.data?.doc_last_read_time) || 0;
-}
-
-export function getBookCitationsCount(book) {
-  return Array.isArray(book?.citations) ? book.citations.length : 0;
-}
-
-export function isFavoriteBook(book) {
-  const t = book?.data?.doc_favorites_time;
-  return t != null && Number(t) !== 0;
+import {
+  getBookTitle,
+  getBookAuthor,
+  getBookLastReadTime,
+  getBookCitationCount,
+  isFavoriteBook,
+} from './readeraVocab.js'
+export {
+  getBookTitle,
+  getBookAuthor,
+  getBookLastReadTime,
+  getBookCitationCount,
+  isFavoriteBook,
 }
 
 // ── Constants ──
@@ -88,7 +78,7 @@ export function applyLibraryFilters(books, options) {
 
   const min = Number(minCitations);
   if (min > 0) {
-    result = result.filter((book) => getBookCitationsCount(book) >= min);
+    result = result.filter((book) => getBookCitationCount(book) >= min);
   }
 
   if (favoritesOnly) {
@@ -98,8 +88,8 @@ export function applyLibraryFilters(books, options) {
   if (sortState?.key === "quotes") {
     result.sort((a, b) =>
       sortState.dir === "desc"
-        ? getBookCitationsCount(b) - getBookCitationsCount(a)
-        : getBookCitationsCount(a) - getBookCitationsCount(b),
+        ? getBookCitationCount(b) - getBookCitationCount(a)
+        : getBookCitationCount(a) - getBookCitationCount(b),
     );
   }
 

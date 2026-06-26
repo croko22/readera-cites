@@ -4,7 +4,7 @@ import {
   getBookTitle,
   getBookAuthor,
   getBookLastReadTime,
-  getBookCitationsCount,
+  getBookCitationCount,
   isFavoriteBook,
   // filter computation
   applyLibraryFilters,
@@ -122,17 +122,17 @@ describe("getBookLastReadTime", () => {
   });
 });
 
-describe("getBookCitationsCount", () => {
+describe("getBookCitationCount", () => {
   it("returns citation array length", () => {
-    expect(getBookCitationsCount(makeBook())).toBe(2);
+    expect(getBookCitationCount(makeBook())).toBe(2);
   });
 
   it("returns 0 for missing citations", () => {
-    expect(getBookCitationsCount({ data: {} })).toBe(0);
+    expect(getBookCitationCount({ data: {} })).toBe(0);
   });
 
   it("returns 0 for non-array citations", () => {
-    expect(getBookCitationsCount({ data: {}, citations: "invalid" })).toBe(0);
+    expect(getBookCitationCount({ data: {}, citations: "invalid" })).toBe(0);
   });
 });
 
@@ -399,8 +399,8 @@ describe("applyLibraryFilters", () => {
       favoritesOnly: false,
       sortState: { key: "quotes", dir: "desc" },
     });
-    expect(getBookCitationsCount(result[0])).toBeGreaterThanOrEqual(
-      getBookCitationsCount(result[result.length - 1]),
+    expect(getBookCitationCount(result[0])).toBeGreaterThanOrEqual(
+      getBookCitationCount(result[result.length - 1]),
     );
   });
 

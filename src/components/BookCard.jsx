@@ -7,12 +7,10 @@ import {
 } from "./ui/accordion";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
+import { getBookTitle, getBookAuthor, getBookProgress } from "../lib/readeraVocab";
 
 export const BookCard = ({ libro, bookKey }) => {
-  const ratio = libro.data.doc_position
-    ? JSON.parse(libro.data.doc_position).ratio
-    : 0;
-  const progress = Math.round(ratio * 100);
+  const progress = getBookProgress(libro)?.percent ?? 0;
 
   return (
     <AccordionItem
@@ -29,7 +27,7 @@ export const BookCard = ({ libro, bookKey }) => {
               onClick={(e) => e.stopPropagation()}
             >
               <h5 className="mb-0 flex items-center gap-2 text-lg font-semibold tracking-tight text-slate-100 sm:text-xl">
-                {libro.data.doc_file_name_title}
+                {getBookTitle(libro)}
                 {libro.data.doc_favorites_time !== 0 && (
                   <Badge className="border border-amber-300/40 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900">Fav</Badge>
                 )}
@@ -45,7 +43,7 @@ export const BookCard = ({ libro, bookKey }) => {
       <AccordionContent className="bg-[rgba(20,24,36,0.58)] px-4 py-3 backdrop-blur-sm">
         <p className="mb-2 flex justify-between text-sm text-slate-300">
           <span>
-            <b className="text-slate-200">Author:</b> {libro.data.doc_authors}
+            <b className="text-slate-200">Author:</b> {getBookAuthor(libro)}
           </span>
           <span>
             Rating:{" "}

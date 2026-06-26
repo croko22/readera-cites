@@ -2,8 +2,9 @@ import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUpload, FaEye, FaFileImport, FaCheckCircle } from "react-icons/fa";
 import Toastify from "toastify-js";
-import { unzipSync } from "fflate";
 import { setBooks, getSettings } from "../lib/booksStorage";
+import { getBookTitle } from "../lib/readeraVocab";
+import { isSupportedFile, extractBooks, filterBooksWithCitations, getBackupMetadata } from "../lib/readEraIntake";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -38,44 +39,6 @@ const showToast = (text, isSuccess = true) => {
   }).showToast();
 };
 
-// Utility functions
-const validateJsonFile = (file) => {
-  if (!file) return { valid: false, error: "No file provided" };
-  const lowerName = file.name.toLowerCase();
-  if (!ACCEPTED_FILE_TYPES.some((ext) => lowerName.endsWith(ext))) {
-    return { valid: false, error: "Please upload a .json or .bak file!" };
-  }
-  return { valid: true };
-};
-
-const parseLibraryFile = (fileContent) => {
-  try {
-    const parsed = JSON.parse(fileContent);
-    if (!parsed.docs || !Array.isArray(parsed.docs)) {
-      throw new Error("Invalid library format");
-    }
-    return { data: parsed.docs, error: null };
-  } catch (error) {
-    console.error("Error parsing JSON file:", error);
-    return { data: null, error: "Invalid file format!" };
-  }
-};
-
-const getLibraryJsonFromBak = async (file) => {
-  const buffer = await file.arrayBuffer();
-  const unzipped = unzipSync(new Uint8Array(buffer));
-
-  const entryKey = Object.keys(unzipped).find((key) =>
-    key.toLowerCase().endsWith("library.json")
-  );
-
-  if (!entryKey) {
-    throw new Error("library.json not found inside .bak");
-  }
-
-  return new TextDecoder("utf-8").decode(unzipped[entryKey]);
-};
-
 export const Upload = () => {
   const [originalBooks, setOriginalBooks] = useState(null);
   const [minCitations, setMinCitations] = useState(100);
@@ -93,40 +56,35 @@ export const Upload = () => {
   // Memoized filtered books based on citation threshold
   const filteredBooks = useMemo(() => {
     if (!originalBooks) return [];
-    return originalBooks.filter((book) => book.citations.length > minCitations);
+    return filterBooksWithCitations(originalBooks, minCitations);
   }, [originalBooks, minCitations]);
 
   // Process uploaded file
   const processFile = useCallback((file) => {
-    const validation = validateJsonFile(file);
-    if (!validation.valid) {
-      showToast(validation.error, false);
+    if (!isSupportedFile(file)) {
+      showToast("Please upload a .json or .bak file!", false);
       return;
     }
 
     setFileName(file.name);
-    const lowerName = file.name.toLowerCase();
 
     const load = async () => {
       try {
-        const content = lowerName.endsWith(".bak")
-          ? await getLibraryJsonFromBak(file)
-          : await file.text();
+        const { books, warnings } = await extractBooks(file);
+        setOriginalBooks(books);
 
-        const { data, error } = parseLibraryFile(content);
-
-        if (error) {
-          showToast(error, false);
-          setFileName("");
-          setOriginalBooks(null);
-          return;
+        if (warnings.length > 0) {
+          warnings.forEach((w) => showToast(w, true));
         }
 
-        setOriginalBooks(data);
         showToast("File loaded successfully!");
       } catch (error) {
         console.error("Error loading file:", error);
-        showToast("Could not extract library.json from this backup", false);
+        if (error.message === "library.json not found inside .bak") {
+          showToast("Could not extract library.json from this backup", false);
+        } else {
+          showToast(error.message || "Invalid file format!", false);
+        }
         setFileName("");
         setOriginalBooks(null);
       }
@@ -351,9 +309,9 @@ export const Upload = () => {
                 className="flex items-center justify-between p-4 border border-white/10 rounded-lg hover:bg-white/5 hover:border-white/20 transition-all duration-200"
               >
                 <strong className="flex-1 truncate pr-4 text-slate-200">
-                  {book.data.doc_file_name_title.length > 70
-                    ? `${book.data.doc_file_name_title.slice(0, 70)}...`
-                    : book.data.doc_file_name_title}
+                  {getBookTitle(book).length > 70
+                    ? `${getBookTitle(book).slice(0, 70)}...`
+                    : getBookTitle(book)}
                 </strong>
                 <span className="text-sm font-medium text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">{book.citations.length} citations</span>
               </div>

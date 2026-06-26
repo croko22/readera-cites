@@ -1,4 +1,5 @@
 import { getBookTitle, getBookAuthor } from "./libraryFilters";
+import { getCitationTimestamp, getCitationColorKey } from "./readeraVocab";
 
 export const MAX_BOOK_NODES = 120;
 export const BOOK_NODE_INCREMENT = 40;
@@ -44,8 +45,8 @@ function citationPreview(citation, query) {
     note_body: body,
     note_extra: extra,
     note_page: citation?.note_page,
-    note_timestamp: citation?.note_timestamp,
-    note_mark: citation?.note_mark,
+    note_timestamp: getCitationTimestamp(citation),
+    note_mark: getCitationColorKey(citation),
     snippet: createSnippet(source, query),
   };
 }

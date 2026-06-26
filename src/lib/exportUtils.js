@@ -9,9 +9,11 @@
  * @param {Array} citations - Filtered/sorted citations to include
  * @returns {string}
  */
+import { getBookTitle, getBookAuthor, getCitationTimestamp, getCitationColorKey } from "./readeraVocab";
+
 export function formatCitationsAsText(book, citations) {
-  const title = book.data.doc_title || book.data.doc_file_name_title;
-  const authors = book.data.doc_authors;
+  const title = getBookTitle(book);
+  const authors = getBookAuthor(book);
 
   const header = authors
     ? `${title} \u2014 ${authors}`
@@ -39,8 +41,8 @@ export function formatCitationsAsText(book, citations) {
  * @returns {string}
  */
 export function formatCitationsAsMarkdown(book, citations) {
-  const title = book.data.doc_title || book.data.doc_file_name_title;
-  const authors = book.data.doc_authors;
+  const title = getBookTitle(book);
+  const authors = getBookAuthor(book);
 
   const lines = [`# ${title}`];
 
@@ -71,18 +73,18 @@ export function formatCitationsAsMarkdown(book, citations) {
  * @returns {object}
  */
 export function buildBookJson(book) {
-  const title = book.data.doc_title || book.data.doc_file_name_title;
+  const title = getBookTitle(book);
   return {
     title,
-    authors: book.data.doc_authors || null,
+    authors: getBookAuthor(book) || null,
     format: book.data.doc_format || null,
     pageCount: book.data.doc_page_count || null,
     citations: book.citations.map((c) => ({
       text: c.note_body,
       note: c.note_extra || null,
       page: c.note_page ?? null,
-      timestamp: c.note_timestamp || null,
-      color: c.note_mark ?? null,
+      timestamp: getCitationTimestamp(c) || null,
+      color: getCitationColorKey(c) ?? null,
     })),
   };
 }
