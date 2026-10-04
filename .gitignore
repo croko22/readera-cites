@@ -30,3 +30,5 @@ bun.lockb
 .atl/
 # Remotion video project
 readera-cites-video/
+# Command Code agent state
+.commandcode/
