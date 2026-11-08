@@ -15,22 +15,37 @@ export async function extractBooks(file) {
     throw new Error("Unsupported file type. Please upload a .json or .bak file.");
   }
 
-  let content;
+  let json;
   if (isBak) {
     const buffer = await file.arrayBuffer();
     const unzipped = unzipSync(new Uint8Array(buffer));
     const entryKey = Object.keys(unzipped).find((key) =>
       key.toLowerCase().endsWith("library.json")
     );
-    if (!entryKey) {
-      throw new Error("library.json not found inside .bak");
+    const decoder = new TextDecoder("utf-8");
+    if (entryKey) {
+      json = JSON.parse(decoder.decode(unzipped[entryKey]));
+    } else {
+      const docKeys = Object.keys(unzipped)
+        .filter((key) => /(?:^|\/)docs_\d+\.json$/i.test(key))
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+      if (docKeys.length === 0) {
+        throw new Error("library.json not found inside .bak");
+      }
+      const docs = [];
+      for (const key of docKeys) {
+        const part = JSON.parse(decoder.decode(unzipped[key]));
+        if (!Array.isArray(part)) {
+          throw new Error(`${key} must contain an array of documents`);
+        }
+        docs.push(...part);
+      }
+      json = { docs };
     }
-    content = new TextDecoder("utf-8").decode(unzipped[entryKey]);
   } else {
-    content = await file.text();
+    json = JSON.parse(await file.text());
   }
 
-  const json = JSON.parse(content);
   const { valid, errors, books: validatedBooks } = validateLibraryShape(json);
 
   if (!valid) {

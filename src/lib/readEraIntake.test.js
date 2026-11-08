@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { File } from "node:buffer";
+import { zipSync, strToU8 } from "fflate";
 import {
   isSupportedFile,
   extractBooks,
@@ -176,6 +177,18 @@ describe("getBackupMetadata", () => {
 });
 
 describe("extractBooks", () => {
+  it("automatically imports document arrays from numbered backup files", async () => {
+    const first = makeBook("1", "First", 2);
+    const second = makeBook("2", "Second", 1);
+    const archive = zipSync({
+      "docs_1.json": strToU8(JSON.stringify([first])),
+      "docs_2.json": strToU8(JSON.stringify([second])),
+    });
+    const result = await extractBooks(new File([archive], "backup.bak"));
+    expect(result.books).toEqual([first, second]);
+    expect(result.warnings).toEqual([]);
+  });
+
   it("parses a .json file and returns books", async () => {
     const json = {
       version: 1,
