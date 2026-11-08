@@ -81,7 +81,7 @@ export const Upload = () => {
       } catch (error) {
         console.error("Error loading file:", error);
         if (error.message === "library.json not found inside .bak") {
-          showToast("Could not extract library.json from this backup", false);
+          showToast("Could not find library data in this backup", false);
         } else {
           showToast(error.message || "Invalid file format!", false);
         }
@@ -163,9 +163,8 @@ export const Upload = () => {
             className="panel mb-4 w-full rounded-xl border-white/15"
           />
           <p className="py-3 leading-relaxed text-slate-400">
-            This will create a <b className="text-slate-200">.bak</b> file containing a{" "}
-            <code className="bg-white/5 px-2 py-1 rounded text-amber-400 border border-white/10">library.json</code> file that holds your ReadEra data.
-            {" "}You can upload either one here.
+            Upload the <b className="text-slate-200">.bak</b> file directly. Both older and newer ReadEra backup formats are supported.
+            {" "}You can also upload an older <code className="bg-white/5 px-2 py-1 rounded text-amber-400 border border-white/10">library.json</code> file.
           </p>
           <img
             src="assets/img/json-file.webp"
