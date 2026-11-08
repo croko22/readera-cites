@@ -172,6 +172,7 @@ export const InsightsView = ({ books, query, loadGraph = () => import("./Insight
               selectedBookId={selectedBookId}
               onSelectBook={setSelectedBookId}
               visibleCount={visibleBookCount}
+              totalCount={model.totalMatchedBooks}
               onLoadMore={() =>
                 setVisibleBookCount((current) =>
                   Math.min(current + BOOK_NODE_INCREMENT, model.totalMatchedBooks)

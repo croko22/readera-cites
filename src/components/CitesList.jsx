@@ -25,19 +25,20 @@ const PAGE_BTN =
   "motion-lift border-white/12 bg-white/[0.03] text-slate-300 transition-all duration-300 hover:border-amber-400/50 hover:bg-amber-400/12 hover:text-amber-300";
 
 export const CitesList = ({ cites, view = "list" }) => {
-  const [page, setPage] = useState(1);
+  const [requestedPage, setPage] = useState(1);
   const gridRef = useRef(null);
   const [columnCount, setColumnCount] = useState(3);
 
   const perPage = view === "grid" ? 20 : 10;
   const totalPages = Math.max(Math.ceil(cites.length / perPage), 1);
+  const page = Math.min(requestedPage, totalPages);
   const pagesToShow = totalPages > 10 ? 10 : totalPages;
   let startPage = Math.max(page - Math.floor(pagesToShow / 2), 1);
   let endPage = Math.min(page + Math.floor(pagesToShow / 2), totalPages);
 
   useEffect(() => {
     setPage(1);
-  }, [view]);
+  }, [cites, view]);
 
   useEffect(() => {
     if (view !== "grid") return;

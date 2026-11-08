@@ -45,12 +45,31 @@ export const Upload = () => {
   const [showModal, setShowModal] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [operation, setOperation] = useState("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [warnings, setWarnings] = useState([]);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const busyRef = useRef(false);
+  const mountedRef = useRef(true);
+  const navigationTimerRef = useRef(null);
+  const isBusy = operation !== "idle";
+  const operationMessage = operation === "reading" ? "Reading backup..."
+    : operation === "saving" ? "Saving library..."
+    : operation === "saved" ? "Library saved. Opening your library..." : "";
 
   // Load default filter from settings on mount
   useEffect(() => {
-    getSettings().then((s) => setMinCitations(s.defaultFilter));
+    mountedRef.current = true;
+    getSettings().then((s) => {
+      if (mountedRef.current) setMinCitations(s.defaultFilter);
+    }).catch(() => {
+      // Keep the default threshold if settings cannot be read.
+    });
+    return () => {
+      mountedRef.current = false;
+      clearTimeout(navigationTimerRef.current);
+    };
   }, []);
 
   // Memoized filtered books based on citation threshold
@@ -61,17 +80,25 @@ export const Upload = () => {
 
   // Process uploaded file
   const processFile = useCallback((file) => {
+    if (busyRef.current) return;
+    setErrorMessage("");
     if (!isSupportedFile(file)) {
+      setErrorMessage("Please upload a .json or .bak file!");
       showToast("Please upload a .json or .bak file!", false);
       return;
     }
 
+    busyRef.current = true;
+    setOperation("reading");
+    setWarnings([]);
     setFileName(file.name);
 
     const load = async () => {
       try {
         const { books, warnings } = await extractBooks(file);
+        if (!mountedRef.current) return;
         setOriginalBooks(books);
+        setWarnings(warnings);
 
         if (warnings.length > 0) {
           warnings.forEach((w) => showToast(w, true));
@@ -79,14 +106,18 @@ export const Upload = () => {
 
         showToast("File loaded successfully!");
       } catch (error) {
+        if (!mountedRef.current) return;
         console.error("Error loading file:", error);
-        if (error.message === "library.json not found inside .bak") {
-          showToast("Could not find library data in this backup", false);
-        } else {
-          showToast(error.message || "Invalid file format!", false);
-        }
+        const message = error?.message === "library.json not found inside .bak"
+          ? "Could not find library data in this backup"
+          : error?.message || "Invalid file format!";
+        setErrorMessage(`${message}. Choose a valid ReadEra backup and try again.`);
+        showToast(message, false);
         setFileName("");
         setOriginalBooks(null);
+      } finally {
+        busyRef.current = false;
+        if (mountedRef.current) setOperation("idle");
       }
     };
 
@@ -96,6 +127,7 @@ export const Upload = () => {
   // File input change handler
   const handleChange = useCallback((e) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (file) processFile(file);
   }, [processFile]);
 
@@ -118,28 +150,41 @@ export const Upload = () => {
   }, [processFile]);
 
   const handleClickUpload = useCallback(() => {
+    if (busyRef.current) return;
     fileInputRef.current?.click();
   }, []);
 
-  // Load books to localStorage and navigate
+  // Persist through the storage boundary before navigating.
   const loadLibrary = useCallback(() => {
+    if (busyRef.current) return;
     if (!originalBooks) {
+      setErrorMessage("No file selected! Choose a ReadEra backup first.");
       showToast("No file selected!", false);
       return;
     }
 
     if (filteredBooks.length === 0) {
+      setErrorMessage("No books match the citation criteria! Lower the minimum citations to include more books.");
       showToast("No books match the citation criteria!", false);
       return;
     }
 
+    busyRef.current = true;
+    setOperation("saving");
+    setErrorMessage("");
     const persist = async () => {
       try {
         await setBooks(filteredBooks);
+        if (!mountedRef.current) return;
+        setOperation("saved");
         showToast("Library loaded successfully!");
-        setTimeout(() => navigate("/"), 500);
+        navigationTimerRef.current = setTimeout(() => navigate("/"), 500);
       } catch (error) {
+        if (!mountedRef.current) return;
         console.error("Storage error:", error);
+        busyRef.current = false;
+        setOperation("idle");
+        setErrorMessage("Failed to save library. Your backup is still ready. Try loading it again.");
         showToast("Failed to save library", false);
       }
     };
@@ -185,6 +230,8 @@ export const Upload = () => {
           {/* Drag and Drop Zone */}
           <button
             type="button"
+            disabled={isBusy}
+            aria-busy={operation === "reading"}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -207,6 +254,7 @@ export const Upload = () => {
               type="file"
               accept={ACCEPTED_FILE_TYPES.join(",")}
               onChange={handleChange}
+              disabled={isBusy}
               aria-label="Upload library file"
               className="hidden"
             />
@@ -233,6 +281,20 @@ export const Upload = () => {
             )}
           </button>
 
+          <p role="status" aria-atomic="true" className="text-sm text-slate-300">
+            {operationMessage}
+          </p>
+          {errorMessage && (
+            <p role="alert" className="break-words rounded-lg border border-red-400/40 bg-red-950/40 px-4 py-3 text-sm text-red-200">
+              {errorMessage}
+            </p>
+          )}
+          {warnings.length > 0 && (
+            <ul aria-label="Backup warnings" className="space-y-1 break-words text-sm text-amber-200">
+              {warnings.map((warning, index) => <li key={index}>{warning}</li>)}
+            </ul>
+          )}
+
           {/* Citation Filter */}
           <div>
             <Label htmlFor="citations" className="mb-2 text-sm font-semibold text-slate-300">
@@ -241,6 +303,7 @@ export const Upload = () => {
             <Input
               type="number"
               id="citations"
+              disabled={isBusy}
               value={minCitations}
               onChange={(e) => setMinCitations(Number(e.target.value))}
               className="mb-3 bg-white/5 border-white/10 text-slate-100 focus:border-amber-500/50 focus:ring-amber-500/20"
@@ -250,6 +313,7 @@ export const Upload = () => {
                 <Button
                   key={value}
                   size="sm"
+                  disabled={isBusy}
                   variant={minCitations === value ? "default" : "outline"}
                   onClick={() => setMinCitations(value)}
                  className={minCitations === value ? "border border-amber-300/40 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 shadow-[0_0_20px_rgba(245,158,11,0.35)]" : "border-white/10 text-slate-300 hover:bg-amber-400/10 hover:border-amber-400/50 hover:text-amber-300"}
@@ -273,6 +337,7 @@ export const Upload = () => {
                  <Button
                   variant="outline"
                   onClick={() => setShowModal(true)}
+                  disabled={isBusy}
                   className="gap-2 border-white/10 text-slate-300 hover:bg-amber-400/10 hover:border-amber-400/50 hover:text-amber-300"
                 >
                   <FaEye />
@@ -283,6 +348,7 @@ export const Upload = () => {
                 <Button
                   className="motion-lift w-full gap-2 border border-amber-300/45 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] py-6 text-lg font-semibold text-slate-900 hover:brightness-105"
                   onClick={loadLibrary}
+                  disabled={isBusy}
                 >
                 <FaUpload />
                 Load Library
@@ -300,6 +366,8 @@ export const Upload = () => {
               Books that will be loaded with {minCitations}+ citations
             </DialogDescription>
           </DialogHeader>
+          <p role="status" aria-atomic="true" className="text-sm text-slate-300">{operationMessage}</p>
+          {errorMessage && <p role="alert" className="break-words text-sm text-red-200">{errorMessage}</p>}
           
           <div className="space-y-2 max-h-[50vh] overflow-y-auto">
             {filteredBooks.map((book, index) => (
@@ -324,7 +392,7 @@ export const Upload = () => {
             <Button
               className="border border-amber-300/45 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 font-medium transition-all hover:brightness-105 hover:shadow-[0_0_24px_rgba(245,158,11,0.42)]"
               onClick={loadLibrary}
-              disabled={!originalBooks}
+              disabled={!originalBooks || isBusy}
             >
               Load Books
             </Button>

@@ -20,6 +20,13 @@
 - **Offline support** -- Installed as a PWA with a service worker, so the app loads and works without a network connection
 - **Client-side only** -- All data stays in your browser via IndexedDB with localStorage fallback; nothing is sent to a server
 
+### Import and result feedback
+
+- Import shows reading and saving status. Wait for the current operation to finish before choosing another file or loading the library again.
+- Import errors and backup warnings remain visible on the upload page. After a save error, the parsed backup remains available for retrying.
+- Insights shows how many matching books are visible and offers **Show more** until all results are available.
+- Changing citation search, color filters, or sorting returns pagination to the first page.
+
 ## Quick Start
 
 ```bash

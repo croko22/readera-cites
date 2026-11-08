@@ -1,21 +1,26 @@
 import React from "react";
+import { BOOK_NODE_INCREMENT } from "../../lib/insightsModel";
 
 export const InsightsFallbackList = ({
   books,
   selectedBookId,
   onSelectBook,
   visibleCount,
+  totalCount,
   onLoadMore,
 }) => {
   const sourceBooks = Array.isArray(books) ? books : [];
   const visibleBooks = sourceBooks.slice(0, visibleCount);
-  const hiddenCount = Math.max(sourceBooks.length - visibleBooks.length, 0);
+  const resultCount = totalCount ?? sourceBooks.length;
+  const hiddenCount = Math.max(resultCount - visibleBooks.length, 0);
 
   return (
     <section className="panel rounded-xl border-white/15 p-3" aria-label="Insights grouped list">
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-200">Matched books</h2>
-        <span className="text-xs text-slate-400">{sourceBooks.length} results</span>
+        <span className="text-xs text-slate-400" aria-live="polite">
+          {hiddenCount > 0 ? `${visibleBooks.length} of ${resultCount} results` : `${resultCount} results`}
+        </span>
       </div>
 
       {visibleBooks.length === 0 ? (
@@ -62,7 +67,7 @@ export const InsightsFallbackList = ({
             onClick={onLoadMore}
             className="rounded-md border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:border-amber-400/45 hover:text-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
           >
-            Show {Math.min(hiddenCount, 40)} more ({hiddenCount} remaining)
+            Show {Math.min(hiddenCount, BOOK_NODE_INCREMENT)} more ({hiddenCount} remaining)
           </button>
         </div>
       )}
