@@ -38,21 +38,21 @@ import { useLibraryFilters } from "../hooks/useLibraryFilters";
 const SORT_MODES = [
   {
     key: "quotes",
-    label: "By Quotes",
+    label: "Quotes",
     iconDesc: ArrowDownNarrowWide,
     iconAsc: ArrowUpNarrowWide,
   },
-  { key: "alpha", label: "A — Z", iconDesc: ArrowDownAZ, iconAsc: ArrowUpAZ },
+  { key: "alpha", label: "Title A–Z", iconDesc: ArrowDownAZ, iconAsc: ArrowUpAZ },
 ];
 
 const MIN_SKELETON_MS = 300;
 
 const BTN_CLASS =
-  "motion-lift gap-2 font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200";
+  "motion-lift gap-2 font-semibold border-border text-secondary-foreground hover:bg-secondary/80 hover:border-ring/50 transition-colors duration-200";
 const BTN_ACTIVE_CLASS =
-  "motion-lift gap-2 font-semibold bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/60 transition-all duration-200";
+  "motion-lift gap-2 border-primary bg-primary/15 font-semibold text-primary hover:bg-primary/20 transition-colors duration-200";
 const SELECT_TRIGGER_CLASS =
-  "h-10 gap-2 bg-transparent font-semibold border-white/10 text-slate-300 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200";
+  "h-11 gap-2 bg-secondary font-semibold border-border text-secondary-foreground hover:bg-secondary/80 hover:border-ring/50 transition-colors duration-200";
 
 function highlightText(text, query) {
   if (!query) return text;
@@ -60,7 +60,7 @@ function highlightText(text, query) {
   const parts = text.split(new RegExp(`(${escaped})`, "gi"));
   return parts.map((part, i) =>
     part.toLowerCase() === query.toLowerCase() ? (
-      <mark key={i} className="bg-amber-500/30 text-amber-200 rounded-sm px-0.5">
+      <mark key={i} className="rounded-sm bg-primary/20 px-0.5 text-foreground">
         {part}
       </mark>
     ) : (
@@ -150,13 +150,13 @@ export const Library = () => {
   if (searchMode === "citations" && searchText.trim() && citationResults) {
     return (
       <div className="container mx-auto mb-10 mt-7 px-4">
-        <section className="panel mb-5 rounded-2xl border-white/15 px-4 py-4 sm:px-6 sm:py-5">
+        <section className="panel mb-5 rounded-2xl border-border px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/80">Citation Search</p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">Find phrases across your entire vault</h1>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Citation search</p>
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Search citations across your books</h1>
             </div>
-            <p className="max-w-sm text-sm text-slate-400">Search body text and note extras at once, then jump to the source book in one tap.</p>
+            <p className="max-w-sm text-sm text-muted-foreground">Find words in your citations and notes, then open the book they came from.</p>
           </div>
         </section>
         <Search
@@ -176,7 +176,7 @@ export const Library = () => {
         ) : (
           <>
             <div className="mb-4 mt-5">
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 Found matches in {citationResults.length} book{citationResults.length !== 1 ? "s" : ""}
               </p>
             </div>
@@ -184,37 +184,37 @@ export const Library = () => {
               {citationResults.map(({ book, matches }) => (
                 <div
                   key={book.data.doc_md5}
-                  className="panel motion-lift overflow-hidden rounded-xl border-white/15"
+                  className="panel motion-lift overflow-hidden rounded-xl border-border"
                 >
                   <button
                     type="button"
-                    className="w-full cursor-pointer border-l-4 border-amber-400 bg-[rgba(16,18,28,0.82)] px-4 py-3 text-left"
+                    className="w-full cursor-pointer border-b border-border bg-card px-4 py-3 text-left transition-colors hover:bg-secondary/40"
                     onClick={() => navigateToBook(book.data.doc_md5)}
                     aria-label={`Open ${getBookTitle(book)}`}
                   >
-                    <div className="flex items-center justify-between">
-                      <h5 className="text-lg font-bold text-slate-100 hover:text-amber-400 transition-colors truncate mr-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h5 className="mr-4 min-w-0 text-lg font-bold text-foreground transition-colors hover:text-primary [overflow-wrap:anywhere]">
                         {getBookTitle(book)}
                       </h5>
-                      <span className="text-xs font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 whitespace-nowrap">
+                      <span className="whitespace-nowrap rounded-full border border-border bg-secondary px-2 py-0.5 text-xs font-semibold text-secondary-foreground">
                         {matches.length} match{matches.length !== 1 ? "es" : ""}
                       </span>
                     </div>
                     {book.data.doc_authors && (
-                      <p className="text-sm text-slate-400 mt-0.5">{getBookAuthor(book)}</p>
+                      <p className="mt-0.5 text-sm text-muted-foreground">{getBookAuthor(book)}</p>
                     )}
                   </button>
-                  <div className="space-y-2 bg-[rgba(20,24,36,0.56)] px-4 py-2">
+                  <div className="space-y-2 bg-secondary/30 px-4 py-2">
                     {matches.slice(0, 3).map((cite, idx) => (
                       <div
                         key={idx}
-                        className="rounded-lg border-l-2 border-amber-400/40 bg-white/[0.04] px-3 py-1.5 text-sm text-slate-300"
+                        className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground"
                       >
                         <p className="line-clamp-2">
                           {highlightText(cite.note_body || "", searchText.trim())}
                         </p>
                         {cite.note_page != null && (
-                          <span className="text-xs text-slate-500 mt-1 inline-block">
+                          <span className="text-xs text-muted-foreground mt-1 inline-block">
                             Page {cite.note_page}
                           </span>
                         )}
@@ -223,7 +223,7 @@ export const Library = () => {
                     {matches.length > 3 && (
                       <button
                         onClick={() => navigateToBook(book.data.doc_md5)}
-                        className="text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer py-1"
+                        className="text-xs text-primary hover:text-primary transition-colors cursor-pointer py-1"
                       >
                         View all {matches.length} matches...
                       </button>
@@ -242,13 +242,13 @@ export const Library = () => {
   if (searchMode === "insights") {
     return (
       <div className="container mx-auto mb-10 mt-7 px-4">
-        <section className="panel mb-5 rounded-2xl border-white/15 px-4 py-4 sm:px-6 sm:py-5">
+        <section className="panel mb-5 rounded-2xl border-border px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/80">Library Insights</p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">See where ideas cluster across your books</h1>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Library insights</p>
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">See where ideas cluster across your books</h1>
             </div>
-            <p className="max-w-sm text-sm text-slate-400">
+            <p className="max-w-sm text-sm text-muted-foreground">
               Explore a query-to-book graph with a synchronized grouped list and side panel.
             </p>
           </div>
@@ -269,7 +269,7 @@ export const Library = () => {
               onClick={toggleFavs}
               className={favoritesOnly ? BTN_ACTIVE_CLASS : BTN_CLASS}
             >
-              {favoritesOnly ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
+              {favoritesOnly ? <FaStar className="text-primary" /> : <FaRegStar />} Favorites
             </Button>
 
             {SORT_MODES.map((mode) => {
@@ -312,7 +312,7 @@ export const Library = () => {
                   <SelectContent>
                     <div className="sticky top-0 z-10 bg-card px-2 pb-2">
                       <div className="relative">
-                        <SearchIcon className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+                        <SearchIcon className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                         <input
                           placeholder="Search authors..."
                           value={authorSearch}
@@ -322,7 +322,7 @@ export const Library = () => {
                             if (e.key === "Escape") setAuthorSearch("");
                           }}
                           aria-label="Filter authors"
-                          className="h-8 w-full rounded-md border border-white/10 bg-white/5 pl-8 pr-2 text-xs text-slate-300 placeholder:text-slate-500 focus:border-amber-500/50 focus:outline-none"
+                          className="h-9 w-full rounded-md border border-input bg-secondary pl-8 pr-2 text-xs text-secondary-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
                         />
                       </div>
                     </div>
@@ -334,7 +334,7 @@ export const Library = () => {
                         </SelectItem>
                       ))}
                       {filteredAuthors.length === 0 && (
-                        <p className="px-3 py-2 text-xs text-slate-500">No authors match</p>
+                        <p className="px-3 py-2 text-xs text-muted-foreground">No authors match</p>
                       )}
                     </div>
                   </SelectContent>
@@ -350,7 +350,7 @@ export const Library = () => {
                 value={minCitations}
                 onChange={(e) => setMinCitations(e.target.value)}
                 aria-label="Minimum citations"
-                className="h-10 w-32 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300 placeholder:text-slate-500 transition-all duration-300 [appearance:textfield] focus:border-amber-500/50 focus:bg-amber-500/5 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                className="h-11 w-32 rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-secondary-foreground placeholder:text-muted-foreground transition-all duration-300 [appearance:textfield] focus:border-ring focus:bg-secondary focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
 
@@ -366,7 +366,7 @@ export const Library = () => {
                     <FaTimes /> Reset
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent className="border-white/10 bg-card text-slate-200">
+                <TooltipContent className="border-border bg-card text-foreground">
                   <p>
                     Reset filters <FaRedo className="inline" />
                   </p>
@@ -384,15 +384,15 @@ export const Library = () => {
   // ── Default: title search / library view ──
   return (
     <div className="container mx-auto mb-10 mt-7 px-4">
-      <section className="panel mb-5 rounded-2xl border-white/15 px-4 py-4 sm:px-6 sm:py-5">
+      <section className="panel mb-5 rounded-2xl border-border px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/80">Library</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">Command center for your highlighted books</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Library</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Your highlighted books</h1>
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
-            <span className="text-xs uppercase tracking-[0.14em] text-slate-500">Books</span>
-            <span className="text-lg font-semibold text-amber-300">{Books.length}</span>
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2">
+            <span className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Books</span>
+            <span className="text-lg font-semibold text-primary">{Books.length}</span>
           </div>
         </div>
       </section>
@@ -406,7 +406,7 @@ export const Library = () => {
       <TooltipProvider>
         <div className="my-5 flex flex-wrap items-center gap-3">
           <Button variant="outline" size="default" onClick={toggleFavs} className={favoritesOnly ? BTN_ACTIVE_CLASS : BTN_CLASS}>
-            {favoritesOnly ? <FaStar className="text-amber-500" /> : <FaRegStar />} Favorites
+            {favoritesOnly ? <FaStar className="text-primary" /> : <FaRegStar />} Favorites
           </Button>
 
           {SORT_MODES.map((mode) => {
@@ -451,7 +451,7 @@ export const Library = () => {
                 <SelectContent>
                   <div className="sticky top-0 z-10 bg-card px-2 pb-2">
                     <div className="relative">
-                      <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+                      <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                       <input
                         placeholder="Search authors..."
                         value={authorSearch}
@@ -461,7 +461,7 @@ export const Library = () => {
                           if (e.key === "Escape") setAuthorSearch("");
                         }}
                         aria-label="Filter authors"
-                        className="w-full h-8 rounded-md border border-white/10 bg-white/5 pl-8 pr-2 text-xs text-slate-300 placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50"
+                        className="h-11 w-full rounded-md border border-border bg-secondary pl-8 pr-2 text-xs text-secondary-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring"
                       />
                     </div>
                   </div>
@@ -473,7 +473,7 @@ export const Library = () => {
                       </SelectItem>
                     ))}
                     {filteredAuthors.length === 0 && (
-                      <p className="px-3 py-2 text-xs text-slate-500">No authors match</p>
+                      <p className="px-3 py-2 text-xs text-muted-foreground">No authors match</p>
                     )}
                   </div>
                 </SelectContent>
@@ -489,7 +489,7 @@ export const Library = () => {
               value={minCitations}
               onChange={(e) => setMinCitations(e.target.value)}
               aria-label="Minimum citations"
-              className="h-10 w-32 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300 placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50 focus:bg-amber-500/5 transition-all duration-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="h-11 w-32 rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-secondary-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:bg-secondary transition-all duration-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
 
@@ -500,7 +500,7 @@ export const Library = () => {
                   <FaTimes /> Reset
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className="border-white/10 bg-card text-slate-200">
+              <TooltipContent className="border-border bg-card text-foreground">
                 <p>Reset filters <FaRedo className="inline" /></p>
               </TooltipContent>
             </Tooltip>
@@ -515,13 +515,13 @@ export const Library = () => {
                   const json = JSON.stringify(buildLibraryJson(Books), null, 2);
                   downloadFile(json, "readera-library.json", "application/json");
                 }}
-                className={BTN_CLASS}
+                className={`${BTN_CLASS} h-auto min-h-11 max-w-full whitespace-normal py-2 text-left`}
               >
-                <FileJson className="h-4 w-4" /> Export
+                <FileJson className="h-4 w-4" /> Download complete library JSON
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="border-white/10 bg-card text-slate-200">
-              <p>Download library as JSON</p>
+            <TooltipContent className="border-border bg-card text-foreground">
+              <p>Download all books and citations, including those hidden by filters.</p>
             </TooltipContent>
           </Tooltip>
         </div>

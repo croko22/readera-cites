@@ -73,18 +73,18 @@ export const Settings = () => {
   return (
     <div className="container mx-auto max-w-2xl px-4 py-7">
       <div className="mb-6 flex items-center gap-3">
-        <SettingsIcon className="h-7 w-7 text-amber-500" />
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-100">Settings</h1>
+        <SettingsIcon className="h-7 w-7 text-primary" />
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Settings</h1>
       </div>
 
       <div className="space-y-4">
         {/* Default Citation Filter */}
-        <Card className="panel border-white/10">
+        <Card className="panel border-border">
           <CardHeader>
-            <CardTitle className="text-lg text-slate-100">
+            <CardTitle className="text-lg text-foreground">
               Default Citation Filter
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-muted-foreground">
               Minimum citations per book used as the initial filter when
               uploading a new library file.
             </CardDescription>
@@ -96,7 +96,7 @@ export const Settings = () => {
                 updateSettings({ defaultFilter: Number(val) })
               }
             >
-              <SelectTrigger className="w-40 bg-white/5 border-white/10 text-slate-100">
+              <SelectTrigger className="w-40 bg-secondary border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -112,25 +112,25 @@ export const Settings = () => {
 
         {/* Storage Info */}
         {storageInfo && storageInfo.backend !== "none" && (
-          <Card className="panel border-white/10">
+          <Card className="panel border-border">
             <CardHeader>
-              <CardTitle className="text-lg text-slate-100 flex items-center gap-2">
-                <HardDrive className="h-5 w-5 text-amber-500" />
+              <CardTitle className="text-lg text-foreground flex items-center gap-2">
+                <HardDrive className="h-5 w-5 text-primary" />
                 Storage
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Current data usage and storage backend.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Backend badge */}
               <div className="flex items-center gap-2">
-                <Database className="h-4 w-4 text-slate-400" />
-                <span className="text-sm text-slate-300">Backend:</span>
+                <Database className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-secondary-foreground">Backend:</span>
                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${
                   storageInfo.backend === "IndexedDB"
-                    ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                    : "bg-blue-500/10 text-blue-400 border-blue-500/30"
+                    ? "border-primary/30 bg-primary/10 text-primary"
+                    : "border-border bg-secondary text-secondary-foreground"
                 }`}>
                   {storageInfo.backend}
                 </span>
@@ -139,12 +139,12 @@ export const Settings = () => {
               {/* Usage bar */}
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-slate-300">{storageInfo.totalSizeFormatted} used</span>
-                  <span className="text-slate-500">{storageInfo.usagePercent.toFixed(1)}%</span>
+                  <span className="text-secondary-foreground">{storageInfo.totalSizeFormatted} used</span>
+                  <span className="text-muted-foreground">{storageInfo.usagePercent.toFixed(1)}%</span>
                 </div>
-                <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/10">
+                <div className="w-full h-2 bg-secondary rounded-full overflow-hidden border border-border">
                   <div
-                    className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-amber-500 to-amber-400"
+                    className="h-full rounded-full bg-primary transition-[width] duration-300"
                     style={{ width: `${Math.min(storageInfo.usagePercent, 100)}%` }}
                   />
                 </div>
@@ -152,13 +152,13 @@ export const Settings = () => {
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                  <p className="text-xs text-slate-500">Books</p>
-                  <p className="text-lg font-semibold text-slate-100">{storageInfo.totalBooks}</p>
+                <div className="bg-secondary rounded-lg p-3 border border-border">
+                  <p className="text-xs text-muted-foreground">Books</p>
+                  <p className="text-lg font-semibold text-foreground">{storageInfo.totalBooks}</p>
                 </div>
-                <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                  <p className="text-xs text-slate-500">Citations</p>
-                  <p className="text-lg font-semibold text-slate-100">{storageInfo.totalCitations}</p>
+                <div className="bg-secondary rounded-lg p-3 border border-border">
+                  <p className="text-xs text-muted-foreground">Citations</p>
+                  <p className="text-lg font-semibold text-foreground">{storageInfo.totalCitations}</p>
                 </div>
               </div>
             </CardContent>
@@ -166,10 +166,10 @@ export const Settings = () => {
         )}
 
         {/* Clear All Data */}
-        <Card className="panel border-white/10">
+        <Card className="panel border-border">
           <CardHeader>
-            <CardTitle className="text-lg text-slate-100">Data</CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardTitle className="text-lg text-foreground">Data</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Remove all stored books and reset settings to defaults.
             </CardDescription>
           </CardHeader>
@@ -178,23 +178,23 @@ export const Settings = () => {
               <AlertDialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="gap-2 border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 hover:text-red-300"
+                  className="gap-2 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
                   Clear all data
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-popover border-white/10">
+              <AlertDialogContent className="bg-popover border-border">
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="text-slate-100">Clear all data?</AlertDialogTitle>
-                  <AlertDialogDescription className="text-slate-400">
+                  <AlertDialogTitle className="text-foreground">Clear all data?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-muted-foreground">
                     This will permanently delete all stored books and reset all
                     settings to their defaults. This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="bg-white/5 border-white/10 text-slate-300 hover:bg-white/10">Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleClearAll} className="bg-red-600 hover:bg-red-700 text-white">
+                  <AlertDialogCancel className="bg-secondary border-border text-secondary-foreground hover:bg-secondary/80">Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearAll} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                     Clear everything
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -205,23 +205,23 @@ export const Settings = () => {
               <AlertDialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="gap-2 border-amber-500/30 text-amber-400 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-300"
+                  className="gap-2 border-border text-secondary-foreground hover:bg-secondary/80"
                 >
                   <Trash2 className="h-4 w-4" />
                   Clear search history
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-popover border-white/10">
+              <AlertDialogContent className="bg-popover border-border">
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="text-slate-100">Clear search history?</AlertDialogTitle>
-                  <AlertDialogDescription className="text-slate-400">
+                  <AlertDialogTitle className="text-foreground">Clear search history?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-muted-foreground">
                     This will permanently delete your recent search history.
                     This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="bg-white/5 border-white/10 text-slate-300 hover:bg-white/10">Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={clearSearchHistory} className="bg-amber-600 hover:bg-amber-700 text-white">
+                  <AlertDialogCancel className="bg-secondary border-border text-secondary-foreground hover:bg-secondary/80">Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={clearSearchHistory} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                     Clear history
                   </AlertDialogAction>
                 </AlertDialogFooter>

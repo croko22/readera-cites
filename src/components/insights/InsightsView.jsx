@@ -98,14 +98,14 @@ export const InsightsView = ({ books, query, loadGraph = () => import("./Insight
 
   return (
     <section className="mt-5 space-y-4" aria-label="Insights mode">
-      <header className="panel rounded-xl border-white/15 px-4 py-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300/80">
+      <header className="panel rounded-xl border-border px-4 py-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Insights
         </p>
-        <h2 className="mt-1 text-xl font-semibold text-slate-100">
+        <h2 className="mt-1 text-xl font-semibold text-foreground">
           Query-to-book relationship explorer
         </h2>
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mt-1 text-sm text-muted-foreground">
           Visual map and grouped list stay in sync. You can complete all actions without the graph.
         </p>
       </header>
@@ -115,15 +115,15 @@ export const InsightsView = ({ books, query, loadGraph = () => import("./Insight
       </p>
 
       {!debouncedQuery.trim() ? (
-        <div className="panel rounded-xl border-white/15 px-4 py-6 text-sm text-slate-400">
+        <div className="panel rounded-xl border-border px-4 py-6 text-sm text-muted-foreground">
           Type a query to explore where it appears across your books.
         </div>
       ) : indexing ? (
         <InsightsSkeleton />
       ) : model.totalMatchedBooks === 0 ? (
-        <div className="panel rounded-xl border-white/15 px-4 py-6">
-          <h3 className="text-sm font-semibold text-slate-200">No matches found</h3>
-          <p className="mt-1 text-sm text-slate-400">
+        <div className="panel rounded-xl border-border px-4 py-6">
+          <h3 className="text-sm font-semibold text-foreground">No matches found</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
             Refine your query, adjust filters, or switch search mode.
           </p>
         </div>
@@ -131,7 +131,7 @@ export const InsightsView = ({ books, query, loadGraph = () => import("./Insight
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
           <div className="space-y-3">
             {graphStatus === "loading" && (
-              <div className="flex items-center justify-center gap-2 py-12 text-stone-400">
+              <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-stone-500 border-t-transparent" />
                 <span className="text-sm">Loading graph...</span>
               </div>
@@ -141,7 +141,7 @@ export const InsightsView = ({ books, query, loadGraph = () => import("./Insight
               <GraphErrorBoundary
                 onError={() => setGraphStatus("error")}
                 fallback={
-                  <div className="rounded-lg border border-amber-600/30 bg-amber-900/20 px-4 py-3 text-sm text-amber-200">
+                  <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                     Graph render error. List + side panel still work.
                   </div>
                 }
@@ -156,11 +156,11 @@ export const InsightsView = ({ books, query, loadGraph = () => import("./Insight
             ) : null}
 
             {graphStatus === "error" && (
-              <div className="flex items-center gap-3 rounded-lg border border-amber-600/30 bg-amber-900/20 px-4 py-3 text-sm text-amber-200">
+              <div className="flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 <span>Graph is unavailable in this session. List and side panel remain fully functional.</span>
                 <button
                   onClick={() => setGraphStatus("idle")}
-                  className="ml-auto shrink-0 rounded-md bg-amber-700/40 px-3 py-1 text-xs font-medium text-amber-100 hover:bg-amber-700/60 transition-colors"
+                  className="ml-auto shrink-0 rounded-md border border-border bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
                 >
                   Retry Graph
                 </button>
@@ -181,7 +181,7 @@ export const InsightsView = ({ books, query, loadGraph = () => import("./Insight
             />
 
             {canLoadMoreBooks ? (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted-foreground">
                 Results are capped for performance. Use "Show more" to progressively reveal additional books.
               </p>
             ) : null}

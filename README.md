@@ -27,6 +27,25 @@
 - Insights shows how many matching books are visible and offers **Show more** until all results are available.
 - Changing citation search, color filters, or sorting returns pagination to the first page.
 
+### Search and export scope
+
+- **Titles** searches book titles; **Citations** searches citation text and notes across the library; **Insights** explores citation matches across books. Search on a book page stays within that book's citation text.
+- Color filters display their names and counts, with a check mark on the active filter. Pagination names each action and identifies the current page.
+- **Copy filtered citations** and **Download filtered Markdown** include all citations matching the book page's search and color filter, not just the current page.
+- **Download complete book JSON** includes every citation in that book. **Download complete library JSON** includes every book and citation in the library, regardless of active filters.
+
+### Small-screen and touch layouts
+
+- Search modes move below the input on narrow screens; all modes remain available.
+- Search controls, citation copy/share actions, pagination, and book filters have larger touch targets. Library book titles open the book; the separate arrow button expands its details.
+- Long book titles, author names, citations, and notes wrap instead of widening the page. Citation grid columns stay within the available width, and book toolbar controls wrap onto additional rows when needed.
+
+### Interface styling
+
+- Tailwind v4 semantic themes are defined with `@theme inline` in `src/index.css`. Prefer `bg-card`, `bg-popover`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-primary`, and `text-primary` over fixed slate, amber, or white utility values.
+- Surfaces stay quiet and mostly opaque. Reserve the amber primary color for primary actions, selected states, focus rings, and meaningful highlights; use secondary surfaces for hover and inactive controls.
+- Dark mode is the only supported theme.
+
 ## Quick Start
 
 ```bash

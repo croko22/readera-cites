@@ -23,9 +23,9 @@ export const InsightsSidePanel = ({ selectedBook, query }) => {
 
   if (!selectedBook) {
     return (
-      <aside className="panel rounded-xl border-white/15 p-4" aria-live="polite">
-        <h2 className="text-sm font-semibold text-slate-200">Selection</h2>
-        <p className="mt-2 text-sm text-slate-400">
+      <aside className="panel rounded-xl border-border p-4" aria-live="polite">
+        <h2 className="text-sm font-semibold text-foreground">Selection</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
           Select a book in graph or list to inspect matched citations.
         </p>
       </aside>
@@ -33,13 +33,13 @@ export const InsightsSidePanel = ({ selectedBook, query }) => {
   }
 
   return (
-    <aside className="panel rounded-xl border-white/15 p-4" aria-live="polite">
+    <aside className="panel rounded-xl border-border p-4" aria-live="polite">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="truncate text-sm font-semibold text-slate-100">{selectedBook.title}</h2>
-          <p className="truncate text-xs text-slate-400">{selectedBook.author}</p>
+          <h2 className="truncate text-sm font-semibold text-foreground">{selectedBook.title}</h2>
+          <p className="truncate text-xs text-muted-foreground">{selectedBook.author}</p>
         </div>
-        <span className="rounded-full border border-amber-300/35 bg-amber-400/12 px-2 py-0.5 text-xs font-semibold text-amber-300">
+        <span className="rounded-full border border-border bg-secondary px-2 py-0.5 text-xs font-semibold text-secondary-foreground">
           {selectedBook.matchCount} matches
         </span>
       </div>
@@ -47,7 +47,7 @@ export const InsightsSidePanel = ({ selectedBook, query }) => {
       <div className="mt-3">
         <Link
           to={`/book/${selectedBook.bookId}`}
-          className="inline-flex items-center rounded-md border border-amber-400/35 bg-amber-500/12 px-3 py-1.5 text-xs font-semibold text-amber-300 transition-colors hover:border-amber-300/65 hover:text-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+          className="inline-flex items-center rounded-md border border-border bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground transition-colors hover:border-ring/50 hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={`Open book ${selectedBook.title}`}
         >
           Open Book
@@ -58,10 +58,10 @@ export const InsightsSidePanel = ({ selectedBook, query }) => {
         {shown.map((cite, idx) => (
           <article
             key={`${selectedBook.bookId}-${idx}`}
-            className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2"
+            className="rounded-lg border border-border bg-secondary/40 px-3 py-2"
           >
-            <p className="text-sm text-slate-200">{cite.snippet || "No preview available"}</p>
-            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+            <p className="text-sm text-foreground">{cite.snippet || "No preview available"}</p>
+            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
               <span>{formatPage(cite.note_page)}</span>
               <span>{formatDate(getCitationTimestamp(cite))}</span>
               {safeQuery ? <span>Query: {safeQuery}</span> : null}
@@ -76,7 +76,7 @@ export const InsightsSidePanel = ({ selectedBook, query }) => {
           onClick={() =>
             setVisibleMatches((current) => current + PANEL_MATCHES_INCREMENT)
           }
-          className="mt-3 rounded-md border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:border-amber-400/45 hover:text-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+          className="mt-3 rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-secondary-foreground transition-colors hover:border-ring/50 hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           Reveal {Math.min(remaining, PANEL_MATCHES_INCREMENT)} more
         </button>

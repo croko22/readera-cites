@@ -12,7 +12,7 @@ function App() {
   const location = useLocation();
 
   return (
-    <div className="app-shell flex min-h-screen flex-col bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <ToTopButton />
       <Header />
       <main id="main-content" className="route-stage flex-1 pt-2 sm:pt-3">

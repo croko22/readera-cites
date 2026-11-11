@@ -22,7 +22,7 @@ function distributeToColumns(items, columnCount) {
 }
 
 const PAGE_BTN =
-  "motion-lift border-white/12 bg-white/[0.03] text-slate-300 transition-all duration-300 hover:border-amber-400/50 hover:bg-amber-400/12 hover:text-amber-300";
+  "motion-lift border-border bg-secondary text-secondary-foreground transition-colors duration-200 hover:border-ring/50 hover:bg-secondary/80";
 
 export const CitesList = ({ cites, view = "list" }) => {
   const [requestedPage, setPage] = useState(1);
@@ -51,13 +51,14 @@ export const CitesList = ({ cites, view = "list" }) => {
     return () => ro.disconnect();
   }, [view]);
 
-  const paginate = () => {
+  const paginate = (position) => {
     return (
-      <div className="flex justify-center items-center gap-2 flex-wrap my-6">
+      <nav aria-label={`Citation pages, ${position}`} className="my-6 flex flex-wrap items-center justify-center gap-2 [&_button]:min-h-11 [&_button]:min-w-11">
         <Button
           variant="outline"
           size="default"
           onClick={() => setPage(1)}
+          aria-label="First page"
           disabled={page === 1}
           className={PAGE_BTN}
         >
@@ -67,14 +68,15 @@ export const CitesList = ({ cites, view = "list" }) => {
           variant="outline"
           size="default"
           onClick={() => page > 1 && setPage(page - 1)}
+          aria-label="Previous page"
           disabled={page === 1}
           className={PAGE_BTN}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="default" disabled className="cursor-default text-slate-600">
+        <span aria-hidden="true" className="px-4 text-muted-foreground/70">
           <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
-        </Button>
+        </span>
         {Array(endPage - startPage + 1)
           .fill("")
           .map((_, i) => (
@@ -83,18 +85,21 @@ export const CitesList = ({ cites, view = "list" }) => {
               variant={i + startPage === page ? "default" : "outline"}
               size="default"
               onClick={() => setPage(i + startPage)}
-               className={i + startPage === page ? "border border-amber-300/40 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 hover:brightness-105" : PAGE_BTN}
+              aria-label={`Page ${i + startPage}`}
+              aria-current={i + startPage === page ? "page" : undefined}
+               className={i + startPage === page ? "motion-lift border border-primary" : PAGE_BTN}
               >
               {i + startPage}
             </Button>
           ))}
-        <Button variant="ghost" size="default" disabled className="cursor-default text-slate-600">
+        <span aria-hidden="true" className="px-4 text-muted-foreground/70">
           <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
-        </Button>
+        </span>
         <Button
           variant="outline"
           size="default"
           onClick={() => page < totalPages && setPage(page + 1)}
+          aria-label="Next page"
           disabled={page >= totalPages}
           className={PAGE_BTN}
         >
@@ -104,12 +109,13 @@ export const CitesList = ({ cites, view = "list" }) => {
           variant="outline"
           size="default"
           onClick={() => setPage(totalPages)}
+          aria-label="Last page"
           disabled={page === totalPages}
           className={PAGE_BTN}
         >
           <ChevronLast className="h-4 w-4" />
         </Button>
-      </div>
+      </nav>
     );
   };
 
@@ -117,7 +123,7 @@ export const CitesList = ({ cites, view = "list" }) => {
 
   return (
     <div ref={gridRef}>
-      {paginate()}
+      {paginate("top")}
       <div key={view} className="view-enter">
         {view === "list" ? (
           <ul className="space-y-2 mt-2 mb-2">
@@ -128,10 +134,10 @@ export const CitesList = ({ cites, view = "list" }) => {
         ) : (
           <div
             className="grid gap-3 sm:gap-4"
-            style={{ gridTemplateColumns: `repeat(${columnCount}, 1fr)` }}
+            style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}
           >
             {distributeToColumns(pageItems, columnCount).map((col, colIdx) => (
-              <ul key={colIdx} className="space-y-3 sm:space-y-4">
+              <ul key={colIdx} className="min-w-0 space-y-3 sm:space-y-4">
                 {col.map(({ item, visualIndex }) => (
                   <Cite
                     key={visualIndex}
@@ -145,7 +151,7 @@ export const CitesList = ({ cites, view = "list" }) => {
           </div>
         )}
       </div>
-      {paginate()}
+      {paginate("bottom")}
     </div>
   );
 };

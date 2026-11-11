@@ -4,19 +4,19 @@ import React from "react";
 export const BookCardSkeleton = () => (
   <div className="panel mb-4 overflow-hidden rounded-xl">
     {/* Header row */}
-    <div className="bg-[rgba(18,18,26,0.8)] border-l-4 border-amber-500/20 px-4 py-3">
+    <div className="border-b border-border bg-card px-4 py-3">
       <div className="flex items-center justify-between pr-4">
         <div className="flex-1 min-w-0">
-          <div className="animate-pulse h-6 w-3/4 rounded bg-white/5 mb-2" />
+          <div className="animate-pulse h-6 w-3/4 rounded bg-secondary mb-2" />
         </div>
-        <div className="animate-pulse h-6 w-24 rounded-full bg-white/5" />
+        <div className="animate-pulse h-6 w-24 rounded-full bg-secondary" />
       </div>
     </div>
     {/* Body */}
-    <div className="px-4 py-3 bg-[rgba(26,26,36,0.4)] space-y-2">
+    <div className="bg-secondary/40 px-4 py-3 space-y-2">
       <div className="flex justify-between">
-        <div className="animate-pulse h-4 w-40 rounded bg-white/5" />
-        <div className="animate-pulse h-4 w-20 rounded bg-white/5" />
+        <div className="animate-pulse h-4 w-40 rounded bg-secondary" />
+        <div className="animate-pulse h-4 w-20 rounded bg-secondary" />
       </div>
       <div className="surface-muted h-2 w-full animate-pulse rounded" />
     </div>
@@ -25,11 +25,11 @@ export const BookCardSkeleton = () => (
 
 /* ── Citation skeleton ── */
 export const CiteSkeleton = () => (
-  <div className="surface-muted mb-4 rounded-xl border-l-4 border-slate-600/30 p-5">
+  <div className="surface-muted mb-4 rounded-xl border border-border p-5">
     <div className="flex justify-between items-start mb-3">
       <span className="flex items-center gap-2">
-        <div className="animate-pulse h-6 w-20 rounded-full bg-white/5" />
-        <div className="animate-pulse h-5 w-16 rounded-full bg-white/5" />
+        <div className="animate-pulse h-6 w-20 rounded-full bg-secondary" />
+        <div className="animate-pulse h-5 w-16 rounded-full bg-secondary" />
       </span>
       <span className="flex gap-3">
         <div className="surface-muted h-5 w-5 animate-pulse rounded" />
@@ -37,8 +37,8 @@ export const CiteSkeleton = () => (
       </span>
     </div>
     <div className="space-y-2 mb-3">
-      <div className="animate-pulse h-4 w-full rounded bg-white/5" />
-      <div className="animate-pulse h-4 w-5/6 rounded bg-white/5" />
+      <div className="animate-pulse h-4 w-full rounded bg-secondary" />
+      <div className="animate-pulse h-4 w-5/6 rounded bg-secondary" />
     </div>
       <div className="surface-muted h-5 w-2/3 animate-pulse rounded-lg" />
   </div>
@@ -57,19 +57,19 @@ export const BookSkeleton = ({ count = 4 }) => (
   <div>
     {/* Title bar */}
     <div className="flex justify-between items-center mb-4">
-      <div className="animate-pulse h-9 w-2/3 rounded bg-white/5" />
-      <div className="animate-pulse h-10 w-32 rounded-md bg-white/5" />
+      <div className="animate-pulse h-9 w-2/3 rounded bg-secondary" />
+      <div className="animate-pulse h-10 w-32 rounded-md bg-secondary" />
     </div>
     {/* Search bar placeholder */}
-    <div className="animate-pulse h-12 w-full rounded-lg bg-white/5 mb-4" />
+    <div className="animate-pulse h-12 w-full rounded-lg bg-secondary mb-4" />
     {/* Filter buttons */}
     <div className="mt-4 flex justify-between items-center mb-4">
       <div className="flex gap-2 flex-wrap">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="animate-pulse h-10 w-14 rounded-md bg-white/5" />
+          <div key={i} className="animate-pulse h-10 w-14 rounded-md bg-secondary" />
         ))}
       </div>
-      <div className="animate-pulse h-10 w-10 rounded-md bg-white/5" />
+      <div className="animate-pulse h-10 w-10 rounded-md bg-secondary" />
     </div>
     {/* Citation cards */}
     <ul className="space-y-2 mt-2 mb-2">
@@ -82,16 +82,16 @@ export const BookSkeleton = ({ count = 4 }) => (
 
 export const InsightsSkeleton = ({ compact = false }) => (
   <div className="space-y-3">
-    <div className="panel rounded-xl border-white/15 p-3">
-      <div className="animate-pulse h-4 w-44 rounded bg-white/8" />
-      <div className={`mt-3 w-full rounded-lg border border-white/10 bg-white/[0.03] ${compact ? "h-28" : "h-56"}`}>
-        <div className="h-full w-full animate-pulse rounded-lg bg-white/[0.04]" />
+    <div className="panel rounded-xl border-border p-3">
+      <div className="animate-pulse h-4 w-44 rounded bg-secondary" />
+      <div className={`mt-3 w-full rounded-lg border border-border bg-secondary/30 ${compact ? "h-28" : "h-56"}`}>
+        <div className="h-full w-full animate-pulse rounded-lg bg-secondary/60" />
       </div>
     </div>
     {!compact && (
-      <div className="panel rounded-xl border-white/15 p-3 space-y-2">
+      <div className="panel rounded-xl border-border p-3 space-y-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="animate-pulse h-11 rounded-lg bg-white/[0.04]" />
+          <div key={i} className="animate-pulse h-11 rounded-lg bg-secondary/60" />
         ))}
       </div>
     )}

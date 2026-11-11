@@ -196,34 +196,34 @@ export const Upload = () => {
     <div className="container mx-auto px-4 py-7">
       <div className="grid items-start gap-7 md:grid-cols-2">
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/80">Import Flow</p>
-          <h1 className="mb-4 text-3xl font-semibold tracking-tight text-slate-100 sm:text-4xl">Welcome to ReadEra - Book Notes</h1>
-          <p className="mb-4 text-base leading-relaxed text-slate-400 sm:text-lg">
-            In the ReadEra app, navigate to the <b className="text-slate-200">Backup & Restore</b> section
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Import flow</p>
+          <h1 className="mb-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">Welcome to ReadEra - Book Notes</h1>
+          <p className="mb-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
+            In the ReadEra app, navigate to the <b className="text-foreground">Backup & Restore</b> section
             and export a ReadEra backup file.
           </p>
           <img
             src="assets/img/bak-file.webp"
-            alt="upload"
-            className="panel mb-4 w-full rounded-xl border-white/15"
+            alt="ReadEra backup screen showing the Backup and Restore option"
+            className="panel mb-4 w-full rounded-xl border-border"
           />
-          <p className="py-3 leading-relaxed text-slate-400">
-            Upload the <b className="text-slate-200">.bak</b> file directly. Both older and newer ReadEra backup formats are supported.
-            {" "}You can also upload an older <code className="bg-white/5 px-2 py-1 rounded text-amber-400 border border-white/10">library.json</code> file.
+          <p className="py-3 leading-relaxed text-muted-foreground">
+            Upload the <b className="text-foreground">.bak</b> file directly. Both older and newer ReadEra backup formats are supported.
+            {" "}You can also upload an older <code className="bg-secondary px-2 py-1 rounded text-primary border border-border">library.json</code> file.
           </p>
           <img
             src="assets/img/json-file.webp"
-            alt="json"
-            className="panel w-full rounded-xl border-white/15"
+            alt="Example library.json file exported from ReadEra"
+            className="panel w-full rounded-xl border-border"
           />
         </div>
 
-        <div className="panel space-y-6 rounded-2xl border-white/15 p-8">
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-100">
+        <div className="panel space-y-6 rounded-2xl border-border p-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
             Upload your{" "}
-            <code className="bg-white/5 px-2 py-1 rounded text-sm text-amber-400 border border-white/10">library.json</code>
+            <code className="bg-secondary px-2 py-1 rounded text-sm text-primary border border-border">library.json</code>
             {" "}or{" "}
-            <code className="bg-white/5 px-2 py-1 rounded text-sm text-amber-400 border border-white/10">.bak</code>
+            <code className="bg-secondary px-2 py-1 rounded text-sm text-primary border border-border">.bak</code>
             {" "}file
           </h2>
 
@@ -238,10 +238,10 @@ export const Upload = () => {
             onClick={handleClickUpload}
             className={`w-full rounded-xl border-2 border-dashed p-8 text-center transition-[transform,border-color,background-color,box-shadow] duration-300 ${
               isDragging
-                ? "border-amber-400 bg-amber-400/14 shadow-[0_0_40px_rgba(245,158,11,0.28)]"
+                ? "border-primary bg-primary/10"
                 : originalBooks
-                ? "border-amber-400/50 bg-amber-400/8"
-                : "border-white/10 bg-white/5 hover:border-amber-400/50 hover:bg-amber-400/8"
+                ? "border-primary/50 bg-primary/5"
+                : "border-border bg-secondary/40 hover:border-ring/60 hover:bg-secondary/60"
             }`}
             aria-label={
               originalBooks
@@ -261,27 +261,27 @@ export const Upload = () => {
             
             {originalBooks ? (
               <div className="space-y-3">
-                 <FaCheckCircle className="mx-auto text-5xl text-amber-400 drop-shadow-[0_0_14px_rgba(245,158,11,0.56)]" />
+                 <FaCheckCircle className="mx-auto text-5xl text-primary" />
                 <div>
-                  <p className="text-lg font-semibold text-amber-400">File uploaded successfully!</p>
-                  <p className="text-sm text-slate-400 mt-1">{fileName}</p>
-                  <p className="text-xs text-slate-500 mt-2">Click to upload a different file</p>
+                  <p className="text-lg font-semibold text-primary">File uploaded successfully!</p>
+                  <p className="text-sm text-muted-foreground mt-1">{fileName}</p>
+                  <p className="text-xs text-muted-foreground mt-2">Click to upload a different file</p>
                 </div>
               </div>
             ) : (
               <div className="space-y-3">
-                <FaFileImport className="mx-auto text-5xl text-slate-600" />
+                <FaFileImport className="mx-auto text-5xl text-muted-foreground/70" />
                 <div>
-                  <p className="text-lg font-semibold text-slate-200">
+                  <p className="text-lg font-semibold text-foreground">
                     Drag & Drop your library.json or .bak file here
                   </p>
-                  <p className="text-sm text-slate-500 mt-1">or click to browse files</p>
+                  <p className="text-sm text-muted-foreground mt-1">or click to browse files</p>
                 </div>
               </div>
             )}
           </button>
 
-          <p role="status" aria-atomic="true" className="text-sm text-slate-300">
+          <p role="status" aria-atomic="true" className="text-sm text-secondary-foreground">
             {operationMessage}
           </p>
           {errorMessage && (
@@ -297,7 +297,7 @@ export const Upload = () => {
 
           {/* Citation Filter */}
           <div>
-            <Label htmlFor="citations" className="mb-2 text-sm font-semibold text-slate-300">
+            <Label htmlFor="citations" className="mb-2 text-sm font-semibold text-secondary-foreground">
               Minimum citations per book:
             </Label>
             <Input
@@ -306,7 +306,7 @@ export const Upload = () => {
               disabled={isBusy}
               value={minCitations}
               onChange={(e) => setMinCitations(Number(e.target.value))}
-              className="mb-3 bg-white/5 border-white/10 text-slate-100 focus:border-amber-500/50 focus:ring-amber-500/20"
+              className="mb-3 bg-secondary border-border text-foreground focus:border-ring focus:ring-ring/30"
             />
             <div className="flex gap-2 flex-wrap">
               {CITATION_PRESETS.map((value) => (
@@ -316,7 +316,7 @@ export const Upload = () => {
                   disabled={isBusy}
                   variant={minCitations === value ? "default" : "outline"}
                   onClick={() => setMinCitations(value)}
-                 className={minCitations === value ? "border border-amber-300/40 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 shadow-[0_0_20px_rgba(245,158,11,0.35)]" : "border-white/10 text-slate-300 hover:bg-amber-400/10 hover:border-amber-400/50 hover:text-amber-300"}
+                 className={minCitations === value ? "border border-primary" : ""}
                 >
                   {value}
                 </Button>
@@ -326,11 +326,11 @@ export const Upload = () => {
 
           {/* File Info and Actions */}
           {originalBooks && (
-            <div className="space-y-3 pt-4 border-t border-white/10">
-              <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+            <div className="space-y-3 pt-4 border-t border-border">
+              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg border border-border">
                 <div>
-                  <p className="text-sm text-slate-400">Books with {minCitations}+ citations</p>
-                  <p className="text-2xl font-bold text-slate-100">
+                  <p className="text-sm text-muted-foreground">Books with {minCitations}+ citations</p>
+                  <p className="text-2xl font-bold text-foreground">
                     {filteredBooks.length}
                   </p>
                 </div>
@@ -338,7 +338,7 @@ export const Upload = () => {
                   variant="outline"
                   onClick={() => setShowModal(true)}
                   disabled={isBusy}
-                  className="gap-2 border-white/10 text-slate-300 hover:bg-amber-400/10 hover:border-amber-400/50 hover:text-amber-300"
+                  className="gap-2 border-border text-secondary-foreground hover:border-ring/50 hover:bg-secondary/80"
                 >
                   <FaEye />
                   Preview
@@ -346,7 +346,7 @@ export const Upload = () => {
               </div>
 
                 <Button
-                  className="motion-lift w-full gap-2 border border-amber-300/45 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] py-6 text-lg font-semibold text-slate-900 hover:brightness-105"
+                  className="motion-lift w-full gap-2 border border-primary py-6 text-lg font-semibold"
                   onClick={loadLibrary}
                   disabled={isBusy}
                 >
@@ -359,38 +359,36 @@ export const Upload = () => {
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-h-[80vh] max-w-3xl overflow-y-auto border-white/10 bg-card">
+        <DialogContent className="max-h-[80vh] max-w-3xl overflow-y-auto border-border bg-popover">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-slate-100">Preview Books</DialogTitle>
-            <DialogDescription className="text-slate-400">
+            <DialogTitle className="text-2xl font-bold text-foreground">Preview Books</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Books that will be loaded with {minCitations}+ citations
             </DialogDescription>
           </DialogHeader>
-          <p role="status" aria-atomic="true" className="text-sm text-slate-300">{operationMessage}</p>
+          <p role="status" aria-atomic="true" className="text-sm text-secondary-foreground">{operationMessage}</p>
           {errorMessage && <p role="alert" className="break-words text-sm text-red-200">{errorMessage}</p>}
           
           <div className="space-y-2 max-h-[50vh] overflow-y-auto">
             {filteredBooks.map((book, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-4 border border-white/10 rounded-lg hover:bg-white/5 hover:border-white/20 transition-all duration-200"
+                className="flex items-start justify-between gap-3 rounded-lg border border-border p-4 transition-colors duration-200 hover:bg-secondary/40"
               >
-                <strong className="flex-1 truncate pr-4 text-slate-200">
-                  {getBookTitle(book).length > 70
-                    ? `${getBookTitle(book).slice(0, 70)}...`
-                    : getBookTitle(book)}
+                <strong className="min-w-0 flex-1 text-balance text-foreground [overflow-wrap:anywhere]">
+                  {getBookTitle(book)}
                 </strong>
-                <span className="text-sm font-medium text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">{book.citations.length} citations</span>
+                <span className="shrink-0 rounded-full border border-border bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground">{book.citations.length} citations</span>
               </div>
             ))}
           </div>
 
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowModal(false)} className="border-white/10 text-slate-300 hover:bg-white/5">
+            <Button variant="outline" onClick={() => setShowModal(false)} className="border-border text-secondary-foreground hover:bg-secondary">
               Close
             </Button>
             <Button
-              className="border border-amber-300/45 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 font-medium transition-all hover:brightness-105 hover:shadow-[0_0_24px_rgba(245,158,11,0.42)]"
+              className="border border-primary font-medium"
               onClick={loadLibrary}
               disabled={!originalBooks || isBusy}
             >

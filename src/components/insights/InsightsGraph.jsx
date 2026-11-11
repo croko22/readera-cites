@@ -148,24 +148,24 @@ export const InsightsGraph = ({
   return (
     <div style={{ animation: "graphFadeIn 0.4s ease-out" }}>
       <section
-        className="panel rounded-xl border-white/15 p-3"
+        className="panel rounded-xl border-border p-3"
         aria-label="Insights graph"
         aria-describedby="insights-graph-help"
       >
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <p id="insights-graph-help" className="text-xs text-slate-400">
+          <p id="insights-graph-help" className="text-xs text-muted-foreground">
             Select a book node to inspect matched citations in the side panel.
           </p>
           <button
             type="button"
             onClick={onUseListView}
-            className="rounded-md border border-white/10 px-2 py-1 text-xs font-semibold text-slate-300 transition-colors hover:border-amber-400/40 hover:text-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+            className="rounded-md border border-border bg-secondary px-2 py-1 text-xs font-semibold text-secondary-foreground transition-colors hover:border-ring/50 hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Use list view
           </button>
         </div>
 
-        <div className="h-[280px] rounded-lg border border-white/10 bg-[rgba(10,12,20,0.76)] sm:h-[340px]" style={{ willChange: "transform" }}>
+        <div className="h-[280px] rounded-lg border border-border bg-card sm:h-[340px]" style={{ willChange: "transform" }}>
           {elements.length > 0 ? (
             <CytoscapeComponent
               cy={(cy) => { cyRef.current = cy; }}
@@ -187,16 +187,16 @@ export const InsightsGraph = ({
               position: "fixed",
               left: tooltip.x + 12,
               top: tooltip.y - 10,
-              background: "#1c1917",
-              color: "#e7e5e4",
+              background: "hsl(var(--popover))",
+              color: "hsl(var(--popover-foreground))",
               padding: "4px 10px",
               borderRadius: 6,
               fontSize: 13,
               pointerEvents: "none",
               zIndex: 100,
               whiteSpace: "nowrap",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-              border: "1px solid #44403c",
+              boxShadow: "0 2px 8px hsl(225 40% 2% / 0.3)",
+              border: "1px solid hsl(var(--border))",
             }}
           >
             {tooltip.text}
@@ -204,7 +204,7 @@ export const InsightsGraph = ({
         )}
 
         {model.truncated && model.hiddenBooksCount > 0 && (
-          <p className="mt-2 text-xs text-slate-400">
+          <p className="mt-2 text-xs text-muted-foreground">
             Showing top matches in graph. {model.hiddenBooksCount} more books available in the list below.
           </p>
         )}

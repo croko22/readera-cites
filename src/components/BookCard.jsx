@@ -11,49 +11,51 @@ import { getBookTitle, getBookAuthor, getBookProgress } from "../lib/readeraVoca
 
 export const BookCard = ({ libro, bookKey }) => {
   const progress = getBookProgress(libro)?.percent ?? 0;
+  const title = getBookTitle(libro);
 
   return (
     <AccordionItem
       value={bookKey.toString()}
       className="panel motion-lift mb-4 overflow-hidden rounded-xl border-0"
     >
-      <div className="rounded-t-xl border-l-4 border-amber-400 bg-[rgba(16,18,28,0.86)]">
-        <AccordionTrigger className="px-4 py-3 text-slate-100 hover:no-underline [&>svg]:text-slate-400">
-          <div className="flex flex-1 min-w-0 justify-between items-center pr-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 rounded-t-xl border-b border-border bg-card px-4 py-3">
+          <div className="flex min-w-0 flex-col items-start gap-2 sm:flex-row sm:justify-between">
             <Link
               to={`/book/${libro.data.doc_md5}`}
               state={libro}
-              className="text-slate-100 no-underline transition-colors hover:text-amber-400"
-              onClick={(e) => e.stopPropagation()}
+              className="min-w-0 text-foreground no-underline transition-colors hover:text-primary"
             >
-              <h5 className="mb-0 flex items-center gap-2 text-lg font-semibold tracking-tight text-slate-100 sm:text-xl">
-                {getBookTitle(libro)}
+              <h5 className="mb-0 flex flex-wrap items-center gap-2 text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+                <span className="min-w-0 [overflow-wrap:anywhere]">{title}</span>
                 {libro.data.doc_favorites_time !== 0 && (
-                  <Badge className="border border-amber-300/40 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900">Fav</Badge>
+                  <Badge className="border border-primary bg-primary text-primary-foreground">Fav</Badge>
                 )}
               </h5>
             </Link>
-            <span className="text-sm font-semibold text-amber-300 bg-amber-400/12 px-3 py-1 rounded-full border border-amber-300/30">
+            <span className="shrink-0 whitespace-nowrap rounded-full border border-border bg-secondary px-3 py-1 text-sm font-semibold text-secondary-foreground">
               {libro.citations.length} quotes
             </span>
           </div>
-        </AccordionTrigger>
+        <AccordionTrigger
+          aria-label={`Book details for ${title}`}
+          className="h-11 w-11 flex-none justify-center rounded-lg p-0 text-foreground hover:bg-secondary hover:no-underline active:bg-secondary/80 [&>svg]:text-muted-foreground"
+        />
       </div>
 
-      <AccordionContent className="bg-[rgba(20,24,36,0.58)] px-4 py-3 backdrop-blur-sm">
-        <p className="mb-2 flex justify-between text-sm text-slate-300">
-          <span>
-            <b className="text-slate-200">Author:</b> {getBookAuthor(libro)}
+      <AccordionContent className="bg-secondary/40 px-4 py-3">
+        <p className="mb-2 flex min-w-0 flex-col gap-2 text-sm text-secondary-foreground sm:flex-row sm:justify-between">
+          <span className="min-w-0 [overflow-wrap:anywhere]">
+            <b className="text-foreground">Author:</b> {getBookAuthor(libro)}
           </span>
-          <span>
+          <span className="shrink-0">
             Rating:{" "}
             {libro.data.doc_rating > 0
-              ? "⭐".repeat(libro.data.doc_rating)
+              ? "★".repeat(libro.data.doc_rating)
               : "None"}
           </span>
         </p>
         <div className="space-y-2">
-          <div className="text-sm text-slate-400">
+          <div className="text-sm text-muted-foreground">
             Progress: {progress}%
           </div>
           <Progress value={progress} className="h-2" />

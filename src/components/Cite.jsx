@@ -14,6 +14,8 @@ import {
   formatRelativeTime,
 } from "../lib/readeraVocab";
 
+const ACTION_CLASS = "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-200 hover:bg-secondary hover:text-primary active:bg-secondary/80";
+
 export const Cite = ({ cite, variant = "list", index = 0 }) => {
   const c = CITATION_COLORS[getCitationColorKey(cite)] ?? CITATION_COLORS[0];
   const isGrid = variant === "grid";
@@ -94,47 +96,45 @@ export const Cite = ({ cite, variant = "list", index = 0 }) => {
       className={[
         c.bg,
         isGrid ? "card-appear card-grid" : "motion-lift",
-        "list-none rounded-xl border-l-4 backdrop-blur-sm",
+        "min-w-0 list-none rounded-xl border [overflow-wrap:anywhere]",
         isGrid ? "p-3.5" : "p-5",
         c.border,
       ].join(" ")}
       style={isGrid ? { animationDelay: `${index * 30}ms` } : undefined}
     >
       <TooltipProvider>
-        <div className={isGrid ? "mb-2 flex items-start justify-between gap-2" : "mb-3 flex items-start justify-between"}>
-          <span className="flex items-center gap-1.5 flex-wrap">
+        <div className={`flex flex-wrap items-start justify-between gap-2 ${isGrid ? "mb-2" : "mb-3"}`}>
+          <span className="flex min-w-0 flex-wrap items-center gap-1.5">
             <small
               className={[
                 "font-bold",
                 c.text,
-                "bg-white/[0.07] rounded-full border border-white/14",
+                "rounded-full border border-border bg-secondary",
                 isGrid ? "text-[11px] px-2 py-0.5" : "text-sm px-3 py-1",
               ].join(" ")}
             >
-              📖 Page {cite.note_page}
+              Page {cite.note_page}
             </small>
             {getCitationTimestamp(cite) ? (
-              <small className="text-xs text-slate-500 bg-white/5 px-2 py-1 rounded-full border border-white/5">
+              <small className="rounded-full border border-border bg-secondary px-2 py-1 text-xs text-muted-foreground">
                 {formatRelativeTime(getCitationTimestamp(cite))}
               </small>
             ) : null}
           </span>
 
-          <span className={isGrid ? "flex gap-1" : "flex gap-3"}>
+          <span className="flex shrink-0 gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className={[
-                    "cursor-pointer rounded-lg text-slate-400 transition-colors duration-300 hover:bg-white/8 hover:text-amber-300",
-                    isGrid ? "p-1" : "p-1.5",
-                  ].join(" ")}
+                  type="button"
+                  className={ACTION_CLASS}
                   onClick={() => copyCite(cite)}
                   aria-label="Copy citation"
                 >
-                  <FaCopy className={isGrid ? "text-xs" : ""} />
+                  <FaCopy className="h-4 w-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent className="bg-popover border-white/10 text-slate-200">
+              <TooltipContent className="border-border bg-popover text-popover-foreground">
                 <p>Copy this quote</p>
               </TooltipContent>
             </Tooltip>
@@ -145,16 +145,13 @@ export const Cite = ({ cite, variant = "list", index = 0 }) => {
                   href={`https://twitter.com/intent/tweet?text=${cite.note_body}`}
                   target="_blank"
                   rel="noreferrer"
-                  className={[
-                    "rounded-lg text-slate-400 transition-colors duration-300 hover:bg-white/8 hover:text-amber-300",
-                    isGrid ? "p-1" : "p-1.5",
-                  ].join(" ")}
+                  className={ACTION_CLASS}
                   aria-label="Share citation on X"
                 >
-                  <FaTwitter className={isGrid ? "text-xs" : ""} />
+                  <FaTwitter className="h-4 w-4" />
                 </a>
               </TooltipTrigger>
-              <TooltipContent className="bg-popover border-white/10 text-slate-200">
+              <TooltipContent className="border-border bg-popover text-popover-foreground">
                 <p>Tweet this quote</p>
               </TooltipContent>
             </Tooltip>
@@ -163,7 +160,7 @@ export const Cite = ({ cite, variant = "list", index = 0 }) => {
       </TooltipProvider>
       <p
         className={[
-          "text-slate-100 leading-relaxed font-medium",
+          "text-foreground leading-relaxed font-medium",
           isGrid ? "mb-2 text-[13px]" : "mb-3 text-base",
         ].join(" ")}
       >
@@ -172,11 +169,11 @@ export const Cite = ({ cite, variant = "list", index = 0 }) => {
       {cite.note_extra && (
         <small
           className={[
-            "text-slate-300 bg-white/[0.06] rounded-lg inline-block border border-white/14",
+            "inline-block max-w-full rounded-lg border border-border bg-secondary text-secondary-foreground",
             isGrid ? "text-[11px] px-2.5 py-1.5" : "px-3 py-2",
           ].join(" ")}
         >
-          <b className="text-amber-300">Note:</b> {cite.note_extra}
+          <b className="text-primary">Note:</b> {cite.note_extra}
         </small>
       )}
     </li>

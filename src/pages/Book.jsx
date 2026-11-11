@@ -8,6 +8,7 @@ import {
   ArrowUp,
   ArrowDown,
   ChevronDown,
+  Check,
   Clock,
   FileJson,
   FileText,
@@ -52,10 +53,10 @@ const MIN_SKELETON_MS = 300;
 
 // ── Sort options ─────────────────────────────────────────────────────
 const SORT_OPTIONS = [
-  { key: "page-asc", label: "Page", icon: ArrowUp },
-  { key: "page-desc", label: "Page", icon: ArrowDown },
-  { key: "date-new", label: "Newest", icon: Clock },
-  { key: "date-old", label: "Oldest", icon: Clock },
+  { key: "page-asc", label: "page, low to high", icon: ArrowUp },
+  { key: "page-desc", label: "page, high to low", icon: ArrowDown },
+  { key: "date-new", label: "date, newest first", icon: Clock },
+  { key: "date-old", label: "date, oldest first", icon: Clock },
   { key: "color", label: "Color", icon: Palette },
 ];
 
@@ -116,6 +117,7 @@ export const Book = () => {
   const [loading, setLoading] = useState(true);
   const [Cites, setCites] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [selectedColor, setSelectedColor] = useState(ALL_COLORS_FILTER);
 
   const { id } = useParams();
   const location = useLocation();
@@ -186,6 +188,7 @@ export const Book = () => {
   const title = getBookTitle(Book);
 
   const filterColors = (n) => {
+    setSelectedColor(n);
     setCites(filterCitationsByColor(Book?.citations, n));
   };
 
@@ -306,42 +309,42 @@ export const Book = () => {
       {/* ── Back to library ── */}
       <Link
         to="/"
-        className="group mb-4 inline-flex items-center gap-2 text-slate-400 transition-colors duration-200 hover:text-amber-400"
+        className="group mb-4 inline-flex items-center gap-2 text-muted-foreground transition-colors duration-200 hover:text-primary"
       >
         <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
         <span className="text-sm font-medium">Back to Library</span>
       </Link>
 
       {/* ── Book header ── */}
-      <div className="panel mb-6 rounded-2xl border-white/15 p-5 sm:p-6">
+      <div className="panel mb-6 rounded-2xl border-border p-5 sm:p-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
           <div className="min-w-0 flex-1">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/80">Book Detail</p>
-              <h1 className="mb-2 line-clamp-2 text-2xl font-semibold tracking-tight text-slate-100 md:line-clamp-1 md:text-3xl">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Book detail</p>
+              <h1 className="mb-2 text-2xl font-semibold tracking-tight text-foreground [overflow-wrap:anywhere] md:text-3xl">
                {title}
               </h1>
             {authors && (
-              <p className="text-slate-400 text-sm mb-3">
-                by <span className="text-slate-200 font-medium">{authors}</span>
+              <p className="mb-3 text-sm text-muted-foreground [overflow-wrap:anywhere]">
+                by <span className="text-foreground font-medium">{authors}</span>
               </p>
             )}
             <div className="flex flex-wrap items-center gap-2 mb-3">
               {formatBadge && (
-                <Badge className="bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 text-xs">
+                <Badge className="border border-border bg-secondary text-secondary-foreground text-xs">
                   {formatBadge}
                 </Badge>
               )}
               {langBadge && (
-                <Badge className="bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 text-xs">
+                <Badge className="border border-border bg-secondary text-secondary-foreground text-xs">
                   {langBadge}
                 </Badge>
               )}
               {totalPages > 0 && (
-                <Badge className="bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 text-xs">
+                <Badge className="border border-border bg-secondary text-secondary-foreground text-xs">
                   {totalPages} pages
                 </Badge>
               )}
-                <Badge className="bg-amber-400/14 border border-amber-300/35 text-amber-300 text-xs font-semibold">
+                <Badge className="border border-border bg-secondary text-secondary-foreground text-xs font-semibold">
                   {Book.citations.length} citations
                 </Badge>
               </div>
@@ -349,22 +352,22 @@ export const Book = () => {
           <div className="flex flex-col items-start md:items-end gap-2 shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="default" className="motion-lift gap-2 border border-amber-300/35 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 hover:brightness-105">
+                <Button variant="default" className="motion-lift gap-2 border border-primary">
                   Export <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuContent align="end" className="w-72 max-w-[calc(100vw-2rem)]">
                 <DropdownMenuItem onClick={copyCites}>
                   <FaCopy />
-                  <span>Copy All</span>
+                  <span>Copy filtered citations</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={downloadMarkdown}>
                   <FileText />
-                  <span>Download Markdown</span>
+                  <span>Download filtered Markdown</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={downloadJson}>
                   <FileJson />
-                  <span>Download JSON</span>
+                  <span>Download complete book JSON</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -372,19 +375,19 @@ export const Book = () => {
         </div>
 
         {/* Progress & last read */}
-        <div className="mt-5 border-t border-white/10 pt-3">
+        <div className="mt-5 border-t border-border pt-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div className="flex-1 max-w-md">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-xs text-slate-500">Reading progress</span>
-                <span className="text-xs font-semibold text-amber-400">
+                <span className="text-xs text-muted-foreground">Reading progress</span>
+                <span className="text-xs font-semibold text-primary">
                   {progress}%
                 </span>
               </div>
               <Progress value={progress} className="h-2" />
             </div>
             {lastRead && (
-              <span className="text-xs text-slate-500 flex items-center gap-1">
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 Last read {lastRead}
               </span>
@@ -394,62 +397,80 @@ export const Book = () => {
       </div>
 
       {/* ── Search ── */}
-      <Search searchText={searchText} setSearchText={setSearchText} />
+      <Search searchText={searchText} setSearchText={setSearchText} searchMode="citations" label="Search citations in this book" />
 
       {/* ── Filter + sort + view toggle toolbar ── */}
       <TooltipProvider>
-        <div className="panel mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border-white/15 p-3">
+        <div className="panel mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border-border p-3 [&_button]:min-h-11 [&_button]:min-w-11">
           {/* Color filter buttons */}
           <span className="flex gap-2 flex-wrap">
             <Button
               onClick={() => filterColors(7)}
+              aria-label={`All colors, ${citationCounts.all} citations`}
+              aria-pressed={selectedColor === ALL_COLORS_FILTER}
               variant="secondary"
               size="default"
-                className="motion-lift border border-white/12 bg-white/[0.08] font-semibold text-slate-200 transition-all duration-300 hover:bg-white/[0.16]"
+                className="motion-lift border border-border bg-secondary font-semibold text-secondary-foreground transition-colors duration-200 hover:bg-secondary/80"
               >
               All {citationCounts.all}
+              {selectedColor === ALL_COLORS_FILTER && <Check aria-hidden="true" className="h-4 w-4" />}
             </Button>
             <Button
               onClick={() => filterColors(0)}
+              aria-label={`Gray citations, ${citationCounts[0]}`}
+              aria-pressed={selectedColor === 0}
               variant="secondary"
               size="default"
-                className="motion-lift border border-slate-500/35 bg-slate-500/24 text-slate-300 transition-all duration-300 hover:bg-slate-500/34"
+                className="motion-lift border border-border bg-secondary text-secondary-foreground transition-colors duration-200 hover:bg-secondary/80"
              >
-              {citationCounts[0]}
+              Gray {citationCounts[0]}
+              {selectedColor === 0 && <Check aria-hidden="true" className="h-4 w-4" />}
             </Button>
             <Button
               onClick={() => filterColors(1)}
+              aria-label={`Red citations, ${citationCounts[1]}`}
+              aria-pressed={selectedColor === 1}
               variant="secondary"
               size="default"
                 className="motion-lift border border-red-500/35 bg-red-500/22 text-red-300 transition-all duration-300 hover:bg-red-500/34"
              >
-              {citationCounts[1]}
+              Red {citationCounts[1]}
+              {selectedColor === 1 && <Check aria-hidden="true" className="h-4 w-4" />}
             </Button>
             <Button
               onClick={() => filterColors(2)}
+              aria-label={`Yellow citations, ${citationCounts[2]}`}
+              aria-pressed={selectedColor === 2}
               size="default"
                 className="motion-lift border border-amber-400/40 bg-amber-400/24 text-amber-200 transition-all duration-300 hover:bg-amber-400/34"
              >
-              {citationCounts[2]}
+              Yellow {citationCounts[2]}
+              {selectedColor === 2 && <Check aria-hidden="true" className="h-4 w-4" />}
             </Button>
             <Button
               onClick={() => filterColors(3)}
+              aria-label={`Green citations, ${citationCounts[3]}`}
+              aria-pressed={selectedColor === 3}
               size="default"
                 className="motion-lift border border-emerald-500/35 bg-emerald-500/22 text-emerald-300 transition-all duration-300 hover:bg-emerald-500/34"
              >
-              {citationCounts[3]}
+              Green {citationCounts[3]}
+              {selectedColor === 3 && <Check aria-hidden="true" className="h-4 w-4" />}
             </Button>
             <Button
               onClick={() => filterColors(4)}
+              aria-label={`Blue citations, ${citationCounts[4]}`}
+              aria-pressed={selectedColor === 4}
               size="default"
                 className="motion-lift border border-blue-500/35 bg-blue-500/22 text-blue-300 transition-all duration-300 hover:bg-blue-500/34"
              >
-              {citationCounts[4]}
+              Blue {citationCounts[4]}
+              {selectedColor === 4 && <Check aria-hidden="true" className="h-4 w-4" />}
             </Button>
           </span>
 
           {/* Sort toggles + view toggle */}
-          <span className="flex gap-1.5 items-center">
+          <span className="flex min-w-0 flex-wrap items-center gap-2">
             {SORT_OPTIONS.map((opt) => {
               const Icon = opt.icon;
               const isActive = sortKey === opt.key;
@@ -461,23 +482,24 @@ export const Book = () => {
                       variant={isActive ? "default" : "outline"}
                       size="icon"
                       aria-label={`Sort citations by ${opt.label}`}
+                      aria-pressed={isActive}
                       className={
                         isActive
-                          ? "border border-amber-300/40 bg-[linear-gradient(130deg,rgba(245,158,11,0.95),rgba(249,115,22,0.9))] text-slate-900 hover:brightness-105"
-                          : "motion-lift border-white/12 bg-white/[0.03] text-slate-300 transition-all duration-300 hover:border-amber-400/50 hover:bg-amber-400/12 hover:text-amber-300"
+                          ? "motion-lift border border-primary"
+                          : "motion-lift border-border bg-secondary text-secondary-foreground hover:border-ring/50 hover:bg-secondary/80"
                       }
                     >
                       <Icon className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent className="border-white/10 bg-card text-slate-200">
+                  <TooltipContent className="border-border bg-popover text-popover-foreground">
                     <p>Sort by {opt.label}</p>
                   </TooltipContent>
                 </Tooltip>
               );
             })}
 
-            <span className="w-px h-6 bg-white/10 mx-1" />
+            <span className="w-px h-6 bg-secondary mx-1" />
 
             <Tooltip>
               <TooltipTrigger asChild>
@@ -488,12 +510,12 @@ export const Book = () => {
                   variant="outline"
                   size="icon"
                   aria-label={`Change to ${view === "list" ? "grid" : "list"} view`}
-                  className="motion-lift border-white/12 bg-white/[0.03] text-slate-300 transition-all duration-300 hover:border-amber-400/50 hover:bg-amber-400/12 hover:text-amber-300"
+                  className="motion-lift border-border bg-secondary text-secondary-foreground transition-colors duration-200 hover:border-ring/50 hover:bg-secondary/80"
                 >
                   {view === "list" ? <FaList /> : <FaTh />}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className="border-white/10 bg-card text-slate-200">
+              <TooltipContent className="border-border bg-popover text-popover-foreground">
                 <p>{`Change to ${view === "list" ? "grid" : "list"} view`}</p>
               </TooltipContent>
             </Tooltip>
@@ -520,13 +542,13 @@ export const Book = () => {
 
       {/* ── Prev / Next book navigation ── */}
       {(prevBook || nextBook) && (
-        <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between gap-4">
+        <div className="mt-8 pt-6 border-t border-border flex items-center justify-between gap-4">
           {prevBook ? (
             <Link
               to={`/book/${prevBook.data.doc_md5}`}
               state={prevBook}
               onClick={() => window.scrollTo(0, 0)}
-              className="flex items-center gap-2 text-slate-400 hover:text-amber-400 transition-colors duration-200 group max-w-[45%]"
+              className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors duration-200 group max-w-[45%]"
             >
               <ArrowLeft className="h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-1" />
               <span className="text-sm truncate">
@@ -541,7 +563,7 @@ export const Book = () => {
               to={`/book/${nextBook.data.doc_md5}`}
               state={nextBook}
               onClick={() => window.scrollTo(0, 0)}
-              className="flex items-center gap-2 text-slate-400 hover:text-amber-400 transition-colors duration-200 group max-w-[45%] justify-end text-right"
+              className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors duration-200 group max-w-[45%] justify-end text-right"
             >
               <span className="text-sm truncate">
                 {getBookTitle(nextBook)}
