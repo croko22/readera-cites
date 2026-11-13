@@ -32,6 +32,8 @@ export const InsightsView = ({ books, query, loadGraph = () => import("./Insight
   const isMountedRef = useRef(true);
 
   useEffect(() => {
+    // StrictMode replays setup after cleanup without recreating this ref.
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
     };

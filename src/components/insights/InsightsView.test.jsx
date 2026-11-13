@@ -22,6 +22,51 @@ const books = [
 ];
 
 describe("InsightsView", () => {
+  it.each(["resolve", "reject"])("admits a deferred %s after StrictMode effect replay", async (outcome) => {
+    let resolve, reject;
+    const pending = new Promise((yes, no) => { resolve = yes; reject = no; });
+    const loadGraph = vi.fn(() => pending);
+    render(
+      <React.StrictMode>
+        <MemoryRouter><InsightsView books={books} query="deep" loadGraph={loadGraph} /></MemoryRouter>
+      </React.StrictMode>
+    );
+    expect(screen.getByText("Loading graph...")).toBeInTheDocument();
+    if (outcome === "resolve") {
+      resolve({ default: () => <div>Deferred graph ready</div> });
+      expect(await screen.findByText("Deferred graph ready")).toBeInTheDocument();
+    } else {
+      reject(new Error("deferred offline"));
+      expect(await screen.findByText("Graph is unavailable in this session. List and side panel remain fully functional.")).toBeInTheDocument();
+    }
+    expect(screen.queryByText("Loading graph...")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Select Deep Work with 1 matches" }));
+    expect(screen.getByRole("link", { name: "Open book Deep Work" })).toBeInTheDocument();
+  });
+
+  it("finishes loading the graph under the app's StrictMode wrapper", async () => {
+    const loadGraph = vi.fn(async () => ({ default: () => <div>Graph ready</div> }));
+    render(
+      <React.StrictMode>
+        <MemoryRouter><InsightsView books={books} query="deep" loadGraph={loadGraph} /></MemoryRouter>
+      </React.StrictMode>
+    );
+    expect(await screen.findByText("Graph ready")).toBeInTheDocument();
+    expect(screen.queryByText("Loading graph...")).not.toBeInTheDocument();
+    expect(loadGraph).toHaveBeenCalled();
+  });
+
+  it("leaves loading for the list fallback when a StrictMode import fails", async () => {
+    const loadGraph = vi.fn(async () => { throw new Error("offline"); });
+    render(
+      <React.StrictMode>
+        <MemoryRouter><InsightsView books={books} query="deep" loadGraph={loadGraph} /></MemoryRouter>
+      </React.StrictMode>
+    );
+    expect(await screen.findByText("Graph is unavailable in this session. List and side panel remain fully functional.")).toBeInTheDocument();
+    expect(screen.queryByText("Loading graph...")).not.toBeInTheDocument();
+  });
+
   it("reveals overflow after graph rejection and handles an empty replacement", async () => {
     const many = Array.from({ length: MAX_BOOK_NODES + 1 }, (_, i) => ({ ...books[0], data: { ...books[0].data, doc_md5: `overflow${i}` } }));
     const loadGraph = vi.fn(() => Promise.reject(new Error("offline")));
