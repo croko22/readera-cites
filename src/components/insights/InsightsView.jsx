@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   BOOK_NODE_INCREMENT,
   MAX_BOOK_NODES,
   buildInsightsModel,
 } from "../../lib/insightsModel";
+import { useInsightsGraph } from "../../hooks/useInsightsGraph";
 import { InsightsFallbackList } from "./InsightsFallbackList";
 import { InsightsSidePanel } from "./InsightsSidePanel";
 import { InsightsSkeleton } from "../Skeleton";
@@ -21,23 +22,12 @@ function getInitialSelection(modelBooks, selectedBookId) {
   return modelBooks[0].bookId;
 }
 
-export const InsightsView = ({ books, query, loadGraph = () => import("./InsightsGraph") }) => {
+export const InsightsView = ({ books, query, loadGraph }) => {
   const normalizedQuery = String(query || "");
   const [debouncedQuery, setDebouncedQuery] = useState(normalizedQuery);
   const [selectedBookId, setSelectedBookId] = useState(null);
   const [visibleBookCount, setVisibleBookCount] = useState(MAX_BOOK_NODES);
   const [showListOnly, setShowListOnly] = useState(false);
-  const [graphStatus, setGraphStatus] = useState("idle");
-  const [GraphComponent, setGraphComponent] = useState(null);
-  const isMountedRef = useRef(true);
-
-  useEffect(() => {
-    // StrictMode replays setup after cleanup without recreating this ref.
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
 
   useEffect(() => {
     const handle = window.setTimeout(() => setDebouncedQuery(normalizedQuery), 200);
@@ -61,31 +51,14 @@ export const InsightsView = ({ books, query, loadGraph = () => import("./Insight
     setSelectedBookId((current) => getInitialSelection(model.books, current));
   }, [debouncedQuery, model.books]);
 
-  const loadWithTimeout = useCallback((importPromise, ms = 10000) =>
-    Promise.race([
-      importPromise,
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Graph import timed out")), ms)
-      ),
-    ]),
-  []);
-
-  useEffect(() => {
-    if (graphStatus !== "idle") return;
-    if (!debouncedQuery.trim() || model.books.length === 0 || showListOnly) return;
-
-    setGraphStatus("loading");
-    loadWithTimeout(loadGraph(), 10000)
-      .then((mod) => {
-        if (!isMountedRef.current) return;
-        setGraphComponent(() => mod.default || mod.InsightsGraph);
-        setGraphStatus("ready");
-      })
-      .catch(() => {
-        if (!isMountedRef.current) return;
-        setGraphStatus("error");
-      });
-  }, [debouncedQuery, model.books.length, graphStatus, showListOnly, loadWithTimeout, loadGraph]);
+  const graphEnabled =
+    Boolean(debouncedQuery.trim()) && model.books.length > 0 && !showListOnly;
+  const {
+    status: graphStatus,
+    GraphComponent,
+    retry,
+    fail,
+  } = useInsightsGraph({ enabled: graphEnabled, loadGraph });
 
   const selectedBook = useMemo(
     () => model.books.find((book) => book.bookId === selectedBookId) || null,
@@ -141,7 +114,7 @@ export const InsightsView = ({ books, query, loadGraph = () => import("./Insight
 
             {!showListOnly && graphStatus === "ready" && GraphComponent ? (
               <GraphErrorBoundary
-                onError={() => setGraphStatus("error")}
+                onError={fail}
                 fallback={
                   <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                     Graph render error. List + side panel still work.
@@ -161,7 +134,7 @@ export const InsightsView = ({ books, query, loadGraph = () => import("./Insight
               <div className="flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 <span>Graph is unavailable in this session. List and side panel remain fully functional.</span>
                 <button
-                  onClick={() => setGraphStatus("idle")}
+                  onClick={retry}
                   className="ml-auto shrink-0 rounded-md border border-border bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
                 >
                   Retry Graph

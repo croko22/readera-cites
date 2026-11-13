@@ -101,6 +101,34 @@ describe("InsightsView", () => {
     await waitFor(() => expect(loadGraph).toHaveBeenCalled());
   });
 
+  it("recovers a renderer crash after Retry Graph", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    let crash = true;
+    const loadGraph = vi.fn(async () => ({
+      default: () => {
+        if (crash) throw new Error("renderer crashed");
+        return <div>Graph recovered</div>;
+      },
+    }));
+
+    render(
+      <MemoryRouter>
+        <InsightsView books={books} query="deep" loadGraph={loadGraph} />
+      </MemoryRouter>
+    );
+
+    expect(
+      await screen.findByText("Graph is unavailable in this session. List and side panel remain fully functional.")
+    ).toBeInTheDocument();
+
+    crash = false;
+    fireEvent.click(screen.getByRole("button", { name: "Retry Graph" }));
+
+    expect(await screen.findByText("Graph recovered")).toBeInTheDocument();
+    expect(loadGraph).toHaveBeenCalledTimes(2);
+    consoleError.mockRestore();
+  });
+
   it("keeps list flow available when graph lazy import fails", async () => {
     const failingLoadGraph = vi.fn(() => Promise.reject(new Error("graph fail")));
 
