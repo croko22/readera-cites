@@ -7,6 +7,24 @@ vi.mock("toastify-js", () => ({ default: vi.fn(() => ({ showToast: vi.fn() })) }
 const cite = { note_body: "LongQuote".repeat(40), note_extra: "LongNote".repeat(40), note_page: 12, note_mark: 1 };
 
 describe("Cite responsive actions", () => {
+  it("shows optional source context and a fallback for page-only entries", () => {
+    render(
+      <ul>
+        <Cite
+          cite={{ note_page: 7 }}
+          source={<a href="/book/b1">Deep Work</a>}
+          emptyLabel="Page bookmark"
+        />
+      </ul>
+    );
+
+    expect(screen.getByRole("link", { name: "Deep Work" })).toHaveAttribute(
+      "href",
+      "/book/b1"
+    );
+    expect(screen.getByText("Page bookmark")).toBeInTheDocument();
+  });
+
   it.each(["list", "grid"])("keeps full content and copy/share behavior with touch-sized %s actions", async (variant) => {
     Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: vi.fn(async () => {}) } });
     render(<ul><Cite cite={cite} variant={variant} /></ul>);

@@ -16,9 +16,17 @@ import {
 
 const ACTION_CLASS = "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-200 hover:bg-secondary hover:text-primary active:bg-secondary/80";
 
-export const Cite = ({ cite, variant = "list", index = 0 }) => {
+export const Cite = ({
+  cite,
+  variant = "list",
+  index = 0,
+  source,
+  emptyLabel,
+}) => {
   const c = CITATION_COLORS[getCitationColorKey(cite)] ?? CITATION_COLORS[0];
   const isGrid = variant === "grid";
+  const hasBody = String(cite.note_body || "").trim() !== "";
+  const fallback = !hasBody && !cite.note_extra ? emptyLabel : null;
 
   const copyCite = async (input) => {
     let text = "";
@@ -102,6 +110,9 @@ export const Cite = ({ cite, variant = "list", index = 0 }) => {
       ].join(" ")}
       style={isGrid ? { animationDelay: `${index * 30}ms` } : undefined}
     >
+      {source ? (
+        <div className="mb-2 min-w-0 text-xs text-muted-foreground">{source}</div>
+      ) : null}
       <TooltipProvider>
         <div className={`flex flex-wrap items-start justify-between gap-2 ${isGrid ? "mb-2" : "mb-3"}`}>
           <span className="flex min-w-0 flex-wrap items-center gap-1.5">
@@ -164,7 +175,7 @@ export const Cite = ({ cite, variant = "list", index = 0 }) => {
           isGrid ? "mb-2 text-[13px]" : "mb-3 text-base",
         ].join(" ")}
       >
-        {cite.note_body}
+        {hasBody ? cite.note_body : fallback}
       </p>
       {cite.note_extra && (
         <small

@@ -20,6 +20,8 @@
 
 - **Upload backup files** -- Import `.bak` (compressed) or `.json` ReadEra exports directly; compressed files are decompressed automatically
 - **Browse your library** -- View all books with cover art, author, and citation counts at a glance
+- **Recent highlights** -- Browse saved passages by day, week, or month; filter to one book and reverse the chronology
+- **Continue reading** -- Return to the most recently read book and see how many highlights you saved this week
 - **Search and filter** -- Find citations by text, filter by type (highlights, notes, bookmarks), and sort books by date or note count
 - **Copy to clipboard** -- Export individual quotes or notes with one click, formatted and ready to paste
 - **Dark mode** -- Full dark theme with an amber accent, toggled from the settings page
@@ -88,6 +90,7 @@ Single-page application with no backend. React Router handles client-side naviga
 | ----------- | -------- | ------------------------------------------ |
 | `/`         | Library  | Main view listing all books with citations |
 | `/book/:id` | Book     | Single book detail with all its citations  |
+| `/timeline` | Timeline | Recent highlights grouped by day/week/month |
 | `/upload`   | Upload   | File upload and backup parsing             |
 | `/settings` | Settings | App preferences and dark mode toggle       |
 

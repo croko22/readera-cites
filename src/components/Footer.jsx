@@ -5,6 +5,7 @@ const APP_VERSION = __APP_VERSION__;
 
 const NAV_LINKS = [
   { label: "Library", to: "/" },
+  { label: "Recent", to: "/timeline" },
   { label: "Upload", to: "/upload" },
   { label: "Settings", to: "/settings" },
 ];

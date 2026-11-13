@@ -1,5 +1,5 @@
 import { FaBookOpen, FaFileUpload } from "react-icons/fa";
-import { Settings } from "lucide-react";
+import { Clock3, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const Header = () => {
@@ -16,6 +16,14 @@ export const Header = () => {
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/timeline"
+              aria-label="Open recent highlights"
+              className="motion-lift flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-secondary text-secondary-foreground transition-colors duration-200 hover:border-ring/50 hover:bg-secondary/80 sm:w-auto sm:gap-2 sm:px-3"
+            >
+              <Clock3 className="h-4 w-4" />
+              <span className="hidden sm:inline">Recent</span>
+            </Link>
             <Link
               to="/upload"
               className="motion-lift inline-flex items-center gap-2 rounded-lg border border-primary bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-200 hover:bg-primary/90 sm:px-5 sm:py-2.5 sm:text-base"

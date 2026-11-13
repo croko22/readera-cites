@@ -16,6 +16,45 @@ const books = ["Deep Work", "Another Book"].map((title, index) => ({
   citations: [{ note_body: "A quote" }],
 }));
 
+it("surfaces continue reading and this week's highlight activity", async () => {
+  const now = Date.now();
+  getBooks.mockResolvedValue([
+    {
+      data: {
+        doc_md5: "b1",
+        doc_file_name_title: "Deep Work",
+        doc_authors: "Cal Newport",
+        doc_favorites_time: 0,
+        doc_last_read_time: now,
+      },
+      citations: [{ note_body: "A quote", note_timestamp: now }],
+    },
+    {
+      data: {
+        doc_md5: "b2",
+        doc_file_name_title: "Older Book",
+        doc_authors: "Someone",
+        doc_favorites_time: 0,
+        doc_last_read_time: now - 1000,
+      },
+      citations: [{ note_body: "Old quote", note_timestamp: now - 8 * 24 * 60 * 60 * 1000 }],
+    },
+  ]);
+
+  render(<MemoryRouter><Library /></MemoryRouter>);
+
+  expect(await screen.findByText("Continue reading")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Continue reading Deep Work" })).toHaveAttribute(
+    "href",
+    "/book/b1"
+  );
+  expect(screen.getByText("1 highlight this week")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Recent highlights" })).toHaveAttribute(
+    "href",
+    "/timeline"
+  );
+});
+
 it("names complete-library export and retains all books despite an active title search", async () => {
   getBooks.mockResolvedValue(books);
   render(<MemoryRouter><Library /></MemoryRouter>);

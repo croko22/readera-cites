@@ -1,4 +1,4 @@
-import { buildCitationTimeline } from "./timelineModel";
+import { buildCitationTimeline, getTimelinePeriodKey } from "./timelineModel";
 
 const NOW = Date.UTC(2026, 10, 13, 15, 0, 0);
 
@@ -201,6 +201,23 @@ describe("buildCitationTimeline", () => {
   it("returns no groups for empty or malformed input", () => {
     expect(buildCitationTimeline(null, { now: NOW })).toEqual([]);
     expect(buildCitationTimeline([{}, { citations: "invalid" }], { now: NOW })).toEqual([]);
+  });
+
+  it("exposes a single timestamp's period key for summaries", () => {
+    expect(
+      getTimelinePeriodKey(Date.UTC(2026, 10, 13, 12), {
+        granularity: "week",
+        timeZone: "UTC",
+      })
+    ).toBe("week:2026-11-09");
+    expect(
+      getTimelinePeriodKey(Date.UTC(2026, 10, 13, 12), {
+        granularity: "month",
+        timeZone: "UTC",
+      })
+    ).toBe("month:2026-11");
+    expect(getTimelinePeriodKey(0, { granularity: "day" })).toBe("undated");
+    expect(getTimelinePeriodKey("bad", { granularity: "day" })).toBe("undated");
   });
 
   it("rejects unknown grouping modes", () => {

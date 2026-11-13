@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaRedo, FaRegStar, FaStar, FaTimes } from "react-icons/fa";
 import {
@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Search } from "../components/Search";
 import { BookCard } from "../components/BookCard";
+import { LibraryPulse } from "../components/LibraryPulse";
 import { LibrarySkeleton } from "../components/Skeleton";
 import { EmptyState } from "../components/EmptyState";
 import { InsightsView } from "../components/insights/InsightsView";
@@ -32,8 +33,9 @@ import {
 import { getBooks } from "../lib/booksStorage";
 import { buildLibraryJson, downloadFile } from "../lib/exportUtils";
 import { DATE_RANGES } from "../lib/libraryFilters";
-import { getBookTitle, getBookAuthor } from "../lib/readeraVocab";
+import { getBookTitle, getBookAuthor, getBookLastReadTime } from "../lib/readeraVocab";
 import { useLibraryFilters } from "../hooks/useLibraryFilters";
+import { buildCitationTimeline, getTimelinePeriodKey } from "../lib/timelineModel";
 
 const SORT_MODES = [
   {
@@ -130,6 +132,25 @@ export const Library = () => {
     (md5) => navigate(`/book/${md5}`),
     [navigate],
   );
+
+  const lastReadBook = useMemo(() => {
+    if (!Array.isArray(Books) || Books.length === 0) return null;
+    const latest = [...Books].sort(
+      (a, b) => getBookLastReadTime(b) - getBookLastReadTime(a)
+    )[0];
+    return getBookLastReadTime(latest) > 0 ? latest : null;
+  }, [Books]);
+
+  const thisWeekCount = useMemo(() => {
+    if (!Array.isArray(Books) || Books.length === 0) return 0;
+    const currentWeekKey = getTimelinePeriodKey(Date.now(), {
+      granularity: "week",
+    });
+    const group = buildCitationTimeline(Books, { granularity: "week" }).find(
+      (item) => item.key === currentWeekKey
+    );
+    return group?.count ?? 0;
+  }, [Books]);
 
   // ── Loading state ──
   if (loading || !Books) {
@@ -396,6 +417,7 @@ export const Library = () => {
           </div>
         </div>
       </section>
+      <LibraryPulse lastReadBook={lastReadBook} thisWeekCount={thisWeekCount} />
       <Search
         searchText={searchText}
         setSearchText={setSearchText}

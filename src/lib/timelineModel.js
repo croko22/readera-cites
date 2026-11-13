@@ -157,6 +157,41 @@ function compareEntries(a, b, order) {
 }
 
 /**
+ * Return the period key for a single timestamp. Useful for summaries such
+ * as "this week's highlights".
+ *
+ * @param {number|string} timestamp
+ * @param {object} [options]
+ * @param {"day"|"week"|"month"} [options.granularity="day"]
+ * @param {string} [options.timeZone]
+ * @param {number} [options.weekStartsOn=1]
+ * @returns {string}
+ */
+export function getTimelinePeriodKey(timestamp, options = {}) {
+  const granularity = options.granularity ?? "day";
+  const timeZone =
+    options.timeZone ??
+    Intl.DateTimeFormat().resolvedOptions().timeZone ??
+    "UTC";
+  const weekStartsOn = Number.isInteger(options.weekStartsOn)
+    ? options.weekStartsOn
+    : 1;
+
+  if (!TIMELINE_GRANULARITIES.includes(granularity)) {
+    throw new TypeError(`Unknown timeline granularity: ${granularity}`);
+  }
+  if (weekStartsOn < 0 || weekStartsOn > 6) {
+    throw new RangeError(`weekStartsOn must be between 0 and 6`);
+  }
+
+  const parsed = parseTimestamp(timestamp);
+  if (parsed === null) return "undated";
+
+  const parts = getLocalDateParts(parsed, createLocalDateFormatter(timeZone));
+  return getPeriod(toCalendarDay(parts), granularity, weekStartsOn).key;
+}
+
+/**
  * Group every citation in the supplied books into day, week, or month
  * periods. The input is never mutated.
  *
