@@ -5,7 +5,16 @@ import { Book } from "./Book";
 import { getBooks } from "../lib/booksStorage";
 import { buildBookJson, downloadFile, formatCitationsAsMarkdown, formatCitationsAsText } from "../lib/exportUtils";
 
-vi.mock("toastify-js", () => ({ default: vi.fn(() => ({ showToast: vi.fn() })) }));
+const { showToast, toastOptions } = vi.hoisted(() => ({
+  showToast: vi.fn(),
+  toastOptions: vi.fn(),
+}));
+vi.mock("toastify-js", () => ({
+  default: vi.fn((options) => {
+    toastOptions(options);
+    return { showToast };
+  }),
+}));
 vi.mock("../lib/booksStorage", () => ({
   getBooks: vi.fn(), getSearchHistory: vi.fn(async () => []),
   addSearchHistory: vi.fn(async () => {}), clearSearchHistory: vi.fn(async () => {}),
@@ -33,7 +42,10 @@ beforeEach(() => {
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: vi.fn(async () => {}) } });
 });
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  delete document.execCommand;
+  vi.restoreAllMocks();
+});
 
 describe("Book clarity", () => {
   it("labels book search and color filters, including their active state", async () => {
@@ -80,5 +92,53 @@ describe("Book clarity", () => {
     openExport();
     fireEvent.click((await screen.findAllByRole("menuitem"))[2]);
     expect(downloadFile).toHaveBeenLastCalledWith(JSON.stringify(buildBookJson(book), null, 2), "Deep_Work.json", "application/json;charset=utf-8");
+  });
+
+  it("reports bulk copy success when delivery uses the clipboard fallback", async () => {
+    await mountBook();
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: vi.fn(async () => {
+          throw new Error("clipboard denied");
+        }),
+      },
+    });
+    document.execCommand = vi.fn(() => true);
+
+    openExport();
+    fireEvent.click((await screen.findAllByRole("menuitem"))[0]);
+
+    await waitFor(() =>
+      expect(toastOptions).toHaveBeenCalledWith(
+        expect.objectContaining({ text: "Copied 2 quotes to clipboard" })
+      )
+    );
+    expect(document.querySelector("textarea")).toBeNull();
+  });
+
+  it("reports bulk copy failure when both delivery paths fail", async () => {
+    await mountBook();
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: vi.fn(async () => {
+          throw new Error("clipboard denied");
+        }),
+      },
+    });
+    document.execCommand = vi.fn(() => {
+      throw new Error("copy blocked");
+    });
+
+    openExport();
+    fireEvent.click((await screen.findAllByRole("menuitem"))[0]);
+
+    await waitFor(() =>
+      expect(toastOptions).toHaveBeenCalledWith(
+        expect.objectContaining({ text: "Failed to copy to clipboard" })
+      )
+    );
+    expect(document.querySelector("textarea")).toBeNull();
   });
 });

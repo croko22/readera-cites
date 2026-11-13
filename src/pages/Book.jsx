@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 import { getBooks } from "../lib/booksStorage";
+import { copyTextToClipboard } from "../lib/clipboard";
 import {
   getBookTitle,
   getBookAuthor,
@@ -215,28 +216,6 @@ export const Book = () => {
       ? books[currentIndex + 1]
       : null;
 
-  // ── Clipboard helper ──
-  const copyToClipboard = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch {
-      try {
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        ta.style.position = "fixed";
-        ta.style.left = "-9999px";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        return true;
-      } catch {
-        return false;
-      }
-    }
-  };
-
   // ── Copy all visible citations ──
   const copyCites = async () => {
     const visible = sortedCites;
@@ -254,7 +233,7 @@ export const Book = () => {
       return;
     }
     const text = formatCitationsAsText(Book, visible);
-    const ok = await copyToClipboard(text);
+    const ok = (await copyTextToClipboard(text)) !== "failed";
     Toastify({
       text: ok
         ? `Copied ${visible.length} quote${visible.length > 1 ? "s" : ""} to clipboard`

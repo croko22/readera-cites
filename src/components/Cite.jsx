@@ -1,6 +1,7 @@
 import Toastify from "toastify-js";
 
 import { FaCopy, FaTwitter } from "react-icons/fa";
+import { copyTextToClipboard } from "../lib/clipboard";
 import {
   Tooltip,
   TooltipContent,
@@ -54,49 +55,34 @@ export const Cite = ({
       return;
     }
 
-    try {
-      await navigator.clipboard.writeText(text);
+    const method = await copyTextToClipboard(text);
+
+    if (method === "failed") {
       Toastify({
-        text: "Quote copied to clipboard",
+        text: "Failed to copy quote",
         close: true,
         gravity: "top",
         position: "left",
         stopOnFocus: true,
         duration: 3000,
         style: { "--toast-duration": "3s" },
+        backgroundColor: "#cc0000",
       }).showToast();
-    } catch {
-      try {
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        ta.style.position = "fixed";
-        ta.style.left = "-9999px";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        Toastify({
-          text: "Quote copied to clipboard (fallback)",
-          close: true,
-          gravity: "top",
-          position: "left",
-          stopOnFocus: true,
-          duration: 3000,
-          style: { "--toast-duration": "3s" },
-        }).showToast();
-      } catch {
-        Toastify({
-          text: "Failed to copy quote",
-          close: true,
-          gravity: "top",
-          position: "left",
-          stopOnFocus: true,
-          duration: 3000,
-          style: { "--toast-duration": "3s" },
-          backgroundColor: "#cc0000",
-        }).showToast();
-      }
+      return;
     }
+
+    Toastify({
+      text:
+        method === "fallback"
+          ? "Quote copied to clipboard (fallback)"
+          : "Quote copied to clipboard",
+      close: true,
+      gravity: "top",
+      position: "left",
+      stopOnFocus: true,
+      duration: 3000,
+      style: { "--toast-duration": "3s" },
+    }).showToast();
   };
 
   return (
