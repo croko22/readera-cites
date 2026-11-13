@@ -9,6 +9,12 @@
 
 ![ReadEra Cites Promo](docs/readera-cites-promo.gif)
 
+## v2.1.2
+
+- Share citation clipboard delivery between single and bulk copy flows, including reliable fallback cleanup.
+- Extract the optional Insights graph lifecycle into `useInsightsGraph`, clearing import timeouts and ignoring late resolutions.
+- Preserve graph retry and list fallback behavior with added regression coverage.
+
 ## v2.1.1
 
 - Replace the Insights renderer with `react-force-graph-2d`, reduce the graph vendor bundle, and keep it out of the initial JavaScript import chain.
