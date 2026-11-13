@@ -9,6 +9,13 @@
 
 ![ReadEra Cites Promo](docs/readera-cites-promo.gif)
 
+## v2.1.1
+
+- Replace the Insights renderer with `react-force-graph-2d`, reduce the graph vendor bundle, and keep it out of the initial JavaScript import chain.
+- Preserve graph positions when selecting books, bound layout simulation, and pause idle redraws.
+- Fix Insights remaining on "Loading graph..." during React StrictMode effect replay.
+- Use Bun with the committed `bun.lock` for reproducible dependency installs.
+
 ## Features
 
 - **Upload backup files** -- Import `.bak` (compressed) or `.json` ReadEra exports directly; compressed files are decompressed automatically
@@ -25,6 +32,7 @@
 - Import shows reading and saving status. Wait for the current operation to finish before choosing another file or loading the library again.
 - Import errors and backup warnings remain visible on the upload page. After a save error, the parsed backup remains available for retrying.
 - Insights shows how many matching books are visible and offers **Show more** until all results are available.
+- Insights uses a lazy-loaded `react-force-graph-2d` canvas. Select a book node to inspect citations, drag nodes, or pan and zoom. The layout stops after at most 100 ticks or 2.5 seconds and redraws pause when settled; changing selection preserves the layout. The list remains available if the graph cannot load.
 - Changing citation search, color filters, or sorting returns pagination to the first page.
 
 ### Search and export scope
@@ -51,10 +59,12 @@
 ```bash
 git clone https://github.com/croko22/readera-cites.git
 cd readera-cites
-npm install && npm run dev
+bun install && bun run dev
 ```
 
 The dev server starts on `http://localhost:5173`.
+
+Use Bun and the committed `bun.lock` for dependencies. Run `bun run test` for the Vitest suite and `bun run build` for the production/PWA build.
 
 ## Tech Stack
 
