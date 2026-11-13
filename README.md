@@ -26,7 +26,7 @@
 
 - **Upload backup files** -- Import `.bak` (compressed) or `.json` ReadEra exports directly; compressed files are decompressed automatically
 - **Browse your library** -- View all books with cover art, author, and citation counts at a glance
-- **Recent highlights** -- Browse saved passages by day, week, or month; filter to one book and reverse the chronology
+- **Recent highlights** -- Browse saved passages by day, week, or month; filter to one book and reverse the chronology. Previous/Next controls show 50 highlights per page to keep large libraries responsive; changing scope, grouping, or order returns to the first page.
 - **Continue reading** -- Return to the most recently read book and see how many highlights you saved this week
 - **Search and filter** -- Find citations by text, filter by type (highlights, notes, bookmarks), and sort books by date or note count
 - **Copy to clipboard** -- Export individual quotes or notes with one click, formatted and ready to paste
@@ -73,6 +73,8 @@ bun install && bun run dev
 The dev server starts on `http://localhost:5173`.
 
 Use Bun and the committed `bun.lock` for dependencies. Run `bun run test` for the Vitest suite and `bun run build` for the production/PWA build.
+
+For the timeline's rendering limits, performance measurements, and regression checks, see [Timeline performance](docs/timeline-performance.md).
 
 ## Tech Stack
 

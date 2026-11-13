@@ -67,6 +67,71 @@ beforeEach(() => {
 });
 
 describe("Timeline", () => {
+  it("mounts only one page from a 5000-highlight library", async () => {
+    const books = makeBooks();
+    books[0].citations = Array.from({ length: 5000 }, (_, index) => ({
+      note_body: `Large library ${index}`,
+      note_timestamp: Date.UTC(2026, 10, 13, 12) - index * 60000,
+    }));
+    getBooks.mockResolvedValue([books[0]]);
+    renderTimeline();
+    await screen.findByText("Large library 0");
+    expect(screen.getAllByLabelText("Copy citation")).toHaveLength(50);
+    expect(screen.queryByText("Large library 50")).not.toBeInTheDocument();
+  });
+
+  it("bounds rendering when all highlights belong to one day", async () => {
+    const books = makeBooks();
+    books[0].citations = Array.from({ length: 51 }, (_, index) => ({
+      note_body: `Same day ${index}`,
+      note_page: index,
+      note_timestamp: Date.UTC(2026, 10, 13, 12),
+    }));
+    getBooks.mockResolvedValue([books[0]]);
+    renderTimeline();
+    await screen.findByText("Same day 0");
+    expect(screen.getAllByLabelText("Copy citation")).toHaveLength(50);
+    fireEvent.click(screen.getByRole("button", { name: "Next page" }));
+    expect(screen.getByText("Same day 50")).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Copy citation")).toHaveLength(1);
+  });
+
+  it("bounds mounted citations and keeps every page reachable across control changes", async () => {
+    const books = makeBooks();
+    books[0].citations = Array.from({ length: 105 }, (_, index) => ({
+      note_body: `Scale quote ${index}`,
+      note_timestamp: Date.UTC(2026, 10, 13, 12) - index * DAY,
+    }));
+    getBooks.mockResolvedValue(books);
+    renderTimeline();
+    await screen.findByText("Scale quote 0");
+    expect(screen.getAllByLabelText("Copy citation")).toHaveLength(50);
+    expect(screen.getByRole("button", { name: "Previous page" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Next page" }));
+    expect(screen.getByText("Scale quote 50")).toBeInTheDocument();
+    expect(screen.queryByText("Scale quote 0")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Next page" }));
+    expect(screen.getByText("Scale quote 104")).toBeInTheDocument();
+    expect(screen.getByText("Page bookmark")).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Copy citation")).toHaveLength(6);
+    expect(screen.getByRole("button", { name: "Next page" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Previous page" }));
+    expect(screen.getByText("Scale quote 50")).toBeInTheDocument();
+    for (const grouping of ["Week", "Month", "Day"]) {
+      fireEvent.click(screen.getByRole("button", { name: grouping }));
+      expect(screen.getByText("Scale quote 0")).toBeInTheDocument();
+      expect(screen.getAllByLabelText("Copy citation")).toHaveLength(50);
+      fireEvent.click(screen.getByRole("button", { name: "Next page" }));
+    }
+    fireEvent.click(screen.getByRole("button", { name: "Newest first" }));
+    expect(screen.getByText("Scale quote 104")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Previous page" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Next page" }));
+    fireEvent.change(screen.getByLabelText("Book scope"), { target: { value: "b2" } });
+    expect(screen.getByText("Page bookmark")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Next page" })).not.toBeInTheDocument();
+  }, 20000);
+
   it("renders grouped highlights, source links, and page-only entries", async () => {
     renderTimeline();
 

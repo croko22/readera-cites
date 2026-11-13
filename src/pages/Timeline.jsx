@@ -7,6 +7,7 @@ import { Button } from "../components/ui/button";
 import { getBooks } from "../lib/booksStorage";
 import { getBookAuthor, getBookTitle } from "../lib/readeraVocab";
 import { buildCitationTimeline } from "../lib/timelineModel";
+import { getTimelinePage, TIMELINE_PAGE_SIZE } from "../lib/timelinePagination";
 
 const GRANULARITIES = [
   { key: "day", label: "Day" },
@@ -27,6 +28,7 @@ export const Timeline = () => {
   const [selectedBookId, setSelectedBookId] = useState("all");
   const [granularity, setGranularity] = useState("day");
   const [order, setOrder] = useState("newest");
+  const [page, setPage] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,6 +75,14 @@ export const Timeline = () => {
     () => getCitationCount(scopedBooks),
     [scopedBooks]
   );
+
+  const visibleGroups = useMemo(
+    () => getTimelinePage(timeline, page),
+    [timeline, page]
+  );
+  const pageCount = Math.ceil(scopedCitationCount / TIMELINE_PAGE_SIZE);
+  const firstVisible = page * TIMELINE_PAGE_SIZE + 1;
+  const lastVisible = Math.min((page + 1) * TIMELINE_PAGE_SIZE, scopedCitationCount);
 
   if (!books) {
     return (
@@ -121,7 +131,10 @@ export const Timeline = () => {
           <select
             aria-label="Book scope"
             value={selectedBookId}
-            onChange={(event) => setSelectedBookId(event.target.value)}
+            onChange={(event) => {
+              setSelectedBookId(event.target.value);
+              setPage(0);
+            }}
             className="h-11 w-full rounded-lg border border-border bg-secondary px-3 text-sm font-medium normal-case tracking-normal text-secondary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <option value="all">All books</option>
@@ -140,7 +153,10 @@ export const Timeline = () => {
               type="button"
               variant={granularity === option.key ? "default" : "outline"}
               aria-pressed={granularity === option.key}
-              onClick={() => setGranularity(option.key)}
+              onClick={() => {
+                setGranularity(option.key);
+                setPage(0);
+              }}
               className="min-h-11 min-w-11"
             >
               {option.label}
@@ -151,9 +167,10 @@ export const Timeline = () => {
         <Button
           type="button"
           variant="outline"
-          onClick={() =>
-            setOrder((current) => (current === "newest" ? "oldest" : "newest"))
-          }
+          onClick={() => {
+            setOrder((current) => (current === "newest" ? "oldest" : "newest"));
+            setPage(0);
+          }}
           className="min-h-11 gap-2"
         >
           {order === "newest" ? (
@@ -191,7 +208,7 @@ export const Timeline = () => {
           </p>
 
           <div className="space-y-7">
-            {timeline.map((group) => {
+            {visibleGroups.map((group) => {
               const headingId = `timeline-${group.key.replace(/[^a-z0-9-]/gi, "-")}`;
               return (
                 <section key={group.key} aria-labelledby={headingId}>
@@ -245,6 +262,32 @@ export const Timeline = () => {
               );
             })}
           </div>
+          {pageCount > 1 ? (
+            <nav
+              aria-label="Timeline pages"
+              className="mt-5 flex flex-wrap items-center justify-between gap-3"
+            >
+              <Button
+                type="button"
+                variant="outline"
+                disabled={page === 0}
+                onClick={() => setPage((current) => current - 1)}
+              >
+                Previous page
+              </Button>
+              <p role="status" className="text-sm text-muted-foreground">
+                Page {page + 1} of {pageCount} · Highlights {firstVisible}–{lastVisible} of {scopedCitationCount}
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={page + 1 >= pageCount}
+                onClick={() => setPage((current) => current + 1)}
+              >
+                Next page
+              </Button>
+            </nav>
+          ) : null}
         </>
       )}
     </div>
