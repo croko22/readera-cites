@@ -46,6 +46,8 @@
 ### Search and export scope
 
 - **Titles** searches book titles; **Citations** searches citation text and notes across the library; **Insights** explores citation matches across books. Search on a book page stays within that book's citation text.
+- The search field stays mounted and keeps its query when you switch modes, so the same phrase can be tried in another scope. Press `/` anywhere outside a text field to focus search; **Escape** dismisses recent searches without clearing the query.
+- **Library** and **Recent** are always labeled destinations in the header and mark the current page. Upload stays available but secondary, since importing is occasional.
 - Color filters display their names and counts, with a check mark on the active filter. Pagination names each action and identifies the current page.
 - **Copy filtered citations** and **Download filtered Markdown** include all citations matching the book page's search and color filter, not just the current page.
 - **Download complete book JSON** includes every citation in that book. **Download complete library JSON** includes every book and citation in the library, regardless of active filters.

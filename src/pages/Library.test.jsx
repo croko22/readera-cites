@@ -55,8 +55,7 @@ it("surfaces continue reading and this week's highlight activity", async () => {
   );
 });
 
-it("names complete-library export and retains all books despite an active title search", async () => {
-  getBooks.mockResolvedValue(books);
+it("names complete-library export and retains all books despite an active title search", async () => {  getBooks.mockResolvedValue(books);
   render(<MemoryRouter><Library /></MemoryRouter>);
   const search = await screen.findByRole("textbox", { name: "Search book titles" });
   fireEvent.change(search, { target: { value: "Deep" } });
@@ -68,4 +67,32 @@ it("names complete-library export and retains all books despite an active title 
   expect(exported.books.map((entry) => entry.title)).toEqual(["Deep Work", "Another Book"]);
   expect(filename).toBe("readera-library.json");
   expect(mime).toBe("application/json");
+});
+
+it("keeps one search field and its query when the mode changes", async () => {
+  getBooks.mockResolvedValue(books);
+  render(<MemoryRouter><Library /></MemoryRouter>);
+  const input = await screen.findByRole("textbox", { name: "Search book titles" });
+  fireEvent.change(input, { target: { value: "quote" } });
+  fireEvent.click(screen.getByRole("radio", { name: "Citations: search all citations" }));
+
+  const sameInput = screen.getByRole("textbox", { name: "Search all citations" });
+  expect(sameInput).toBe(input);
+  expect(sameInput).toHaveValue("quote");
+  expect(
+    screen.getByRole("heading", { level: 1, name: "Search citations across your books" })
+  ).toBeInTheDocument();
+  expect(screen.getByText("Found matches in 2 books")).toBeInTheDocument();
+});
+
+it("guides an empty citation search instead of showing the book list", async () => {
+  getBooks.mockResolvedValue(books);
+  render(<MemoryRouter><Library /></MemoryRouter>);
+  await screen.findByRole("heading", { name: "Your highlighted books" });
+
+  fireEvent.click(screen.getByRole("radio", { name: "Citations: search all citations" }));
+
+  expect(screen.getByText("Type to search citations")).toBeInTheDocument();
+  expect(screen.queryByRole("heading", { name: "Your highlighted books" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "Deep Work" })).not.toBeInTheDocument();
 });

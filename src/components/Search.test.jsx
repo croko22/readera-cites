@@ -1,7 +1,7 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Search } from "./Search";
-import { addSearchHistory } from "../lib/booksStorage";
+import { addSearchHistory, getSearchHistory } from "../lib/booksStorage";
 
 vi.mock("../lib/booksStorage", () => ({
   getSearchHistory: vi.fn(async () => []),
@@ -9,13 +9,31 @@ vi.mock("../lib/booksStorage", () => ({
   clearSearchHistory: vi.fn(async () => {}),
 }));
 
+beforeEach(() => {
+  vi.clearAllMocks();
+  getSearchHistory.mockResolvedValue([]);
+});
+
 describe("Search", () => {
-  it("reserves a separate mobile row for modes and keeps search controls shrinkable and touch-sized", async () => {
+  it("keeps the input shrinkable and gives modes and clear a separate row", async () => {
     render(<Search searchText="" setSearchText={vi.fn()} onSearchModeChange={vi.fn()} />);
     const input = await screen.findByRole("textbox", { name: "Search book titles" });
     expect(input).toHaveClass("min-w-0");
-    expect(screen.getByRole("radiogroup", { name: "Search mode" })).toHaveClass("col-span-3", "row-start-2", "sm:col-span-1");
-    for (const mode of screen.getAllByRole("radio")) expect(mode).toHaveClass("min-h-11");
+    const group = screen.getByRole("radiogroup", { name: "Search mode" });
+    expect(group).toHaveClass("col-span-3", "row-start-2");
+    expect(group).not.toHaveClass("sm:col-span-1");
+    expect(group).toHaveClass("p-0.5");
+    for (const mode of screen.getAllByRole("radio")) {
+      expect(mode).toHaveClass("min-h-8", "pointer-coarse:after:-inset-y-1.5");
+    }
+  });
+
+  it("shows Clear only when there is a query", async () => {
+    const { rerender } = render(<Search searchText="" setSearchText={vi.fn()} />);
+    await screen.findByRole("textbox");
+    expect(screen.queryByRole("button", { name: "Clear search" })).not.toBeInTheDocument();
+
+    rerender(<Search searchText="focus" setSearchText={vi.fn()} />);
     expect(screen.getByRole("button", { name: "Clear search" })).toHaveClass("h-11", "w-11");
   });
 
@@ -68,6 +86,65 @@ describe("Search", () => {
     fireEvent.click(screen.getByRole("button", { name: "Clear search" }));
     expect(setSearchText).toHaveBeenLastCalledWith("");
     expect(input).toHaveFocus();
+  });
+
+  it("dismisses recent searches with Escape without changing the query", async () => {
+    getSearchHistory.mockResolvedValue(["focus", "reading"]);
+    const setSearchText = vi.fn();
+    render(<Search searchText="" setSearchText={setSearchText} />);
+    const input = await screen.findByRole("textbox");
+    input.focus();
+    expect(await screen.findByText("Recent searches")).toBeInTheDocument();
+
+    fireEvent.keyDown(input, { key: "Escape" });
+
+    expect(screen.queryByText("Recent searches")).not.toBeInTheDocument();
+    expect(setSearchText).not.toHaveBeenCalled();
+    expect(input).toHaveFocus();
+  });
+
+  it("reopens recent searches when the focused field is clicked again", async () => {
+    getSearchHistory.mockResolvedValue(["focus"]);
+    render(<Search searchText="" setSearchText={vi.fn()} />);
+    const input = await screen.findByRole("textbox");
+    input.focus();
+    expect(await screen.findByText("Recent searches")).toBeInTheDocument();
+
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(screen.queryByText("Recent searches")).not.toBeInTheDocument();
+    expect(input).toHaveFocus();
+
+    fireEvent.click(input);
+    expect(await screen.findByText("Recent searches")).toBeInTheDocument();
+  });
+
+  it("closes recent searches when focus leaves the search area", async () => {
+    getSearchHistory.mockResolvedValue(["focus"]);
+    render(<Search searchText="" setSearchText={vi.fn()} />);
+    const input = await screen.findByRole("textbox");
+    input.focus();
+    expect(await screen.findByText("Recent searches")).toBeInTheDocument();
+
+    fireEvent.blur(input, { relatedTarget: document.body });
+
+    expect(screen.queryByText("Recent searches")).not.toBeInTheDocument();
+  });
+
+  it("focuses the field with / but never steals focus from another text field", async () => {
+    render(<Search searchText="" setSearchText={vi.fn()} />);
+    const input = await screen.findByRole("textbox");
+
+    fireEvent.keyDown(document.body, { key: "/" });
+    expect(input).toHaveFocus();
+
+    input.blur();
+    const otherField = document.createElement("input");
+    document.body.appendChild(otherField);
+    otherField.focus();
+    fireEvent.keyDown(otherField, { key: "/" });
+    expect(input).not.toHaveFocus();
+    expect(otherField).toHaveFocus();
+    otherField.remove();
   });
 
   it.each([

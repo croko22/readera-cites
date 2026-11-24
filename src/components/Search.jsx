@@ -21,6 +21,17 @@ const SEARCH_MODES = [
   },
 ];
 
+const isTypingTarget = (target) => {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  return (
+    tag === "INPUT" ||
+    tag === "TEXTAREA" ||
+    tag === "SELECT" ||
+    target.isContentEditable
+  );
+};
+
 export const Search = ({
   searchText,
   setSearchText,
@@ -53,6 +64,24 @@ export const Search = ({
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Press "/" anywhere outside a text field to focus search.
+  useEffect(() => {
+    const handleShortcut = (event) => {
+      if (event.defaultPrevented) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key !== "/") return;
+      if (isTypingTarget(event.target)) return;
+      event.preventDefault();
+      inputRef.current?.focus();
+    };
+    document.addEventListener("keydown", handleShortcut);
+    return () => document.removeEventListener("keydown", handleShortcut);
+  }, []);
+
+  const closeHistory = useCallback(() => {
+    setShowHistory(false);
   }, []);
 
   const handleInputChange = useCallback((e) => {
@@ -94,12 +123,20 @@ export const Search = ({
       void addSearchHistory(searchText.trim()).then(loadHistory);
       setShowHistory(false);
     }
-  }, [loadHistory, searchText]);
+    if (e.key === "Escape") {
+      closeHistory();
+    }
+  }, [closeHistory, loadHistory, searchText]);
 
   const handleFocus = useCallback(() => {
     setShowHistory(true);
     void loadHistory();
   }, [loadHistory]);
+
+  const handleBlur = useCallback((event) => {
+    // Related target is null when focus leaves the document entirely.
+    if (!event.currentTarget.contains(event.relatedTarget)) closeHistory();
+  }, [closeHistory]);
 
   const handleRemoveHistoryItem = useCallback(async (item) => {
     const updated = history.filter((h) => h !== item);
@@ -116,6 +153,7 @@ export const Search = ({
   }, [handleRemoveHistoryItem]);
 
   const visibleHistory = showHistory && history.length > 0 && !searchText;
+  const hasQuery = searchText.trim() !== "";
 
   const searchLabel = label ?? (
     searchMode === "citations"
@@ -126,27 +164,58 @@ export const Search = ({
   );
 
   return (
-    <div ref={wrapperRef} className="relative">
-      <div className="panel grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl border-border p-2.5 transition-[border-color,box-shadow] duration-200 focus-within:border-ring focus-within:ring-1 focus-within:ring-ring/40 sm:grid-cols-[auto_minmax(0,1fr)_auto_auto]">
-        <MdSearch size="1.4em" className="ml-1 text-primary" />
-        <Input
-          ref={inputRef}
-          onChange={handleInputChange}
-          onFocus={handleFocus}
-          onKeyDown={handleKeyDown}
-          className="h-11 min-w-0 border-0 bg-transparent px-0 text-base text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-          type="text"
-          aria-label={searchLabel}
-          placeholder={`${searchLabel}...`}
-          value={searchText}
-        />
+    <div
+      ref={wrapperRef}
+      className="relative"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") closeHistory();
+      }}
+      onBlur={handleBlur}
+    >
+      <div className="panel grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl border-border p-2.5 transition-[border-color,box-shadow] duration-200 focus-within:border-ring focus-within:ring-1 focus-within:ring-ring/40">
+        <MdSearch size="1.4em" className="ml-1 text-primary" aria-hidden="true" />
+        <div className="relative min-w-0">
+          <Input
+            ref={inputRef}
+            onChange={handleInputChange}
+            onFocus={handleFocus}
+            onClick={handleFocus}
+            onKeyDown={handleKeyDown}
+            className="h-11 w-full min-w-0 border-0 bg-transparent px-0 pr-8 text-base text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+            type="text"
+            aria-label={searchLabel}
+            aria-keyshortcuts="/"
+            placeholder={`${searchLabel}...`}
+            value={searchText}
+          />
+          {!hasQuery && (
+            <kbd
+              aria-hidden="true"
+              title="Press / to focus search"
+              className="pointer-events-none absolute right-1.5 top-1/2 hidden -translate-y-1/2 rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground lg:block"
+            >
+              /
+            </kbd>
+          )}
+        </div>
 
-        {/* Search mode toggle */}
+        {hasQuery && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="col-start-3 row-start-1 inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors duration-200 hover:text-primary active:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Clear search"
+          >
+            <MdClose size="1.3em" />
+          </button>
+        )}
+
+        {/* Scope always has its own row so the input never competes with it. */}
         {onSearchModeChange && (
           <div
             role="radiogroup"
             aria-label="Search mode"
-            className="col-span-3 row-start-2 grid min-w-0 grid-cols-3 items-center gap-2 rounded-lg border border-border bg-secondary/40 p-1 sm:col-span-1 sm:col-start-3 sm:row-start-1"
+            className="col-span-3 row-start-2 grid min-w-0 grid-cols-3 items-center gap-2 rounded-lg border border-border bg-secondary/40 p-0.5 sm:max-w-md"
           >
             {SEARCH_MODES.map((mode, index) => {
               const active = searchMode === mode.key;
@@ -161,7 +230,7 @@ export const Search = ({
                   tabIndex={active ? 0 : -1}
                   onClick={() => onSearchModeChange(mode.key)}
                   onKeyDown={(event) => handleModeKeyDown(event, index)}
-                  className={`min-h-11 min-w-0 rounded-md px-2 py-1 text-xs font-semibold [overflow-wrap:anywhere] transition-colors duration-200 active:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 ${
+                  className={`relative min-h-8 min-w-0 rounded-md px-2 text-xs font-semibold [overflow-wrap:anywhere] pointer-coarse:after:absolute pointer-coarse:after:inset-x-0 pointer-coarse:after:-inset-y-1.5 transition-colors duration-200 active:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 ${
                     active
                       ? "border border-primary/40 bg-primary/10 text-primary"
                       : "border border-transparent text-muted-foreground hover:border-border hover:bg-secondary hover:text-foreground"
@@ -174,20 +243,12 @@ export const Search = ({
             })}
           </div>
         )}
-
-        <button
-          onClick={handleClear}
-          className="col-start-3 row-start-1 inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors duration-200 hover:text-primary active:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:col-start-4"
-          aria-label="Clear search"
-        >
-          <MdClose size="1.3em" />
-        </button>
       </div>
 
       {/* Search history chips */}
       {visibleHistory && (
         <div className="absolute left-0 right-0 top-full z-40 mt-2 rounded-xl border border-border bg-popover p-2.5 text-popover-foreground shadow-lg">
-          <div className="flex items-center justify-between mb-1.5 px-1">
+          <div className="mb-1.5 flex items-center justify-between px-1">
             <span className="text-xs font-medium text-muted-foreground">
               Recent searches
             </span>
@@ -208,10 +269,10 @@ export const Search = ({
                 </button>
                 <button
                   type="button"
-                   onClick={() => onRemoveHistoryItem(item)}
-                   className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-destructive active:bg-secondary group-hover:opacity-100"
-                   aria-label={`Remove recent search: ${item}`}
-                 >
+                  onClick={() => onRemoveHistoryItem(item)}
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-destructive active:bg-secondary group-hover:opacity-100"
+                  aria-label={`Remove recent search: ${item}`}
+                >
                   <MdClose size="0.85em" />
                 </button>
               </div>
