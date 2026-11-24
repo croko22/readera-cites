@@ -32,3 +32,7 @@ bun.lockb
 readera-cites-video/
 # Command Code agent state
 .commandcode/
+
+# Local agent skill caches and junctions
+.opencode/
+.claude/skills/brainstorming/
